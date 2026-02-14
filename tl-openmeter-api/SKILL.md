@@ -1,0 +1,368 @@
+---
+name: tl-openmeter-api
+description: Works with the OpenMeter REST API for usage metering, billing, and entitlements. Covers CloudEvents ingestion, meters, features, plans, customers, subscriptions, entitlements, notifications, billing profiles, invoices, apps, addons, grants, and the Stripe marketplace. Use when integrating OpenMeter, debugging metering, building catalog sync scripts, or when the user mentions OpenMeter API.
+license: MIT
+compatibility: Requires HTTP client. OpenMeter OSS or Cloud instance.
+metadata:
+  author: tl-agent-skills
+  version: "2.1"
+  suite: tl-openmeter
+  related: tl-openmeter-local-dev tl-openmeter-api-mcp-server
+---
+
+# OpenMeter API
+
+Project-agnostic reference for the OpenMeter REST API. Organized by the official API tags from the OpenAPI 3.0 spec.
+
+## Suite
+
+| Skill | Purpose |
+|-------|---------|
+| **tl-openmeter-api** | This skill: REST API reference |
+| **tl-openmeter-local-dev** | Local dev setup: Docker, ngrok, Stripe App, webhooks |
+| **tl-openmeter-api-mcp-server** | MCP server for calling local OpenMeter from Cursor |
+
+## When to Use
+
+- "How do I ingest events into OpenMeter?"
+- "Create an OpenMeter customer with subscription"
+- "Query usage for a meter"
+- "Set up notification rules for threshold alerts"
+- "Manage billing invoices"
+- "Install the Stripe marketplace app"
+- Debugging metering, billing, or subscription lifecycle
+
+## Resources
+
+- [references/REFERENCE.md](references/REFERENCE.md) — Complete endpoint table by official tag
+- [references/billing.md](references/billing.md) — Invoice lifecycle, customer delete flow, rate cards
+- [references/notifications.md](references/notifications.md) — Channels, rules, events, testing
+- [references/product-catalog.md](references/product-catalog.md) — Plans, features, addons: versioning, rate cards, publish lifecycle
+- [assets/openapi-spec.json](assets/openapi-spec.json) — Full OpenAPI 3.0 spec (source of truth)
+
+## Official API Tags
+
+The OpenMeter API organizes endpoints into these 15 tags:
+
+| # | Tag | Description |
+|---|-----|-------------|
+| 1 | **Apps** | Manage app integrations (list, get, update, uninstall) |
+| 2 | **App: Custom Invoicing** | Interface third-party invoicing and payment systems |
+| 3 | **App: Stripe** | Stripe billing support (API key, webhook, checkout) |
+| 4 | **Billing** | Billing profiles, invoices, customer overrides, pending lines |
+| 5 | **Customers** | Customer lifecycle, app data, Stripe linking, entitlement values |
+| 6 | **Debug** | Internal metrics (Prometheus format) |
+| 7 | **Entitlements** | Usage limits, quota-based pricing, feature access |
+| 8 | **Events** | CloudEvents ingestion and listing |
+| 9 | **Lookup Information** | Static data (currencies, progress) |
+| 10 | **Meters** | Aggregation rules, usage queries, group-by |
+| 11 | **Notifications** | Channels, rules, events for threshold alerts |
+| 12 | **Portal** | Consumer-facing usage dashboards via scoped tokens |
+| 13 | **Product Catalog** | Plans, features, addons (versioning, rate cards, publish lifecycle) |
+| 14 | **Subjects** | **Deprecated** — use Customers with `usageAttribution.subjectKeys` |
+| 15 | **Subscriptions** | Customer plan assignments, cancel, change, migrate, restore |
+
+---
+
+## Base URL and Auth
+
+- **Base URL:** `OPENMETER_URL` (e.g. `http://localhost:8888` for local, or your deployed URL)
+- **Auth:** `Authorization: Bearer <OPENMETER_API_KEY>`. Local self-hosted often runs unauthenticated.
+- **Content-Type:** `application/json` for most endpoints; `application/cloudevents+json` for `POST /api/v1/events`
+
+---
+
+## Concepts
+
+```
+Meter (aggregates events) → Feature (metered entitlement) → Plan (limits + pricing)
+                                                                    ↓
+Customer (subject keys) ←→ Subscription (customer + plan = active entitlements)
+                                    ↓
+                              Billing Profile → Invoices (via Stripe/Sandbox/Custom App)
+```
+
+- **Meter:** Aggregation rule for events (COUNT, SUM, etc.). Events reference a meter via `type` matching `eventType`.
+- **Feature:** Tied to a meter or boolean; used in plan rate cards for quotas and overage.
+- **Plan:** Contains phases and rate cards. Part of the **Product Catalog** alongside Features and Addons.
+- **Addon:** Modular rate card bundle, attachable to plans or subscriptions.
+- **Customer:** Has `usageAttribution.subjectKeys`; event `subject` must match for usage to attach.
+- **Subscription:** Links customer to plan; active subscription grants entitlements.
+- **Entitlement:** Per-customer access to a feature with usage tracking and limits.
+- **Grant:** One-time credit or usage allocation against an entitlement.
+- **Notification:** Automated alert when entitlement thresholds are reached.
+- **App:** Billing provider integration (Stripe, Sandbox, Custom Invoicing).
+
+---
+
+## 1. Events
+
+**Ingest:** `POST /api/v1/events` | **Content-Type:** `application/cloudevents+json`
+
+```json
+{
+  "specversion": "1.0",
+  "id": "unique-event-id",
+  "type": "api_request",
+  "source": "my-app",
+  "subject": "user_abc123",
+  "time": "2026-02-14T12:00:00Z",
+  "data": { "value": 1, "path": "/v1/events", "method": "GET" }
+}
+```
+
+| Field | Required | Notes |
+|-------|----------|-------|
+| `type` | Yes | Must match meter's `eventType` |
+| `subject` | Yes | Must match customer's `usageAttribution.subjectKeys` |
+| `source` | Yes | Identifies the producing system |
+| `id` | Yes | Idempotency key (deduplication within 24h) |
+| `time` | Recommended | ISO 8601 timestamp |
+| `data` | Recommended | Arbitrary payload; meters use `$.path` for groupBy |
+
+**List events:** `GET /api/v1/events?from=...&to=...&subject=...&hasError=...`
+
+---
+
+## 2. Meters
+
+| Operation | Method | Path |
+|-----------|--------|------|
+| List | GET | `/api/v1/meters` |
+| Create | POST | `/api/v1/meters` |
+| Get | GET | `/api/v1/meters/{meterIdOrSlug}` |
+| Update | PUT | `/api/v1/meters/{meterIdOrSlug}` |
+| Delete | DELETE | `/api/v1/meters/{meterIdOrSlug}` |
+| Query usage | GET | `/api/v1/meters/{meterIdOrSlug}/query?subject=...&from=...&to=...&windowSize=HOUR` |
+| Query (POST) | POST | `/api/v1/meters/{meterIdOrSlug}/query` |
+| Group-by values | GET | `/api/v1/meters/{meterIdOrSlug}/group-by/{groupBy}/values` |
+| List subjects | GET | `/api/v1/meters/{meterIdOrSlug}/subjects` |
+
+**Aggregation types:** `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `UNIQUE_COUNT`
+
+**Window sizes:** `MINUTE`, `HOUR`, `DAY`, `MONTH`
+
+---
+
+## 3. Product Catalog
+
+Plans, Features, and Addons all live under this tag. See [references/product-catalog.md](references/product-catalog.md) for versioning lifecycle, rate cards, and detailed examples.
+
+### Features
+
+| Operation | Method | Path |
+|-----------|--------|------|
+| List | GET | `/api/v1/features` |
+| Create | POST | `/api/v1/features` |
+| Get | GET | `/api/v1/features/{featureId}` |
+| Delete | DELETE | `/api/v1/features/{featureId}` |
+
+### Plans
+
+| Operation | Method | Path |
+|-----------|--------|------|
+| List | GET | `/api/v1/plans` |
+| Create | POST | `/api/v1/plans` |
+| Get | GET | `/api/v1/plans/{planIdOrKey}` |
+| Update | PUT | `/api/v1/plans/{planIdOrKey}` |
+| Delete | DELETE | `/api/v1/plans/{planIdOrKey}` |
+| Next version | POST | `/api/v1/plans/{planIdOrKey}/next` |
+| Publish | POST | `/api/v1/plans/{planIdOrKey}/publish` |
+| Archive | POST | `/api/v1/plans/{planIdOrKey}/archive` |
+| Plan Addons | CRUD | `/api/v1/plans/{planIdOrKey}/addons/...` |
+
+### Addons
+
+| Operation | Method | Path |
+|-----------|--------|------|
+| List | GET | `/api/v1/addons` |
+| Create | POST | `/api/v1/addons` |
+| Get | GET | `/api/v1/addons/{addonIdOrKey}` |
+| Update | PUT | `/api/v1/addons/{addonIdOrKey}` |
+| Delete | DELETE | `/api/v1/addons/{addonIdOrKey}` |
+| Publish | POST | `/api/v1/addons/{addonIdOrKey}/publish` |
+| Archive | POST | `/api/v1/addons/{addonIdOrKey}/archive` |
+
+**Critical:** Plan/addon keys must be snake_case (`^[a-z0-9]+(?:_[a-z0-9]+)*$`). Rate card `upToAmount` must be a string. Subscription creation uses `plan: { "key": "plan_key" }`, not a raw planId. Plans follow a draft -> published -> archived lifecycle.
+
+---
+
+## 4. Customers
+
+| Operation | Method | Path |
+|-----------|--------|------|
+| List | GET | `/api/v1/customers?page=...&pageSize=...&subject=...&planKey=...` |
+| Create | POST | `/api/v1/customers` |
+| Get | GET | `/api/v1/customers/{customerIdOrKey}` |
+| Delete | DELETE | `/api/v1/customers/{id}` |
+| Get access | GET | `/api/v1/customers/{id}/access` |
+| Subscriptions | GET | `/api/v1/customers/{id}/subscriptions` |
+| Entitlement value | GET | `/api/v1/customers/{id}/entitlements/{featureKey}/value` |
+| Stripe data | GET/PUT | `/api/v1/customers/{id}/stripe` |
+| Stripe portal | POST | `/api/v1/customers/{id}/stripe/portal` |
+| App data | GET/PUT/DELETE | `/api/v1/customers/{id}/apps/{appIdOrType}` |
+
+**Gotcha:** DELETE returns 409 if customer has active subscriptions or non-final invoices. See [references/billing.md](references/billing.md) for the customer delete flow.
+
+---
+
+## 5. Subscriptions
+
+| Operation | Method | Path |
+|-----------|--------|------|
+| Create | POST | `/api/v1/subscriptions` |
+| Get | GET | `/api/v1/subscriptions/{id}` |
+| Edit | PATCH | `/api/v1/subscriptions/{id}` |
+| Delete | DELETE | `/api/v1/subscriptions/{id}` |
+| Cancel | POST | `/api/v1/subscriptions/{id}/cancel` |
+| Change plan | POST | `/api/v1/subscriptions/{id}/change` |
+| Migrate | POST | `/api/v1/subscriptions/{id}/migrate` |
+| Restore | POST | `/api/v1/subscriptions/{id}/restore` |
+| Unschedule cancel | POST | `/api/v1/subscriptions/{id}/unschedule-cancelation` |
+| Subscription addons | GET/POST | `/api/v1/subscriptions/{id}/addons` |
+
+---
+
+## 6. Entitlements
+
+| Operation | Method | Path |
+|-----------|--------|------|
+| List all | GET | `/api/v1/entitlements` |
+| Get by id | GET | `/api/v1/entitlements/{id}` |
+| Per-customer value | GET | `/api/v1/customers/{id}/entitlements/{featureKey}/value` |
+| History | GET | `/api/v1/subjects/{subjectIdOrKey}/entitlements/{idOrKey}/history` |
+| Reset usage | POST | `/api/v1/subjects/{subjectIdOrKey}/entitlements/{id}/reset` |
+| Override | PUT | `/api/v1/subjects/{subjectIdOrKey}/entitlements/{idOrKey}/override` |
+| Grants | POST/GET/DELETE | `/api/v1/subjects/.../entitlements/.../grants`, `/api/v1/grants/...` |
+
+---
+
+## 7. Billing
+
+See [references/billing.md](references/billing.md) for invoice lifecycle, customer delete flow, and rate card schemas.
+
+| Resource | Operations | Base Path |
+|----------|-----------|-----------|
+| Profiles | List, Create, Get, Update, Delete | `/api/v1/billing/profiles` |
+| Customer overrides | List, Upsert, Get, Delete | `/api/v1/billing/profiles/{id}/customer-overrides` |
+| Invoices | List, Get, Update, Delete, Simulate | `/api/v1/billing/invoices` |
+| Invoice actions | Advance, Approve, Retry, Void, Snapshot, Recalculate tax | POST on `/api/v1/billing/invoices/{id}/{action}` |
+| Pending lines | Create, Invoice | `/api/v1/billing/customers/{id}/invoices/pending-lines` |
+
+**Invoice lifecycle:** `gathering → draft → issuing → issued → (paid | void | uncollectible)`
+
+---
+
+## 8. Notifications
+
+See [references/notifications.md](references/notifications.md) for channels, rules, and event details.
+
+| Resource | Operations | Base Path |
+|----------|-----------|-----------|
+| Channels | List, Create, Get, Update, Delete | `/api/v1/notification/channels` |
+| Rules | List, Create, Get, Update, Delete, Test | `/api/v1/notification/rules` |
+| Events | List, Get, Resend | `/api/v1/notification/events` |
+
+**Note:** Channel creation via API is Cloud-only (Svix-backed). Self-hosted uses YAML config.
+
+---
+
+## 9. Apps
+
+| Operation | Method | Path |
+|-----------|--------|------|
+| List apps | GET | `/api/v1/apps` |
+| Get app | GET | `/api/v1/apps/{id}` |
+| Update app | PUT | `/api/v1/apps/{id}` |
+| Uninstall | DELETE | `/api/v1/apps/{id}` |
+
+### App: Stripe
+
+| Operation | Method | Path |
+|-----------|--------|------|
+| Update Stripe key | PUT | `/api/v1/apps/{id}/stripe/api-key` |
+| Stripe webhook | POST | `/api/v1/apps/{id}/stripe/webhook` |
+| Checkout session | POST | `/api/v1/stripe/checkout/sessions` |
+
+### App: Custom Invoicing
+
+| Operation | Method | Path |
+|-----------|--------|------|
+| Draft synced | POST | `/api/v1/apps/{id}/custom-invoicing/draft-synchronized` |
+| Issuing synced | POST | `/api/v1/apps/{id}/custom-invoicing/issuing-synchronized` |
+| Update payment | POST | `/api/v1/apps/{id}/custom-invoicing/update-payment-status` |
+
+### Marketplace
+
+| Operation | Method | Path |
+|-----------|--------|------|
+| List listings | GET | `/api/v1/marketplace/listings` |
+| Get listing | GET | `/api/v1/marketplace/listings/{type}` |
+| Install (generic) | POST | `/api/v1/marketplace/listings/{type}/install` |
+| Install (API key) | POST | `/api/v1/marketplace/listings/{type}/install/apikey` |
+| Install (OAuth2 URL) | GET | `/api/v1/marketplace/listings/{type}/install/oauth2` |
+| Install (OAuth2 auth) | POST | `/api/v1/marketplace/listings/{type}/install/oauth2/authorize` |
+
+---
+
+## 10. Portal
+
+| Operation | Method | Path |
+|-----------|--------|------|
+| Create token | POST | `/api/v1/portal/tokens` |
+| List tokens | GET | `/api/v1/portal/tokens` |
+| Invalidate tokens | POST | `/api/v1/portal/tokens/invalidate` |
+| Query meter | GET | `/api/v1/portal/meters/{meterSlug}/query` |
+
+---
+
+## 11. Lookup Information
+
+| Operation | Method | Path |
+|-----------|--------|------|
+| List currencies | GET | `/api/v1/currencies` |
+| Get progress | GET | `/api/v1/progress` |
+
+---
+
+## 12. Debug
+
+| Operation | Method | Path |
+|-----------|--------|------|
+| Get metrics | GET | `/api/v1/debug/metrics` |
+
+---
+
+## 13. Subjects (Deprecated)
+
+Use Customers with `usageAttribution.subjectKeys` instead.
+
+| Operation | Method | Path |
+|-----------|--------|------|
+| List | GET | `/api/v1/subjects` |
+| Upsert | POST | `/api/v1/subjects` |
+| Get | GET | `/api/v1/subjects/{subjectIdOrKey}` |
+| Delete | DELETE | `/api/v1/subjects/{subjectIdOrKey}` |
+
+---
+
+## Gotchas and Errors
+
+| Symptom | Cause | Fix |
+|---------|-------|-----|
+| 409 on DELETE customer | Active subscriptions or non-final invoices | Cancel subs, void/delete invoices first |
+| 400 "single draft version" | Duplicate plan draft | Skip creation if plan key exists |
+| 400 "only Plans in [draft scheduled] can be published" | Plan already active | Expected — skip publish |
+| 500 on POST /notification/channels | Self-hosted: not implemented | Use YAML config for local; API for Cloud only |
+| 405 on PATCH invoice | PATCH not supported | Use POST subpaths: `/advance`, `/approve`, `/void` |
+| Usage not attributed | Subject mismatch | Event `subject` must match `usageAttribution.subjectKeys` |
+| Plan not found | Wrong key format | Use snake_case: `pro`, `pro_plus` |
+| Event not metered | Type mismatch | Event `type` must equal meter's `eventType` |
+| Overage not billed | Tier format | `upToAmount` must be string; include both `flatPrice` and `unitPrice` |
+| IDs look like `01G65Z...` | ULID format | Standard; regex: `^[0-7][0-9A-HJKMNP-TV-Za-hjkmnp-tv-z]{25}$` |
+
+---
+
+## Reference
+
+The full OpenAPI 3.0 spec is bundled at [assets/openapi-spec.json](assets/openapi-spec.json). Use it as the source of truth for request/response schemas, query parameters, and error codes.

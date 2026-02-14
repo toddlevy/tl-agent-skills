@@ -1,0 +1,48 @@
+# ============================================================
+# OpenMeter — Environment Variables Template
+# ============================================================
+# Copy the relevant lines into your .env file.
+# See tl-openmeter-local-dev/references/REFERENCE.md for full details.
+
+# --- Required for all environments ---
+
+# OpenMeter API base URL
+# Local: http://localhost:8888
+# Staging/Prod: Your deployed OpenMeter URL
+OPENMETER_URL=http://localhost:8888
+
+# --- Required for Stripe billing ---
+
+# Stripe secret key (test mode for local/staging)
+STRIPE_SECRET_KEY=sk_test_REPLACE_ME
+
+# --- Webhook configuration ---
+
+# Where OpenMeter sends notifications (used by catalog sync and config.local.yaml)
+# Local with ngrok:   https://YOUR-NGROK-SUBDOMAIN.ngrok-free.dev/webhooks/openmeter
+# Local without ngrok: http://host.docker.internal:3001/webhooks/openmeter
+OPENMETER_WEBHOOK_URL=http://host.docker.internal:3001/webhooks/openmeter
+
+# Webhook authentication secret (optional for local dev — passthrough mode if unset)
+# Set a shared secret for x-webhook-secret header verification
+# OPENMETER_WEBHOOK_SECRET=your-shared-secret
+
+# --- Cloud only (staging/production) ---
+
+# OpenMeter API key (not needed for local self-hosted)
+# OPENMETER_API_KEY=om_...
+
+# Svix webhook secret from OpenMeter Cloud (not used locally)
+# Get from: OpenMeter Cloud Dashboard → Webhooks → Signing Secret
+# SVIX_WEBHOOK_SECRET=whsec_...
+
+# --- Stripe webhooks (local only) ---
+
+# Stripe webhook signing secret for local development
+# Get from: Stripe Dashboard → Webhooks → your ngrok endpoint → Signing secret
+# STRIPE_WEBHOOK_SECRET_DEV=whsec_...
+
+# --- Ngrok helper ---
+
+# Set to true if ngrok forwards HTTP (not HTTPS) to your local server
+# API_HTTP_FOR_NGROK=true

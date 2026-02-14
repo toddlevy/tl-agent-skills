@@ -1,0 +1,27 @@
+{
+  "name": "tl-openmeter-api-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP server for local OpenMeter: tools and resources to interact with your OpenMeter instance.",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "openmeter-mcp-server": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.16.0",
+    "typescript": "^5.5.0"
+  }
+}
