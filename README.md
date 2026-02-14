@@ -1,7 +1,5 @@
 # tl-agent-skills
 
-> **For maintainers:** This file is intended as the root `README.md` for [github.com/toddlevy/tl-agent-skills](https://github.com/toddlevy/tl-agent-skills). Copy it into your clone as `README.md` to document staging/prod and structure.
-
 Reusable agent skills and optional MCP servers — project-agnostic, for use with Cursor, Codex, Copilot, and other AI agents. Follows the [Agent Skills open standard](https://agentskills.io/specification).
 
 **Repo:** [https://github.com/toddlevy/tl-agent-skills](https://github.com/toddlevy/tl-agent-skills)
@@ -27,18 +25,19 @@ Skills are organized into **suites** — groups of related skills that cross-ref
 
 | Skill | Type | Purpose |
 |-------|------|---------|
-| `tl-openmeter-api/` | knowledge | REST API reference: endpoints, schemas, gotchas |
-| `tl-openmeter-local-dev/` | knowledge + scripts | Local dev setup: Docker, ngrok, Stripe App, webhooks |
-| `tl-openmeter-api-mcp-server/` | MCP server | Tools for calling local OpenMeter from Cursor |
+| `skills/tl-openmeter-api/` | knowledge | REST API reference: endpoints, schemas, gotchas |
+| `skills/tl-openmeter-local-dev/` | knowledge + scripts | Local dev setup: Docker, ngrok, Stripe App, webhooks |
+| `skills/tl-openmeter-api-mcp-server/` | MCP server | Tools for calling local OpenMeter from Cursor |
 
 ---
 
 ## Skill Structure
 
-Skills follow the [Agent Skills specification](https://agentskills.io/specification) with progressive disclosure:
+All skills live in the `skills/` directory. Each skill follows the [Agent Skills specification](https://agentskills.io/specification) with progressive disclosure:
 
 ```
-tl-skill-name/
+skills/
+└── tl-skill-name/
 ├── SKILL.md              # Required: instructions + metadata (<500 lines)
 ├── references/           # Optional: detailed docs (loaded on demand)
 │   ├── REFERENCE.md      # Environment vars, config, troubleshooting
@@ -60,12 +59,13 @@ tl-skill-name/
 
 ## Adding a New Skill
 
-1. Create `tl-<skill-name>/` with `SKILL.md` (frontmatter: name, description, license, metadata).
+1. Create `skills/tl-<skill-name>/` with `SKILL.md` (frontmatter: name, description, license, metadata).
 2. Add `references/` for detailed documentation that shouldn't bloat `SKILL.md`.
 3. Add `scripts/` for executable helpers (health checks, setup verification).
 4. Add `assets/` for templates and static resources.
-5. If the skill needs tools: add `tl-<skill-name>-mcp-server/` with Node/TS MCP server and `scripts/add-cursor-mcp.js`.
-6. Work on **staging**, then merge to **main** for prod.
+5. If the skill needs tools: add `skills/tl-<skill-name>-mcp-server/` with Node/TS MCP server and `scripts/add-cursor-mcp.js`.
+6. Run `agentskills validate skills/tl-<skill-name>` to verify before pushing.
+7. Work on **staging**, then merge to **main** for prod.
 
 ### Naming Convention
 
@@ -95,9 +95,45 @@ See the **tl-agent-skill-create** skill for the full checklist.
 
 ---
 
+## Validation
+
+Skills are validated against the [Agent Skills specification](https://agentskills.io/specification) using the [`skills-ref`](https://pypi.org/project/skills-ref/) reference library. CI runs validation automatically on every push and PR.
+
+### Install
+
+```bash
+pip install skills-ref
+```
+
+Or with [uv](https://docs.astral.sh/uv/):
+
+```bash
+uv tool install skills-ref
+```
+
+### Validate a single skill
+
+```bash
+agentskills validate skills/tl-openmeter-api
+```
+
+### Validate all skills
+
+```bash
+# Bash
+bash scripts/validate-all.sh
+
+# PowerShell
+pwsh scripts/validate-all.ps1
+```
+
+The scripts discover skill directories automatically (any directory containing `SKILL.md`) and exit non-zero if any fail.
+
+---
+
 ## Cursor Setup
 
-For a skill that ships an MCP server:
+For a skill that ships an MCP server (e.g., `skills/tl-openmeter-api-mcp-server/`):
 
 1. From the server directory: `npm install && npm run build`
 2. Run the install script to add the server to user config:  
