@@ -73,14 +73,14 @@ curl -X DELETE http://localhost:8888/api/v1/apps/{sandbox-app-id}
 # Install Stripe
 curl -X POST http://localhost:8888/api/v1/marketplace/listings/stripe/install/apikey \
   -H "Content-Type: application/json" \
-  -d '{"apiKey":"sk_test_...","name":"Stripe","createBillingProfile":true}'
+  -d '{"apiKey":"<your-stripe-test-key>","name":"Stripe","createBillingProfile":true}'
 ```
 
 ### Stripe App Install Body
 
 ```json
 {
-  "apiKey": "sk_test_...",
+  "apiKey": "<your-stripe-test-key>",
   "name": "Stripe",
   "createBillingProfile": true
 }
@@ -91,7 +91,7 @@ curl -X POST http://localhost:8888/api/v1/marketplace/listings/stripe/install/ap
 | Requirement | Local | Staging/Production |
 |-------------|-------|--------------------|
 | `apps.baseURL` publicly accessible | Via ngrok | Via deployed URL |
-| `STRIPE_SECRET_KEY` valid | `sk_test_...` | `sk_test_...` or `sk_live_...` |
+| `STRIPE_SECRET_KEY` valid | Stripe test key | Stripe test or live key |
 | Sandbox app removed | Yes | Yes |
 | Billing profile exists | Auto-created by script | Auto-created by script |
 

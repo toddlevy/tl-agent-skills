@@ -34079,7 +34079,7 @@
           "updatedAt": "2024-01-01T01:01:01.001Z",
           "stripeAccountId": "acct_123456789",
           "livemode": true,
-          "maskedAPIKey": "sk_live_************abc"
+          "maskedAPIKey": "••••••••••••••••••••"
         }
       },
       "StripeAppReadOrCreateOrUpdateOrDeleteOrQuery": {
@@ -34238,7 +34238,7 @@
           "updatedAt": "2024-01-01T01:01:01.001Z",
           "stripeAccountId": "acct_123456789",
           "livemode": true,
-          "maskedAPIKey": "sk_live_************abc"
+          "maskedAPIKey": "••••••••••••••••••••"
         }
       },
       "StripeAppReplaceUpdate": {

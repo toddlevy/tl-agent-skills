@@ -14,7 +14,8 @@ OPENMETER_URL=http://localhost:8888
 # --- Required for Stripe billing ---
 
 # Stripe secret key (test mode for local/staging)
-STRIPE_SECRET_KEY=sk_test_REPLACE_ME
+# Set from Stripe Dashboard → Developers → API keys (use test key)
+STRIPE_SECRET_KEY=
 
 # --- Webhook configuration ---
 

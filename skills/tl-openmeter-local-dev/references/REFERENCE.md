@@ -12,7 +12,7 @@ Quick-lookup tables for environment variables, Docker services, config files, an
 | `OPENMETER_WEBHOOK_SECRET` | (optional) | Set | Set | `x-webhook-secret` header verification |
 | `SVIX_WEBHOOK_SECRET` | (not used) | `whsec_...` | `whsec_...` | Svix signature verification (Cloud only) |
 | `API_HTTP_FOR_NGROK` | `true` | (not set) | (not set) | HTTP mode for ngrok forwarding |
-| `STRIPE_SECRET_KEY` | `sk_test_...` | `sk_test_...` | `sk_live_...` | Stripe API key (for Stripe App install) |
+| `STRIPE_SECRET_KEY` | Stripe test key | Stripe test key | Stripe live key | Stripe API key (for Stripe App install) |
 | `STRIPE_WEBHOOK_SECRET_DEV` | `whsec_...` | — | — | Stripe webhook signing secret (local) |
 
 ## Docker Services
