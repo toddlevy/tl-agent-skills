@@ -1,139 +1,164 @@
 ---
 name: tl-knip
-description: Find and remove unused files, dependencies, and exports in TypeScript/JavaScript projects using Knip. Covers configuration-first workflow, plugin system, CI integration, monorepo support, agent-specific auto-delete guidance, and troubleshooting.
+description: Find and remove unused files, dependencies, and exports in TypeScript/JavaScript projects using Knip. Covers configuration-first workflow, plugin system, barrel file handling, CI integration, monorepo support, and agent-specific cleanup guidance.
 license: MIT
 compatibility: TypeScript, JavaScript, monorepos. Node.js 18+.
 metadata:
   author: tl-agent-skills
-  version: "1.0"
+  version: "2.0"
   suite: tl-knip
 quilted:
   version: 1
-  synthesized: 2026-02-22
+  synthesized: '2026-02-22'
   platform: tl-agent-skills (manual synthesis)
   sources:
     - url: https://skills.sh/brianlovin/claude-config/knip
+      weight: '0.35'
       borrowed:
-        - Configuration-first workflow (Step 1–6 ordering)
-        - "Never use ignore patterns" rule
+        - Configuration-first workflow ordering
+        - Never-use-ignore-patterns rule
         - ignoreExportsUsedInFile for types guidance
         - Production mode vs --production flag preference
-      weight: 0.35
     - url: https://skills.sh/laurigates/claude-plugins/knip-dead-code-detection
+      weight: '0.30'
       borrowed:
         - Framework plugin detection table
         - Test runner plugin table
         - CI/CD YAML examples
-        - Inline @knip-ignore comment technique
+        - Inline knip-ignore comment technique
         - Troubleshooting section structure
-      weight: 0.30
     - url: https://skills.sh/artivilla/agents-config/knip
+      weight: '0.20'
       borrowed:
         - Auto-delete vs ask-first confidence categorization
         - Re-run loop workflow for agent execution
-      weight: 0.20
     - url: https://skills.sh/knoopx/pi/knip
+      weight: '0.10'
       borrowed:
         - Concise quick command reference structure
-        - --trace-file and --trace-export debug commands
-      weight: 0.10
+        - trace-file and trace-export debug commands
     - url: https://skills.sh/pproenca/dot-skills/knip-deadcode-best-practices
+      weight: '0.05'
       borrowed:
-        - 8-category rule priority framework (used as organizing model)
-      weight: 0.05
+        - 8-category rule priority framework as organizing model
 ---
 
 # Knip: Dead Code Detection & Removal
 
-Find and remove unused files, dependencies, and exports from TypeScript/JavaScript projects.
+Knip finds unused files, dependencies, and exports across TypeScript and JavaScript projects. It understands your project's entry points, plugin ecosystem, and module graph — reporting only real dead code, not false positives.
 
 **What Knip detects:**
-- Unused files (not imported anywhere)
+
+- Unused files (not imported anywhere in the module graph)
 - Unused npm dependencies and devDependencies
 - Unused exports, types, enum members, and class members
-- Duplicate re-exports
+- Barrel file re-exports that are never consumed externally
+- Duplicate exports across files
+
+## Suite
+
+This is a standalone skill with no related suite members.
 
 ## When to Use
 
-- Running a cleanup pass on an existing codebase
-- Pre-release audit to eliminate dead code
-- Enforcing dependency hygiene in CI
-- Identifying orphaned files after refactors
+Agent triggers — activate this skill when the user says:
+
+- "Find dead code in this project"
+- "Clean up unused dependencies"
+- "Why is this export showing as unused?"
+- "Set up Knip for this monorepo"
+- "Add Knip to CI"
+- "Our barrel files are causing false positives"
+- "How do I ignore this export?"
+- Anything about unused imports, orphaned files, or dependency hygiene
+
+## Resources
+
+Load these on demand when the user's question goes deeper than SKILL.md covers:
+
+- [references/configuration.md](references/configuration.md) — Complete knip.json / knip.ts option reference with examples
+- [references/plugins.md](references/plugins.md) — Full plugin ecosystem: all frameworks, test runners, build tools
+- [references/barrel-files.md](references/barrel-files.md) — Barrel file and re-export handling: false positives, public API tagging, index.ts patterns
+- [references/troubleshooting.md](references/troubleshooting.md) — Systematic diagnosis: false positives, performance, monorepo issues, exit codes
+- [scripts/knip-check.sh](scripts/knip-check.sh) — Health check script (bash)
+- [scripts/knip-check.ps1](scripts/knip-check.ps1) — Health check script (PowerShell)
 
 ---
 
 ## Quick Commands
 
 ```bash
-npx knip                          # Full analysis
-npx knip --production             # Production code only (no tests/devDeps)
-npx knip --dependencies           # Only unused deps (fastest)
-npx knip --exports                # Only unused exports
-npx knip --files                  # Only unused files
-npx knip --fix                    # Auto-remove safe issues
-npx knip --fix --allow-remove-files  # Auto-remove including files
-npx knip --reporter json          # JSON output for tooling
-npx knip --reporter compact       # Compact output
-npx knip --workspace packages/api # Specific workspace
+npx knip                              # Full analysis
+npx knip --production                 # Production code only (excludes tests/devDeps)
+npx knip --dependencies               # Only unused deps — fastest CI check
+npx knip --exports                    # Only unused exports
+npx knip --files                      # Only unused files
+npx knip --fix                        # Auto-remove safe issues
+npx knip --fix --allow-remove-files   # Auto-remove including file deletion
+npx knip --reporter json              # JSON output for tooling/CI
+npx knip --reporter compact           # Compact human-readable output
+npx knip --workspace packages/api     # Specific monorepo workspace only
 ```
 
-**Debugging:**
+**Debug commands:**
 
 ```bash
-npx knip --debug                  # Full debug output
-npx knip --trace-file src/utils.ts    # Trace why file is included/excluded
-npx knip --trace-export myFunction    # Trace why export is flagged
+npx knip --debug                           # Full config resolution + entry point trace
+npx knip --trace-file src/utils.ts         # Why is this file included/excluded?
+npx knip --trace-export myFunction         # Why is this export flagged?
 ```
 
 ---
 
 ## Configuration-First Workflow
 
-Always configure before acting on issues. Fixing configuration eliminates false positives and prevents churn.
+**Always configure before acting on reported issues.** Cleaning up issues before fixing configuration causes churn — removed items may be re-flagged or real issues masked.
 
-### Step 1: Understand the project
+### Step 1 — Understand the project
 
-- Check `package.json` for frameworks and tools in use
-- Check for existing knip config (`knip.json`, `knip.jsonc`, `knip.ts`, or `knip` key in `package.json`)
-- If config exists, review it before running
+- Check `package.json` for frameworks, test runners, build tools
+- Look for existing Knip config: `knip.json`, `knip.jsonc`, `knip.ts`, or `"knip"` key in `package.json`
+- Review existing config for problems before running
 
-### Step 2: Run and read configuration hints first
+### Step 2 — Run and read configuration hints first
 
 ```bash
 npx knip
 ```
 
-**Configuration hints appear at the top of output.** Address these before touching reported issues.
+**Configuration hints appear at the top of output before issue lists.** Address these first — they identify missing entry points, unrecognized plugins, and path alias gaps that cause false positives.
 
-### Step 3: Adjust `knip.json` to eliminate false positives
+### Step 3 — Adjust config to eliminate false positives
 
 Common adjustments:
-- Enable/disable plugins for detected frameworks
-- Add `paths` aliases matching `tsconfig.json`
-- Add `entry` patterns for non-standard entry points
-- Add `ignoreExportsUsedInFile` for types-only files
 
-### Step 4: Repeat steps 2–3
+| Symptom | Fix |
+|---------|-----|
+| Config file flagged as unused (e.g. `vite.config.ts`) | Explicitly enable/disable that plugin |
+| Exported types flagged despite being used | Add `ignoreExportsUsedInFile: { interface: true, type: true }` |
+| Path aliases unresolved | Add `paths` matching `tsconfig.json` |
+| Test files flagging prod imports | Use `--production` instead of `ignore` patterns |
+| Barrel file exports all flagged | See [references/barrel-files.md](references/barrel-files.md) |
 
-Re-run after each config change until hints are resolved and false positives are minimal.
+### Step 4 — Repeat until hints are resolved
 
-### Step 5: Address actual issues (priority order)
+Re-run after each config change. Only address reported issues once hints are gone and false positives are minimal.
 
-1. **Unused files** — address first; removing files exposes more unused exports
+### Step 5 — Address issues in priority order
+
+1. **Unused files** — tackle first; removing files exposes newly-unused exports downstream
 2. **Unused dependencies** — remove from `package.json`
 3. **Unused devDependencies** — remove from `package.json`
-4. **Unused exports** — remove export keyword or delete function
-5. **Unused types** — remove, or add `ignoreExportsUsedInFile`
+4. **Unused exports** — remove `export` keyword or delete the item
+5. **Unused types/interfaces** — remove or add `ignoreExportsUsedInFile`
 
-### Step 6: Re-run and repeat
+### Step 6 — Re-run and repeat
 
-After each batch of fixes, re-run. Removing files exposes newly-unused exports. Repeat until clean.
+Each cleanup pass exposes more dead code. Repeat until output is clean or only intentionally-ignored items remain.
 
 ---
 
-## Configuration Reference
-
-### Recommended `knip.json`
+## Minimal Working Config
 
 ```json
 {
@@ -148,188 +173,99 @@ After each batch of fixes, re-run. Removing files exposes newly-unused exports. 
 }
 ```
 
-### Critical Rules
+**Critical rules:**
 
-| Rule | Rationale |
-|------|-----------|
-| **Never use `ignore` patterns** | Hides real issues. Use `ignoreDependencies`, `ignoreExportsUsedInFile`, or plugin settings instead |
-| **Don't exclude test files via `ignore`** | Use `--production` flag instead |
-| **Don't duplicate gitignored patterns** | Knip already respects `.gitignore` |
-| **Use `ignoreExportsUsedInFile: { interface: true, type: true }`** | Eliminates most type-only false positives without broad ignoring |
+| Rule | Why |
+|------|-----|
+| Never use `ignore` patterns | Hides real issues. Use `ignoreDependencies`, `ignoreExportsUsedInFile`, or plugin settings instead |
+| Never exclude test files via `ignore` | Use `--production` flag |
+| Don't repeat `.gitignore` patterns | Knip already respects `.gitignore` |
+| Disable/enable plugins explicitly when needed | Clearer than ignoring the config file |
 
-### Monorepo / Workspace Configuration
-
-```json
-{
-  "workspaces": {
-    ".": {
-      "entry": ["scripts/**/*.ts"]
-    },
-    "packages/web": {
-      "entry": ["src/index.ts", "src/App.tsx"]
-    },
-    "packages/api": {
-      "entry": ["src/server.ts"]
-    }
-  }
-}
-```
-
-### Inline Suppression (use sparingly)
-
-```typescript
-// @knip-ignore-export
-export const unusedButIntentional = () => {};
-```
+See [references/configuration.md](references/configuration.md) for all options.
 
 ---
 
-## Plugin System
+## Barrel Files
 
-Knip auto-detects plugins from config files. No setup needed for standard projects.
+Barrel files (`index.ts` files that re-export from multiple modules) are the most common source of Knip false positives. Knip tracks whether re-exported items are actually consumed outside the barrel — if nothing imports them externally, they're flagged.
 
-### Framework Plugins (Auto-detected)
+**Barrel file patterns and fixes — see [references/barrel-files.md](references/barrel-files.md).**
 
-| Framework | Detected Via | Entry Points Added |
-|-----------|-------------|-------------------|
-| Next.js | `next.config.js` | `pages/`, `app/`, `middleware.ts` |
-| Vite | `vite.config.ts` | `index.html`, config plugins |
-| Remix | `remix.config.js` | `app/root.tsx`, `app/entry.*` |
-| Astro | `astro.config.mjs` | `src/pages/`, integrations |
-| SvelteKit | `svelte.config.js` | `src/routes/`, `src/app.html` |
-
-### Test Runner Plugins (Auto-detected)
-
-| Tool | Detected Via | Entry Points Added |
-|------|-------------|-------------------|
-| Vitest | `vitest.config.ts` | `**/*.test.ts`, setup files |
-| Jest | `jest.config.js` | `**/*.test.js`, setup files |
-| Playwright | `playwright.config.ts` | `tests/**/*.spec.ts` |
-| Cypress | `cypress.config.ts` | `cypress/e2e/**/*.cy.ts` |
-
-### Disabling or Overriding a Plugin
+Quick reference:
 
 ```json
 {
-  "eslint": false,
-  "vite": {
-    "entry": ["vite.config.ts", "src/worker.ts"]
-  }
+  "ignoreExportsUsedInFile": true,
+  "includeEntryExports": true
 }
 ```
 
-If a config file shows as unused (e.g. `vite.config.ts`), disable the plugin explicitly rather than ignoring the file.
+Tag intentional public API exports with JSDoc:
+
+```typescript
+/** @public */
+export const myPublicFunction = () => {};
+```
 
 ---
 
 ## Agent Cleanup Guidance
 
-When acting on Knip output as an agent, categorize issues before acting:
+When executing a Knip cleanup as an agent, categorize before acting.
 
-### Auto-delete (act immediately)
+### Auto-delete without asking
 
-- Unused internal exports (not in `index.ts`, `lib/`, or public API files)
-- Unused type exports
-- Unused npm dependencies (remove from `package.json`)
-- Clearly orphaned files (no dynamic import possibility, no public API role)
+- Unused internal exports (not in `index.ts`, `lib/`, `sdk/`, or `api/` paths)
+- Unused exported types and interfaces
+- Unused npm dependencies (run `npm uninstall <pkg>`)
+- Clearly orphaned files with no dynamic import possibility
 
 ### Ask before acting
 
-- Files that might be entry points or dynamically imported
-- Exports in `index.ts`, `lib/`, or files named `public`, `api`, `sdk`
-- Dependencies that may be used via CLI or as peer dependencies
-- Any file path containing `public`, `api`, or `lib`
+- Files that could be entry points or dynamically imported
+- Exports in `index.ts`, `lib/`, `sdk/`, `api/`, or `public/` paths
+- Dependencies that might be used as CLI tools or peer dependencies
+- Anything the user has previously mentioned keeping
 
-Batch all clarifying questions in a single prompt rather than asking one at a time.
+Batch all clarifying questions into a single prompt — never ask one at a time.
 
 ### Re-run loop
 
 ```
-Run knip → Categorize → Auto-delete safe items → Ask about uncertain items → Re-run → Repeat
+Run → Categorize → Auto-delete safe → Ask about uncertain → Re-run → Repeat
 ```
 
-Stop when output is clean or only intentionally-ignored items remain.
+Stop when output is clean or only intentional suppressions remain.
 
 ---
 
 ## CI Integration
 
-### GitHub Actions
-
 ```yaml
 name: Knip
-on:
-  push:
-    branches: [main]
-  pull_request:
+on: [push, pull_request]
 
 jobs:
   knip:
-    name: Dead code check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with:
-          node-version: 20
+        with: { node-version: 20 }
       - run: npm ci
-      - name: Check unused dependencies
+      - name: Unused dependencies
         run: npx knip --dependencies --max-issues 0
-      - name: Check unused exports (PR only)
+      - name: Unused exports (PRs only)
         if: github.event_name == 'pull_request'
         run: npx knip --exports
 ```
 
-### Recommended CI Strategy
-
-| Check | When | Command |
-|-------|------|---------|
-| Unused dependencies | Every push | `npx knip --dependencies --max-issues 0` |
-| Unused exports | PRs | `npx knip --exports` |
-| Full production scan | Pre-release | `npx knip --production` |
-
----
-
-## Troubleshooting
-
-### Too many false positives
-
-1. Read configuration hints from `npx knip` output
-2. Enable the correct framework plugin
-3. Add missing `entry` patterns
-4. Add `ignoreExportsUsedInFile: { interface: true, type: true }`
-
-### Entry points not detected
-
-```bash
-npx knip --debug    # Shows resolved config and entry points
-```
-
-Manually specify if needed: `npx knip --entry src/index.ts`
-
-### Path aliases unresolved
-
-```json
-{
-  "paths": {
-    "@/*": ["src/*"],
-    "~/*": ["app/*"]
-  }
-}
-```
-
-### Exit code 2 (unexpected error)
-
-- Ensure a `knip.json` exists in the project root
-- Check for syntax errors in config
-- Run `npx knip --debug` for details
-
-### Performance on large codebases
-
-```bash
-NODE_OPTIONS=--max-old-space-size=4096 npx knip
-npx knip --workspace packages/target  # Scope to one workspace
-```
+| Check | When | Rationale |
+|-------|------|-----------|
+| `--dependencies --max-issues 0` | Every push | High value, fast, no false positives |
+| `--exports` | PRs | Prevents API surface bloat |
+| `--production` | Pre-release | Full dead code audit |
 
 ---
 
@@ -337,19 +273,23 @@ npx knip --workspace packages/target  # Scope to one workspace
 
 | Issue Type | Meaning | Action |
 |------------|---------|--------|
-| Unused file | Not imported anywhere | Delete or add to `entry` |
+| Unused file | Not reachable from any entry point | Delete or add to `entry` |
 | Unused dependency | In `package.json` but never imported | `npm uninstall` |
-| Unused export | Exported but never imported externally | Remove `export` keyword |
+| Unused export | Exported but never imported outside this file | Remove `export` keyword |
 | Unused type | Exported type/interface unused elsewhere | Remove or `ignoreExportsUsedInFile` |
-| Unused enum member | Enum value never referenced | Remove member |
-| Duplicate export | Same export from multiple files | Consolidate |
+| Unused enum member | Enum variant never referenced | Remove member |
+| Duplicate export | Same name exported from multiple files | Consolidate |
 
 ---
 
-## References
+## Attribution
 
-- [knip.dev](https://knip.dev) — Official documentation
-- [Configuration reference](https://knip.dev/reference/configuration)
-- [Plugin reference](https://knip.dev/reference/plugins)
-- [CLI reference](https://knip.dev/reference/cli)
-- [FAQ](https://knip.dev/reference/faq)
+This skill is a quilted synthesis from 5 community Knip skills. Primary sources:
+
+| Source | Weight | Key Contribution |
+|--------|--------|-----------------|
+| [brianlovin/claude-config](https://skills.sh/brianlovin/claude-config/knip) | 35% | Configuration-first workflow, never-use-ignore discipline |
+| [laurigates/claude-plugins](https://skills.sh/laurigates/claude-plugins/knip-dead-code-detection) | 30% | Plugin tables, CI examples, troubleshooting structure |
+| [artivilla/agents-config](https://skills.sh/artivilla/agents-config/knip) | 20% | Agent auto-delete vs ask-first categorization |
+| [knoopx/pi](https://skills.sh/knoopx/pi/knip) | 10% | Quick command reference, trace debug commands |
+| [pproenca/dot-skills](https://skills.sh/pproenca/dot-skills/knip-deadcode-best-practices) | 5% | 8-category priority framework |
