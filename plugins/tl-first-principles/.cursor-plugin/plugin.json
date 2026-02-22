@@ -1,0 +1,26 @@
+{
+  "name": "tl-first-principles",
+  "version": "1.0.0",
+  "description": "Foundational software design principles traced to their intellectual origins. Covers information hiding, separation of concerns, abstraction, SSOT/DRY, conceptual integrity, and composition.",
+  "author": {
+    "name": "tl-agent-skills",
+    "email": "todd@toddlevy.com"
+  },
+  "homepage": "https://github.com/toddlevy/tl-agent-skills",
+  "repository": "https://github.com/toddlevy/tl-agent-skills",
+  "license": "MIT",
+  "keywords": [
+    "software-design",
+    "first-principles",
+    "architecture",
+    "best-practices",
+    "parnas",
+    "dijkstra",
+    "liskov",
+    "brooks",
+    "dry",
+    "solid"
+  ],
+  "rules": "rules",
+  "skills": "skills"
+}
