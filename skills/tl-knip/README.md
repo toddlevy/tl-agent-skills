@@ -25,6 +25,7 @@ Part of [tl-agent-skills](https://github.com/toddlevy/tl-agent-skills).
 | `references/troubleshooting.md` | Systematic diagnosis for common issues |
 | `scripts/knip-check.sh` | Tiered health check script (bash) |
 | `scripts/knip-check.ps1` | Tiered health check script (PowerShell) |
+| `upstream.json` | Platform instruction pack: upstream repo, watch config, update rules |
 
 ## Knip License Notice
 

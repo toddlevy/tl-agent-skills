@@ -1,0 +1,95 @@
+{
+  "$schema": "https://raw.githubusercontent.com/toddlevy/tl-agent-skills/main/schemas/upstream.schema.json",
+  "toolType": "github-release-watcher",
+  "skillName": "tl-knip",
+  "upstream": {
+    "owner": "webpro-nl",
+    "repo": "knip",
+    "license": "ISC",
+    "releasesUrl": "https://api.github.com/repos/webpro-nl/knip/releases/latest",
+    "changelogUrl": "https://raw.githubusercontent.com/webpro-nl/knip/main/packages/knip/CHANGELOG.md",
+    "pluginDocsBase": "https://raw.githubusercontent.com/webpro-nl/knip/main/packages/docs/src/content/docs/reference/plugins"
+  },
+  "schedule": {
+    "cron": "0 6 * * *",
+    "description": "Daily at 6am — Knip releases ~weekly"
+  },
+  "watch": [
+    {
+      "source": "github-release",
+      "description": "New Knip npm release (semver tag)",
+      "changeSignal": "tag_name",
+      "storeAs": "lastKnipVersion"
+    },
+    {
+      "source": "url",
+      "url": "https://raw.githubusercontent.com/webpro-nl/knip/main/packages/docs/src/content/docs/reference/plugins.md",
+      "description": "Plugin list page — detects new framework/tool plugins",
+      "storeAs": "lastPluginsEtag"
+    }
+  ],
+  "updates": [
+    {
+      "trigger": "new-major-version",
+      "description": "Major version bump — breaking changes likely",
+      "action": "flag-for-review",
+      "reviewRequired": true,
+      "affectedFiles": [
+        "SKILL.md",
+        "references/configuration.md",
+        "references/plugins.md",
+        "references/troubleshooting.md"
+      ],
+      "commitMessage": "chore(tl-knip): flag for review — Knip major version bump ({version})"
+    },
+    {
+      "trigger": "new-minor-version",
+      "description": "Minor version bump — new features or plugins",
+      "action": "patch-version-in-skill",
+      "reviewRequired": false,
+      "patch": {
+        "file": "SKILL.md",
+        "frontmatterField": "metadata.version",
+        "strategy": "auto-increment"
+      },
+      "commitMessage": "chore(tl-knip): track Knip {version} release"
+    },
+    {
+      "trigger": "plugins-page-changed",
+      "description": "New plugin added to Knip's plugin reference",
+      "action": "flag-for-review",
+      "reviewRequired": true,
+      "affectedFiles": [
+        "references/plugins.md"
+      ],
+      "commitMessage": "chore(tl-knip): flag for review — plugin list changed in Knip {version}"
+    }
+  ],
+  "reviewInstructions": {
+    "description": "What to check when a human reviews a flagged update",
+    "steps": [
+      "Read the GitHub release notes at https://github.com/webpro-nl/knip/releases",
+      "Check if any CLI flags, config options, or defaults changed — update references/configuration.md if so",
+      "Check if new plugins were added — update references/plugins.md plugin tables",
+      "Check if barrel file / re-export behavior changed — update references/barrel-files.md if so",
+      "Check if any SKILL.md quick commands or workflow steps are affected",
+      "Update metadata.version in SKILL.md frontmatter after review is complete"
+    ]
+  },
+  "toolConfig": {
+    "description": "Seed config for the platform tools table — insert this record to activate watching",
+    "name": "knip-release-watcher",
+    "type": "cron",
+    "config": {
+      "toolType": "github-release-watcher",
+      "skillName": "tl-knip",
+      "upstreamOwner": "webpro-nl",
+      "upstreamRepo": "knip",
+      "releasesUrl": "https://api.github.com/repos/webpro-nl/knip/releases/latest",
+      "pluginsUrl": "https://raw.githubusercontent.com/webpro-nl/knip/main/packages/docs/src/content/docs/reference/plugins.md",
+      "cron": "0 6 * * *",
+      "lastKnipVersion": null,
+      "lastPluginsEtag": null
+    }
+  }
+}
