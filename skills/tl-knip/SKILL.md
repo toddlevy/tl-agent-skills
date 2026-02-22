@@ -284,7 +284,16 @@ jobs:
 
 ## Attribution
 
-This skill is a quilted synthesis from 5 community Knip skills. Primary sources:
+### Knip (the tool)
+
+This skill documents [Knip](https://knip.dev) by [webpro-nl](https://github.com/webpro-nl/knip).
+
+> Knip is © webpro-nl and contributors, licensed under the [ISC License](https://github.com/webpro-nl/knip?tab=ISC-1-ov-file#readme).
+> This skill is independent documentation and is not affiliated with or endorsed by the Knip project.
+
+### Quilted source skills
+
+This skill synthesizes content from 5 community Knip skills:
 
 | Source | Weight | Key Contribution |
 |--------|--------|-----------------|

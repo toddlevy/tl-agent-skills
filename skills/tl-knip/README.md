@@ -26,9 +26,13 @@ Part of [tl-agent-skills](https://github.com/toddlevy/tl-agent-skills).
 | `scripts/knip-check.sh` | Tiered health check script (bash) |
 | `scripts/knip-check.ps1` | Tiered health check script (PowerShell) |
 
-## Attribution
+## Knip License Notice
 
-Quilted synthesis from 5 community Knip skills:
+This skill documents [Knip](https://knip.dev), which is © webpro-nl and contributors, licensed under the [ISC License](https://github.com/webpro-nl/knip?tab=ISC-1-ov-file#readme).
+
+This skill is independent documentation. It is not affiliated with or endorsed by the Knip project. The skill itself is MIT licensed.
+
+## Quilted Source Skills
 
 | Source | Weight |
 |--------|--------|
@@ -40,6 +44,7 @@ Quilted synthesis from 5 community Knip skills:
 
 ## Links
 
+- [Knip — GitHub](https://github.com/webpro-nl/knip) (ISC License)
 - [Knip docs](https://knip.dev)
 - [Configuration reference](https://knip.dev/reference/configuration)
 - [Plugin list](https://knip.dev/reference/plugins)
