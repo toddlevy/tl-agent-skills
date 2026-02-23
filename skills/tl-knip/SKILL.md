@@ -82,7 +82,6 @@ Load these on demand when the user's question goes deeper than SKILL.md covers:
 - [references/troubleshooting.md](references/troubleshooting.md) — Systematic diagnosis: false positives, performance, monorepo issues, exit codes
 - [scripts/knip-check.sh](scripts/knip-check.sh) — Health check script (bash)
 - [scripts/knip-check.ps1](scripts/knip-check.ps1) — Health check script (PowerShell)
-- [upstream.json](upstream.json) — Platform instruction pack: upstream repo tracking config for tl-agent-skills-platform
 
 ---
 
