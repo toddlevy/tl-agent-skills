@@ -1,12 +1,12 @@
 ---
 name: tl-pg-boss
 description: PostgreSQL-backed job queue with exactly-once delivery using SKIP LOCKED. Use when adding background jobs, task scheduling, cron jobs, or async processing to Node.js apps already using Postgres.
-version: 1.0.0
 license: MIT
-author: Todd Levy <toddlevy@gmail.com>
 metadata:
   moment: implement
-  surface: [api, db]
+  surface:
+    - api
+    - db
   output: patch
   risk: low
   posture: guided

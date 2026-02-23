@@ -7,40 +7,40 @@ metadata:
   author: tl-agent-skills
   version: "2.0"
   suite: tl-knip
-quilted:
-  version: 1
-  synthesized: '2026-02-22'
-  platform: tl-agent-skills (manual synthesis)
-  sources:
-    - url: https://skills.sh/brianlovin/claude-config/knip
-      weight: '0.35'
-      borrowed:
-        - Configuration-first workflow ordering
-        - Never-use-ignore-patterns rule
-        - ignoreExportsUsedInFile for types guidance
-        - Production mode vs --production flag preference
-    - url: https://skills.sh/laurigates/claude-plugins/knip-dead-code-detection
-      weight: '0.30'
-      borrowed:
-        - Framework plugin detection table
-        - Test runner plugin table
-        - CI/CD YAML examples
-        - Inline knip-ignore comment technique
-        - Troubleshooting section structure
-    - url: https://skills.sh/artivilla/agents-config/knip
-      weight: '0.20'
-      borrowed:
-        - Auto-delete vs ask-first confidence categorization
-        - Re-run loop workflow for agent execution
-    - url: https://skills.sh/knoopx/pi/knip
-      weight: '0.10'
-      borrowed:
-        - Concise quick command reference structure
-        - trace-file and trace-export debug commands
-    - url: https://skills.sh/pproenca/dot-skills/knip-deadcode-best-practices
-      weight: '0.05'
-      borrowed:
-        - 8-category rule priority framework as organizing model
+  quilted:
+    version: 1
+    synthesized: '2026-02-22'
+    platform: tl-agent-skills (manual synthesis)
+    sources:
+      - url: https://skills.sh/brianlovin/claude-config/knip
+        weight: '0.35'
+        borrowed:
+          - Configuration-first workflow ordering
+          - Never-use-ignore-patterns rule
+          - ignoreExportsUsedInFile for types guidance
+          - Production mode vs --production flag preference
+      - url: https://skills.sh/laurigates/claude-plugins/knip-dead-code-detection
+        weight: '0.30'
+        borrowed:
+          - Framework plugin detection table
+          - Test runner plugin table
+          - CI/CD YAML examples
+          - Inline knip-ignore comment technique
+          - Troubleshooting section structure
+      - url: https://skills.sh/artivilla/agents-config/knip
+        weight: '0.20'
+        borrowed:
+          - Auto-delete vs ask-first confidence categorization
+          - Re-run loop workflow for agent execution
+      - url: https://skills.sh/knoopx/pi/knip
+        weight: '0.10'
+        borrowed:
+          - Concise quick command reference structure
+          - trace-file and trace-export debug commands
+      - url: https://skills.sh/pproenca/dot-skills/knip-deadcode-best-practices
+        weight: '0.05'
+        borrowed:
+          - 8-category rule priority framework as organizing model
 ---
 
 # Knip: Dead Code Detection & Removal
