@@ -291,14 +291,14 @@ This skill documents [Knip](https://knip.dev) by [webpro-nl](https://github.com/
 > Knip is © webpro-nl and contributors, licensed under the [ISC License](https://github.com/webpro-nl/knip?tab=ISC-1-ov-file#readme).
 > This skill is independent documentation and is not affiliated with or endorsed by the Knip project.
 
-### Quilted source skills
+### Source skills
 
 This skill synthesizes content from 5 community Knip skills:
 
-| Source | Weight | Key Contribution |
-|--------|--------|-----------------|
-| [brianlovin/claude-config](https://skills.sh/brianlovin/claude-config/knip) | 35% | Configuration-first workflow, never-use-ignore discipline |
-| [laurigates/claude-plugins](https://skills.sh/laurigates/claude-plugins/knip-dead-code-detection) | 30% | Plugin tables, CI examples, troubleshooting structure |
-| [artivilla/agents-config](https://skills.sh/artivilla/agents-config/knip) | 20% | Agent auto-delete vs ask-first categorization |
-| [knoopx/pi](https://skills.sh/knoopx/pi/knip) | 10% | Quick command reference, trace debug commands |
-| [pproenca/dot-skills](https://skills.sh/pproenca/dot-skills/knip-deadcode-best-practices) | 5% | 8-category priority framework |
+| Source | Author | Contribution |
+|--------|--------|--------------|
+| [brianlovin/claude-config](https://skills.sh/brianlovin/claude-config/knip) | Brian Lovin | Configuration-first workflow order (configure before acting), the "never use `ignore` patterns" discipline, and the false-positive symptom/fix table |
+| [laurigates/claude-plugins](https://skills.sh/laurigates/claude-plugins/knip-dead-code-detection) | Lauri Gates | Plugin ecosystem tables, CI YAML examples, and the troubleshooting structure (false positives → performance → monorepo issues) |
+| [artivilla/agents-config](https://skills.sh/artivilla/agents-config/knip) | Artivilla | Agent cleanup guidance: the auto-delete vs ask-first categorization and the re-run loop pattern |
+| [knoopx/pi](https://skills.sh/knoopx/pi/knip) | knoopx | Quick command reference table and the `--trace-file` / `--trace-export` debug commands |
+| [pproenca/dot-skills](https://skills.sh/pproenca/dot-skills/knip-deadcode-best-practices) | P. Proença | Issue type reference table with Meaning and Action columns |

@@ -32,15 +32,15 @@ This skill documents [Knip](https://knip.dev), which is © webpro-nl and contrib
 
 This skill is independent documentation. It is not affiliated with or endorsed by the Knip project. The skill itself is MIT licensed.
 
-## Quilted Source Skills
+## Source Skills
 
-| Source | Weight |
-|--------|--------|
-| [brianlovin/claude-config](https://skills.sh/brianlovin/claude-config/knip) | 35% |
-| [laurigates/claude-plugins](https://skills.sh/laurigates/claude-plugins/knip-dead-code-detection) | 30% |
-| [artivilla/agents-config](https://skills.sh/artivilla/agents-config/knip) | 20% |
-| [knoopx/pi](https://skills.sh/knoopx/pi/knip) | 10% |
-| [pproenca/dot-skills](https://skills.sh/pproenca/dot-skills/knip-deadcode-best-practices) | 5% |
+| Source | Author | Contribution |
+|--------|--------|--------------|
+| [brianlovin/claude-config](https://skills.sh/brianlovin/claude-config/knip) | Brian Lovin | Configuration-first workflow order, the "never use `ignore` patterns" discipline, and the false-positive symptom/fix table |
+| [laurigates/claude-plugins](https://skills.sh/laurigates/claude-plugins/knip-dead-code-detection) | Lauri Gates | Plugin ecosystem tables, CI YAML examples, and the troubleshooting structure |
+| [artivilla/agents-config](https://skills.sh/artivilla/agents-config/knip) | Artivilla | Agent cleanup guidance: auto-delete vs ask-first categorization and re-run loop pattern |
+| [knoopx/pi](https://skills.sh/knoopx/pi/knip) | knoopx | Quick command reference table and `--trace-file` / `--trace-export` debug commands |
+| [pproenca/dot-skills](https://skills.sh/pproenca/dot-skills/knip-deadcode-best-practices) | P. Proença | Issue type reference table with Meaning and Action columns |
 
 ## Links
 
