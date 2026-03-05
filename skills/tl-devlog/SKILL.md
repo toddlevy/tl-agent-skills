@@ -6,21 +6,33 @@ quilted:
   synthesized: 2026-03-05
   sources:
     - url: https://github.com/d6veteran/devlog-skill
-      borrowed: ["Entry format", "Category system (architecture/milestone/takeaway/strategy)", "Proactive suggestions", "Why-focus philosophy", "GitHub push workflow", "Reading devlog for context"]
+      borrowed:
+        - Entry format
+        - Category system (architecture/milestone/takeaway/strategy)
+        - Proactive suggestions
+        - Why-focus philosophy
+        - GitHub push workflow
+        - Reading devlog for context
       weight: 0.45
     - url: https://github.com/maoruibin/devlog
-      borrowed: ["Extended categories (incident/bug/ops)", "Explicit trigger rules", "Global/local storage modes"]
+      borrowed:
+        - Extended categories (incident/bug/ops)
+        - Explicit trigger rules
+        - Global/local storage modes
       weight: 0.30
     - url: https://github.com/josephmiclaus/skill-devlog
-      borrowed: ["Safety constraints", "APPEND/CHANGE modes", "Structured entry sections"]
+      borrowed:
+        - Safety constraints
+        - APPEND/CHANGE modes
+        - Structured entry sections
       weight: 0.25
   excluded:
     - url: https://github.com/lordshashank/devlog
-      reason: "Different domain — generates narrative blog posts from session transcripts rather than maintaining a structured work log"
+      reason: Different domain — generates narrative blog posts from session transcripts rather than maintaining a structured work log
   enhancements:
-    - "Unified category system merging strategic and operational categories"
-    - "Combined explicit triggers with optional proactive suggestions"
-    - "Simplified workflow without external script dependencies"
+    - Unified category system merging strategic and operational categories
+    - Combined explicit triggers with optional proactive suggestions
+    - Simplified workflow without external script dependencies
 metadata:
   moment: implement
   surface: [repo]
