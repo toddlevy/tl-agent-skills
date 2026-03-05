@@ -1,0 +1,123 @@
+<rule>
+<meta>
+  <title>tl-devlog Usage</title>
+  <description>Guidance for when and how to invoke the tl-devlog skill to maintain development changelogs. Agents should use this skill proactively at natural decision points and explicitly when users request logging.</description>
+  <created-at utc-timestamp="1741177200">March 5, 2026, 12:00 PM UTC</created-at>
+  <last-updated-at utc-timestamp="1741177200">March 5, 2026, 12:00 PM UTC</last-updated-at>
+  <applies-to>
+    <action-matcher action="complete-task">Completing a significant development task</action-matcher>
+    <action-matcher action="make-decision">Making architectural or design decisions</action-matcher>
+    <action-matcher action="resolve-incident">Resolving production incidents or bugs</action-matcher>
+    <action-matcher action="session-end">Ending a substantive coding session</action-matcher>
+  </applies-to>
+</meta>
+
+<requirements>
+  <non-negotiable priority="critical">
+    <description>When the user explicitly says "log this", "devlog", "archive this", or "record this decision", immediately invoke the tl-devlog skill. Do not ask clarifying questions first — draft the entry based on the preceding conversation.</description>
+    <examples>
+      <example title="Explicit Log Request">
+        <correct-example title="Immediate action" conditions="User says 'log this'" expected-result="Entry drafted" correctness-criteria="Skill invoked, entry drafted from conversation context"><![CDATA[
+User: "That auth decision — log this"
+Agent: [Invokes tl-devlog skill, drafts entry capturing the auth decision with rationale]]]></correct-example>
+        <incorrect-example title="Unnecessary clarification" conditions="User says 'log this'" expected-result="Entry drafted" incorrectness-criteria="Asked questions instead of acting"><![CDATA[
+User: "That auth decision — log this"
+Agent: "What would you like me to log? Can you specify which decision?"]]></incorrect-example>
+      </example>
+    </examples>
+  </non-negotiable>
+
+  <non-negotiable priority="critical">
+    <description>Never auto-commit devlog entries. Always show the user the drafted entry and wait for confirmation before committing to git.</description>
+    <examples>
+      <example title="User Confirmation Required">
+        <correct-example title="Show before commit" conditions="Entry drafted" expected-result="User sees entry" correctness-criteria="Entry displayed, user asked to approve"><![CDATA[
+## [2026-03-05] Chose JWT over session cookies for API auth
+
+**Category:** `architecture`
+**Tags:** `auth`, `api`, `jwt`
+
+### Summary
+Selected JWT tokens for stateless API authentication.
+
+### Detail
+- Chose JWT for horizontal scalability
+- Session cookies rejected due to load balancer complexity
+- Token rotation strategy: 15-minute access tokens, 7-day refresh
+
+---
+Does this capture it accurately? Any edits before I commit?]]></correct-example>
+        <incorrect-example title="Silent commit" conditions="Entry drafted" expected-result="User sees entry" incorrectness-criteria="Committed without showing user"><![CDATA[
+Agent: [Commits entry without displaying it]
+"Done! Logged to DEVLOG.md"]]></incorrect-example>
+      </example>
+    </examples>
+  </non-negotiable>
+
+  <requirement priority="high">
+    <description>At natural pause points — after completing significant work, making architecture decisions, or resolving incidents — proactively suggest a devlog entry. Frame it conversationally, not mechanically.</description>
+    <examples>
+      <example title="Proactive Suggestion">
+        <correct-example title="Natural framing" conditions="Just finished implementing a caching layer" expected-result="Suggestion offered" correctness-criteria="Conversational tone, specific to what was done"><![CDATA[
+"This feels worth capturing — we chose Redis over in-memory caching for the session store because of the multi-instance deployment. Want me to log it?"]]></correct-example>
+        <incorrect-example title="Mechanical prompt" conditions="Just finished implementing a caching layer" expected-result="Suggestion offered" incorrectness-criteria="Generic or robotic"><![CDATA[
+"Do you want to add a devlog entry for this task?"]]></incorrect-example>
+      </example>
+    </examples>
+  </requirement>
+
+  <requirement priority="high">
+    <description>Every devlog entry must capture the "why" — the rationale behind the decision, not just what was done. Include alternatives considered and why they were rejected.</description>
+    <examples>
+      <example title="Rationale Included">
+        <correct-example title="Why is clear" conditions="Logging a database choice" expected-result="Rationale captured" correctness-criteria="Explains why, mentions alternatives"><![CDATA[
+### Detail
+- Chose PostgreSQL for strong JSON support and ACID compliance
+- Considered MongoDB but rejected due to transaction requirements
+- SQLite rejected for multi-connection concurrency limits]]></correct-example>
+        <incorrect-example title="Missing why" conditions="Logging a database choice" expected-result="Rationale captured" incorrectness-criteria="Just states what, no why"><![CDATA[
+### Detail
+- Using PostgreSQL for the database
+- Set up migrations with Drizzle]]></incorrect-example>
+      </example>
+    </examples>
+  </requirement>
+
+  <requirement priority="medium">
+    <description>Do NOT suggest devlog entries for trivial work: routine Q&A, simple lookups, minor clarifications, or work-in-progress with no decision point.</description>
+  </requirement>
+
+  <requirement priority="medium">
+    <description>Use the appropriate category from the 8 available: architecture, milestone, incident, bug, ops, design, strategy, takeaway. If uncertain, prefer the more specific category over a general one.</description>
+  </requirement>
+</requirements>
+
+<context description="When to invoke tl-devlog">
+## Trigger Checklist
+
+Invoke the skill when ANY of these occur:
+
+| Trigger | Category Hint |
+|---------|---------------|
+| Architecture decision made (database, framework, API design) | `architecture` |
+| Feature or phase completed | `milestone` |
+| Production incident resolved | `incident` |
+| Bug fixed after debugging session | `bug` |
+| Infrastructure or deployment change | `ops` |
+| UX or design pattern chosen | `design` |
+| Business or strategy direction set | `strategy` |
+| Important insight or lesson learned | `takeaway` |
+| User explicitly requests logging | (depends on content) |
+
+## Do NOT Trigger For
+
+- Simple file reads or searches
+- Answering factual questions
+- Minor refactors with no design implications
+- Work still in progress (wait for a decision point)
+</context>
+
+<references>
+  <reference as="primary" href="skills/tl-devlog/SKILL.md" reason="Full skill implementation">tl-devlog Skill</reference>
+</references>
+</rule>
