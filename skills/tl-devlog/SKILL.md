@@ -35,7 +35,8 @@ quilted:
     - Simplified workflow without external script dependencies
 metadata:
   moment: implement
-  surface: [repo]
+  surface:
+    - repo
   output: patch
   risk: safe
   effort: minimal
