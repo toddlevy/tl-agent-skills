@@ -221,6 +221,51 @@ Plans, Features, and Addons all live under this tag. See [references/product-cat
 | Unschedule cancel | POST | `/api/v1/subscriptions/{id}/unschedule-cancelation` |
 | Subscription addons | GET/POST | `/api/v1/subscriptions/{id}/addons` |
 
+### PATCH Subscription Customizations
+
+The `PATCH /api/v1/subscriptions/{id}` endpoint supports a `customizations` array for modifying subscription items without changing plans. This is useful for admin operations like adding bonus quota.
+
+**Request body:**
+
+```json
+{
+  "customizations": [
+    {
+      "op": "add_item",
+      "path": "/phases/0/items/{featureKey}",
+      "value": {
+        "createInput": {
+          "type": "boolean" | "static" | "metered",
+          "issueAfterReset": 55000,
+          "isSoftLimit": false
+        }
+      }
+    }
+  ]
+}
+```
+
+**Use cases:**
+
+- **Add quota bonus:** Increase `issueAfterReset` to give extra API calls for the current period
+- **Revert quota:** Reset `issueAfterReset` to plan base value at period end
+
+**Key fields:**
+
+| Field | Description |
+|-------|-------------|
+| `op` | Operation type: `add_item`, `remove_item` |
+| `path` | JSONPath to the item, e.g. `/phases/0/items/api_requests` |
+| `value.createInput.issueAfterReset` | Quota issued at start of each period |
+| `value.createInput.isSoftLimit` | `false` = hard limit, `true` = overage allowed |
+
+**Response includes:**
+
+- `items[].entitlement.currentUsagePeriod` — Start/end of current billing period
+- `items[].entitlement.issueAfterReset` — Updated quota value
+
+**Verified behavior:** When `issueAfterReset` is modified via PATCH, the change is immediately reflected in `totalAvailableGrantAmount` balance without requiring a period reset.
+
 ---
 
 ## 6. Entitlements
