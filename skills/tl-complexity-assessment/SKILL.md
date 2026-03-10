@@ -344,6 +344,32 @@ Before completing assessment:
 
 ---
 
+## Skill Resources
+
+### Automated Discovery
+
+Run the scanner script for quick assessment:
+
+```bash
+# Bash
+./scripts/complexity-scan.sh src/
+
+# PowerShell
+.\scripts\complexity-scan.ps1 -TargetDir src/
+```
+
+### Reference Documentation
+
+| Document | Purpose |
+|----------|---------|
+| `references/react-patterns.md` | React hook limits, component size, inline sub-components |
+| `references/coupling-analysis.md` | Import analysis, circular deps, dependency direction |
+| `references/refactoring-strategies.md` | Extract function/module/component patterns |
+
+Load these references when deeper analysis is needed for a specific category.
+
+---
+
 ## Related Skills
 
 - `tl-knip` - Find unused exports (reduces false positives in export counts)
