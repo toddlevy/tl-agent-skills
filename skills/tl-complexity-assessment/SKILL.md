@@ -4,39 +4,55 @@ description: Systematic complexity assessment for TypeScript/JavaScript codebase
 version: 1.0.0
 license: MIT
 author: Todd Levy <toddlevy@gmail.com>
-quilted:
-  version: 1
-  synthesized: 2026-03-10
-  sources:
-    - url: https://skills.sh/trailofbits/skills/code-maturity-assessor
-      borrowed: ["9-category assessment framework", "Rating system (0-4)", "Phase structure", "Rationalizations table"]
-      weight: 0.30
-    - url: local://tl-agent-skills/codebase-audit
-      borrowed: ["Severity/Effort ROI matrix", "Time-boxing guidelines", "Discovery commands", "Evidence requirements"]
-      weight: 0.25
-    - url: https://skills.sh/obra/superpowers/systematic-debugging
-      borrowed: ["Iron Law pattern", "Phase gates", "Red flags section"]
-      weight: 0.20
-    - url: https://skills.sh/obra/superpowers/verification-before-completion
-      borrowed: ["Evidence before claims principle", "Rationalization prevention"]
-      weight: 0.15
-    - url: https://skills.sh/rmyndharis/antigravity-skills/code-refactoring-refactor-clean
-      borrowed: ["SOLID assessment criteria", "Code smell categories"]
-      weight: 0.10
-  enhancements:
-    - "TypeScript/React-specific heuristics with numeric thresholds"
-    - "Automated detection commands with ripgrep/find"
-    - "Unified complexity scoring (0-10 scale)"
-    - "Split-recommendation output format"
 metadata:
   moment: review
-  surface: [repo]
+  surface:
+    - repo
   output: analysis
   risk: safe
   effort: moderate
   posture: guided
   agentFit: repo-read
   dryRun: none
+  quilted:
+    version: 1
+    synthesized: 2026-03-10
+    sources:
+      - url: https://skills.sh/trailofbits/skills/code-maturity-assessor
+        borrowed:
+          - 9-category assessment framework
+          - Rating system (0-4)
+          - Phase structure
+          - Rationalizations table
+        weight: 0.30
+      - url: local://tl-agent-skills/codebase-audit
+        borrowed:
+          - Severity/Effort ROI matrix
+          - Time-boxing guidelines
+          - Discovery commands
+          - Evidence requirements
+        weight: 0.25
+      - url: https://skills.sh/obra/superpowers/systematic-debugging
+        borrowed:
+          - Iron Law pattern
+          - Phase gates
+          - Red flags section
+        weight: 0.20
+      - url: https://skills.sh/obra/superpowers/verification-before-completion
+        borrowed:
+          - Evidence before claims principle
+          - Rationalization prevention
+        weight: 0.15
+      - url: https://skills.sh/rmyndharis/antigravity-skills/code-refactoring-refactor-clean
+        borrowed:
+          - SOLID assessment criteria
+          - Code smell categories
+        weight: 0.10
+    enhancements:
+      - TypeScript/React-specific heuristics with numeric thresholds
+      - Automated detection commands with ripgrep/find
+      - Unified complexity scoring (0-10 scale)
+      - Split-recommendation output format
 ---
 
 # Complexity Assessment
