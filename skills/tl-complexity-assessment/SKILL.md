@@ -1,7 +1,7 @@
 ---
 name: tl-complexity-assessment
-description: Systematic complexity assessment for TypeScript/JavaScript codebases. Identifies monoliths, god files, coupling hotspots, and component smells. Use when auditing complexity, planning refactors, or finding files to split up.
-version: 1.0.0
+description: Find large files, god modules, and refactoring candidates in TypeScript/JavaScript/React codebases. Use when files feel "too big", planning a refactor sprint, onboarding to legacy code, or asking "what should I split up?"
+version: 1.1.0
 license: MIT
 author: Todd Levy <toddlevy@gmail.com>
 metadata:
@@ -55,26 +55,51 @@ metadata:
       - Split-recommendation output format
 ---
 
-# Complexity Assessment
+# tl-complexity-assessment
 
-Systematic detection of complexity hotspots, monoliths, and refactoring candidates in TypeScript/JavaScript codebases.
+Find the files that need to be split up. Get a ranked, evidence-based list of complexity hotspots with specific refactoring recommendations.
+
+## Quick Start
+
+**For experienced users** — run the scanner and get a report:
+
+```bash
+# Bash
+./scripts/complexity-scan.sh src/
+
+# PowerShell
+.\scripts\complexity-scan.ps1 -TargetDir src/
+```
+
+**For guided assessment** — follow the phases below.
+
+---
 
 ## When to Use
 
 - "find complex files"
 - "what needs to be split up"
-- "assess complexity"
-- "find monoliths"
+- "assess complexity" / "code health check"
+- "find monoliths" / "find god files"
 - "identify refactoring candidates"
-- "code health check"
+- "this file is too big"
 - Before major refactoring efforts
 - When onboarding to a new codebase
+- Sprint planning for tech debt reduction
+
+## Do Not Use When
+
+- Looking for **bugs** (use debugging skills instead)
+- Assessing **security** vulnerabilities (use security audit)
+- Reviewing **code style** (use linting/formatting tools)
+- File is already small and focused (<150 lines, single responsibility)
 
 ## Outcomes
 
 - **Analysis**: Ranked list of complexity hotspots with evidence and recommendations
 - **Decision**: Which files/modules to refactor first (ROI-based prioritization)
 - **Artifact**: Optional findings register (markdown) for tracking remediation
+- **Next Steps**: Clear refactoring recommendations for each finding
 
 ---
 
@@ -85,6 +110,21 @@ NO COMPLEXITY CLAIMS WITHOUT EVIDENCE
 ```
 
 Every finding must include file path, line count or metric, and specific observation.
+
+### What Good Looks Like
+
+```
+❌ BAD: "UserService.ts is too complex and should be refactored"
+
+✅ GOOD: "UserService.ts (847 lines, 23 exports) mixes 4 concerns:
+   - Authentication (lines 1-150)
+   - Validation (lines 151-320)  
+   - API calls (lines 321-600)
+   - Formatting (lines 601-847)
+   
+   Recommendation: Split into auth.ts, validation.ts, api.ts, formatters.ts
+   Effort: E2 (4-8 hours) | Impact: High (imported by 12 files)"
+```
 
 ---
 
@@ -326,6 +366,69 @@ Provide a summary table followed by detailed findings:
 ### Top Finding Details
 [Detailed findings for top 5-10 items]
 ```
+
+### Example Real Output
+
+```markdown
+## Complexity Assessment Summary
+
+| Rank | File | Score | Severity | Recommendation |
+|------|------|-------|----------|----------------|
+| 1 | `src/lib/api-client.ts` | 9 | Critical | Split by domain |
+| 2 | `src/pages/Dashboard.tsx` | 8 | High | Extract widgets |
+| 3 | `src/hooks/useForm.ts` | 6 | Medium | Separate validation |
+
+### #1 File: `src/lib/api-client.ts`
+
+**Score:** 9/10 | **Severity:** Critical | **Effort:** E2 (4-8h)
+
+**Metrics:**
+- Lines: 1,247
+- Exports: 34
+- Imports: 22 (from 8 domains)
+
+**Observations:**
+- Handles ALL API endpoints in one file
+- Mixes auth, users, products, orders, analytics
+- Contains retry logic duplicated 6 times
+- No separation between fetch and transform
+
+**Recommendation:**
+Split into domain-specific clients:
+- `api/auth.ts` - Login, logout, refresh
+- `api/users.ts` - CRUD + search
+- `api/products.ts` - Catalog operations
+- `api/orders.ts` - Order management
+- `api/http.ts` - Shared fetch wrapper with retry
+
+**Evidence:**
+- Lines 1-180: Auth functions (login, logout, refresh, verify)
+- Lines 181-450: User CRUD (getUser, updateUser, searchUsers...)
+- Lines 451-780: Product operations
+- Lines 781-1100: Order management
+- Lines 1101-1247: Analytics tracking
+```
+
+---
+
+## What To Do After Assessment
+
+Once you have findings, here's how to act on them:
+
+### Immediate (This Sprint)
+1. **Fix 🔥 Critical findings** (ROI ≥ 9) - These block velocity
+2. Run `tl-knip` to remove dead exports before splitting
+3. Add tests for files you're about to split
+
+### Plan (Next Sprint)
+1. Create tickets for High-priority findings (score 7-8)
+2. Group related splits (e.g., all API files together)
+3. Estimate using the Effort column
+
+### Monitor (Ongoing)
+1. Re-run assessment monthly to catch new complexity
+2. Add complexity checks to PR reviews
+3. Set team threshold: "No new files over 300 lines without review"
 
 ---
 
