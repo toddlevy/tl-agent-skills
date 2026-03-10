@@ -45,9 +45,24 @@ metadata:
       - Simplified workflow without external script dependencies
 ---
 
-# Development Log (Devlog)
+# tl-devlog
 
 Maintain a living development log (`DEVLOG.md`) in project repositories. Captures decisions, progress, incidents, and insights so future sessions have full context on what was done and why.
+
+## Quick Start
+
+Just say **"log this"** or **"devlog"** after any significant decision or milestone.
+
+**Example interaction:**
+```
+You: "We decided to use PostgreSQL instead of MongoDB for the audit system"
+Agent: "This feels worth capturing — we decided PostgreSQL for transactional 
+       integrity over MongoDB's flexibility. Want me to log it?"
+You: "Yes, log it"
+Agent: [Drafts entry, shows for approval, commits to DEVLOG.md]
+```
+
+---
 
 ## When to Use
 
@@ -258,3 +273,23 @@ Default to project mode. Switch to local/global only if user explicitly requests
 - Include the "why" for every "what"
 - Tags: lowercase, hyphenated, searchable (`rate-limiting`, `auth-flow`)
 - Reference related devlog entries by date when relevant
+
+### What Good Looks Like
+
+```
+❌ BAD: "Fixed the database issue"
+
+✅ GOOD: "Resolved 45-minute API outage caused by connection pool exhaustion.
+   Root cause: analytics cron job ran 3-hour query without statement timeout.
+   Fix: Killed query, added 5-minute timeout, separated analytics pool."
+```
+
+---
+
+## Skill Resources
+
+| Document | Purpose |
+|----------|---------|
+| `references/entry-examples.md` | Complete examples for each category |
+
+Load the examples reference when you need inspiration for a specific category.
