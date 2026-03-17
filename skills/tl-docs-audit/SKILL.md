@@ -265,5 +265,5 @@ When content appears in multiple places, identify the source of truth.
 
 ## Related Skills
 
-- **tl-docs-create** — Create documentation from scratch
-- **tl-docs-viewer-create** — React admin UI for browsing docs/ folder
+- [tl-docs-create](../tl-docs-create/SKILL.md) — Create documentation from scratch
+- [tl-docs-viewer-create](../tl-docs-viewer-create/SKILL.md) — React admin UI for browsing docs/ folder

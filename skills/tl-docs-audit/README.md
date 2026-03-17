@@ -57,8 +57,8 @@ Part of the `tl-docs` suite.
 
 ### Related Skills
 
-- **tl-docs-create** — Create documentation from scratch
-- **tl-docs-viewer-create** — React admin UI for browsing docs/ folder
+- [tl-docs-create](../tl-docs-create/) — Create documentation from scratch
+- [tl-docs-viewer-create](../tl-docs-viewer-create/) — React admin UI for browsing docs/ folder
 
 ## License
 

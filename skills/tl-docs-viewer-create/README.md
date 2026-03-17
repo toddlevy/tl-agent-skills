@@ -63,8 +63,8 @@ Part of the `tl-docs` suite.
 
 ### Related Skills
 
-- **tl-docs-create** — Create documentation from scratch
-- **tl-docs-audit** — Audit and fix documentation gaps
+- [tl-docs-create](../tl-docs-create/) — Create documentation from scratch
+- [tl-docs-audit](../tl-docs-audit/) — Audit docs coverage, find gaps, generate sync reports
 
 ## Source Attribution
 

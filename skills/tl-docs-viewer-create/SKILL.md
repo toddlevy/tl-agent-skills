@@ -218,4 +218,5 @@ After implementation, verify:
 
 ## Related Skills
 
-- **tl-docs-create-review** — Create and maintain documentation content (same suite)
+- [tl-docs-create](../tl-docs-create/SKILL.md) — Create documentation from scratch
+- [tl-docs-audit](../tl-docs-audit/SKILL.md) — Audit docs coverage, find gaps, generate sync reports

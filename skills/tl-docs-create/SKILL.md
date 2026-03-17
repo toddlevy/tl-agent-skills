@@ -266,5 +266,5 @@ Available rules:
 
 ## Related Skills
 
-- **tl-docs-audit** — Audit docs coverage, find gaps, generate sync reports
-- **tl-docs-viewer-create** — React admin UI for browsing docs/ folder
+- [tl-docs-audit](../tl-docs-audit/SKILL.md) — Audit docs coverage, find gaps, generate sync reports
+- [tl-docs-viewer-create](../tl-docs-viewer-create/SKILL.md) — React admin UI for browsing docs/ folder
