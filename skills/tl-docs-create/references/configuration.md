@@ -8,10 +8,12 @@ Use the `AskQuestion` tool to gather user intent before creating documentation. 
 flowchart TD
     Start[Trigger skill] --> Explore[Light codebase scan]
     Explore --> Q1{Existing docs found?}
-    Q1 -->|Yes| AskIntent[Ask: Intent Question]
+    Q1 -->|Yes| Redirect[Suggest tl-docs-audit]
     Q1 -->|No| AskFirst[Ask: First Docs Question]
-    AskIntent --> AskAudience[Ask: Audience Question]
-    AskFirst --> AskAudience
+    Redirect --> AskOverride{User insists?}
+    AskOverride -->|Yes| AskAudience
+    AskOverride -->|No| End[Switch to tl-docs-audit]
+    AskFirst --> AskAudience[Ask: Audience Question]
     AskAudience --> AskScope[Ask: Scope Question]
     AskScope --> AskTypes[Ask: Doc Types Question]
     AskTypes --> AskRules[Ask: Rules Question]
@@ -22,45 +24,45 @@ flowchart TD
 
 ## Question Schemas
 
-### Question 1a: Intent (when existing docs found)
+### Question 1: Existing Docs Check
 
 **Trigger:** Check for `docs/`, `README.md`, `AGENTS.md`, `CHANGELOG.md`
 
+If existing docs found, suggest using `tl-docs-audit` instead:
+
 ```json
 {
-  "title": "Documentation Intent",
+  "title": "Existing Documentation Found",
   "questions": [{
-    "id": "intent",
-    "prompt": "I found existing documentation. What would you like to do?",
+    "id": "existing_docs",
+    "prompt": "I found existing documentation. This skill is for creating new docs. Would you like to:",
     "options": [
-      {"id": "replace", "label": "Replace — Start fresh, existing docs are outdated/wrong"},
-      {"id": "revise", "label": "Revise — Update existing docs to match current code"},
-      {"id": "supplement", "label": "Supplement — Add new docs without changing existing"},
-      {"id": "audit", "label": "Audit — Review quality and coverage, suggest improvements"},
-      {"id": "unsure", "label": "Unsure — Help me decide what's needed"}
+      {"id": "audit", "label": "Audit existing docs — Switch to tl-docs-audit skill"},
+      {"id": "replace", "label": "Replace everything — Start fresh from scratch"},
+      {"id": "add_new", "label": "Add new types — Create docs that don't exist yet"}
     ]
   }]
 }
 ```
 
-### Question 1b: First Documentation (when no docs found)
+### Question 2: First Documentation (when no docs found)
 
 ```json
 {
   "title": "First Documentation",
   "questions": [{
     "id": "first_docs",
-    "prompt": "No documentation found. Is there existing docs elsewhere, or is this the first effort?",
+    "prompt": "No documentation found. What approach would you like?",
     "options": [
-      {"id": "first", "label": "First effort — Create documentation from scratch"},
-      {"id": "elsewhere", "label": "Docs exist elsewhere — I'll point you to them"},
-      {"id": "minimal", "label": "Minimal needed — Just README and AGENTS.md"}
+      {"id": "first", "label": "Full documentation — Create comprehensive docs from scratch"},
+      {"id": "minimal", "label": "Minimal — Just README and AGENTS.md"},
+      {"id": "elsewhere", "label": "Docs exist elsewhere — I'll point you to them"}
     ]
   }]
 }
 ```
 
-### Question 2: Audience
+### Question 3: Audience
 
 ```json
 {
@@ -80,7 +82,7 @@ flowchart TD
 }
 ```
 
-### Question 3: Scope/Depth
+### Question 4: Scope/Depth
 
 ```json
 {
@@ -98,14 +100,14 @@ flowchart TD
 }
 ```
 
-### Question 4: Doc Types
+### Question 5: Doc Types
 
 ```json
 {
   "title": "Documentation Artifacts",
   "questions": [{
     "id": "doc_types",
-    "prompt": "Which documentation artifacts should I create or update?",
+    "prompt": "Which documentation artifacts should I create?",
     "allow_multiple": true,
     "options": [
       {"id": "readme", "label": "README.md — Project overview, setup, usage"},
@@ -114,42 +116,24 @@ flowchart TD
       {"id": "docs_folder", "label": "docs/ folder — Structured documentation hierarchy"},
       {"id": "api_reference", "label": "API reference — Endpoint/function documentation"},
       {"id": "contributing", "label": "CONTRIBUTING.md — Contribution guidelines"},
-      {"id": "docs_viewer", "label": "Docs Viewer UI — Admin interface (see tl-docs-viewer skill)"}
+      {"id": "docs_viewer", "label": "Docs Viewer UI — Admin interface (see tl-docs-viewer-create skill)"}
     ]
   }]
 }
 ```
 
-### Question 4b: Docs Viewer (if docs_viewer selected)
+### Question 5b: Docs Viewer (if docs_viewer selected)
 
 ```json
 {
   "title": "Docs Viewer UI",
   "questions": [{
     "id": "docs_viewer_action",
-    "prompt": "The docs viewer is a separate skill (tl-docs-viewer) that creates a React admin UI. Would you like me to:",
+    "prompt": "The docs viewer is a separate skill (tl-docs-viewer-create) that creates a React admin UI. Would you like me to:",
     "options": [
-      {"id": "recommend", "label": "Recommend it — Point me to tl-docs-viewer after docs are created"},
-      {"id": "create_now", "label": "Create it now — Switch to tl-docs-viewer skill to build the UI"},
+      {"id": "recommend", "label": "Recommend it — Point me to tl-docs-viewer-create after docs are created"},
+      {"id": "create_now", "label": "Create it now — Switch to tl-docs-viewer-create skill to build the UI"},
       {"id": "skip", "label": "Skip — I'll handle the viewer separately"}
-    ]
-  }]
-}
-```
-
-### Question 5: Style Preferences (for comprehensive scope)
-
-```json
-{
-  "title": "Style Preferences",
-  "questions": [{
-    "id": "style",
-    "prompt": "Any specific style preferences?",
-    "options": [
-      {"id": "default", "label": "Use skill defaults — Professional, direct, scannable"},
-      {"id": "casual", "label": "More casual — Friendly, conversational tone"},
-      {"id": "formal", "label": "More formal — Enterprise/corporate tone"},
-      {"id": "tutorial", "label": "Tutorial-style — Step-by-step with explanations"}
     ]
   }]
 }
@@ -200,65 +184,45 @@ flowchart TD
 
 | Initial Answer | Next Questions | Skip Questions |
 |----------------|----------------|----------------|
-| Replace | Audience, Scope, Types, Style, Rules | — |
-| Revise | Audience (confirm), Types (pre-selected) | Scope (inherit) |
-| Supplement | Audience, Types, Rules | Scope (match existing) |
-| Audit | — | All (just analyze, produce report) |
+| Audit | — | All (redirect to tl-docs-audit) |
+| Replace | Audience, Scope, Types, Rules | — |
+| Add new | Audience, Types, Rules | Scope (standard) |
 | Minimal needed | — | Audience, Scope, Types (preset to README + AGENTS.md) |
 | Absurdly thorough | All questions | — |
 
 ---
 
-## Integration Points by Phase
-
-| Phase | Question Trigger | Purpose |
-|-------|------------------|---------|
-| Before Assessment | Light scan completed | Determine if docs exist |
-| Assessment | Docs found/not found | Intent question |
-| Doc Type Selection | Intent answered | Types question |
-| Standards | Comprehensive or absurd selected | Style preferences |
-| Gap Analysis | Revise or Supplement selected | Confirm which gaps to fill |
-| Execution | Doc types selected | Rules question |
-| Verification | Draft complete | Confirm before finalizing |
-
----
-
 ## Example Question Flows
 
-### Flow 1: New Project
+### Flow 1: New Project (No Existing Docs)
 
 1. Light scan → No docs found
-2. Ask First Docs → "First effort"
+2. Ask First Docs → "Full documentation"
 3. Ask Audience → "Contributors"
 4. Ask Scope → "Standard"
 5. Ask Types → README, AGENTS.md, CHANGELOG
 6. Ask Rules → "Yes, create rules"
 7. Execute workflow with selections
 
-### Flow 2: Updating Existing Docs
+### Flow 2: Minimal Quick Start
+
+1. Light scan → No docs found
+2. Ask First Docs → "Minimal"
+3. Skip remaining questions
+4. Create README.md and AGENTS.md only
+
+### Flow 3: Existing Docs → Redirect to Audit
 
 1. Light scan → Found README.md, docs/ folder
-2. Ask Intent → "Revise"
-3. Ask Types → Pre-selected existing types, allow adding
-4. Skip Scope (inherit from existing)
-5. Ask Rules → "No rules"
-6. Execute gap analysis and updates
+2. Ask Existing Docs → "Audit existing docs"
+3. Redirect to `tl-docs-audit` skill
 
-### Flow 3: Audit Only
+### Flow 4: Replace Existing Docs
 
-1. Light scan → Found comprehensive docs
-2. Ask Intent → "Audit"
-3. Skip all other questions
-4. Run gap analysis, produce report
-5. Present findings without making changes
-
-### Flow 4: Absurdly Thorough
-
-1. Light scan → Minimal README only
-2. Ask Intent → "Replace"
+1. Light scan → Found outdated docs
+2. Ask Existing Docs → "Replace everything"
 3. Ask Audience → "Mixed" (contributors + users)
-4. Ask Scope → "Absurdly thorough"
+4. Ask Scope → "Comprehensive"
 5. Ask Types → All types selected
-6. Ask Style → "Tutorial-style"
-7. Ask Rules → "Yes, let me pick" → Select all rules
-8. Deep exploration, comprehensive documentation
+6. Ask Rules → "Yes, let me pick" → Select all rules
+7. Deep exploration, comprehensive documentation

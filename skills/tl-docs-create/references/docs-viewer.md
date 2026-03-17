@@ -1,21 +1,21 @@
 # Docs Viewer
 
-Reference to the `tl-docs-viewer` skill for creating a React admin UI to browse documentation.
+Reference to the `tl-docs-viewer-create` skill for creating a React admin UI to browse documentation.
 
 ---
 
 ## Overview
 
-The docs viewer is a **separate skill** (`tl-docs-viewer`) in the `tl-docs` suite. This skill creates and maintains documentation; the viewer skill creates a UI to browse it.
+The docs viewer is a **separate skill** (`tl-docs-viewer-create`) in the `tl-docs` suite. This skill creates documentation; the viewer skill creates a UI to browse it.
 
 ### Why Separate Skills?
 
-| Concern | This Skill | tl-docs-viewer |
-|---------|------------|----------------|
-| **Focus** | Content creation, standards, gap analysis | UI implementation, routing, rendering |
+| Concern | This Skill | tl-docs-viewer-create |
+|---------|------------|-----------------------|
+| **Focus** | Content creation, standards, templates | UI implementation, routing, rendering |
 | **Output** | Markdown files in docs/ | React components, API routes |
 | **Dependencies** | None (markdown only) | React, TanStack Query, Mermaid |
-| **Trigger** | "create docs", "review docs" | "create docs viewer", "admin docs UI" |
+| **Trigger** | "create docs" | "create docs viewer", "admin docs UI" |
 
 ---
 
@@ -23,8 +23,8 @@ The docs viewer is a **separate skill** (`tl-docs-viewer`) in the `tl-docs` suit
 
 If user selects "Docs Viewer UI" in the doc types question, present options:
 
-1. **Recommend it** — Point to `tl-docs-viewer` after docs are created
-2. **Create it now** — Switch to `tl-docs-viewer` skill to build the UI
+1. **Recommend it** — Point to `tl-docs-viewer-create` after docs are created
+2. **Create it now** — Switch to `tl-docs-viewer-create` skill to build the UI
 3. **Skip** — User will handle separately
 
 ### Handoff Pattern
@@ -34,7 +34,7 @@ After completing documentation:
 ```
 Documentation created in docs/.
 
-For a browseable admin UI, use the tl-docs-viewer skill:
+For a browseable admin UI, use the tl-docs-viewer-create skill:
 - Creates API endpoints for doc tree and content
 - Builds React components for navigation and rendering
 - Supports Mermaid diagrams and syntax highlighting
@@ -95,27 +95,29 @@ Reference implementation based on JamBase `data.jambase.com/client/src/pages/adm
 
 ## Suite Relationship
 
-Both skills belong to the `tl-docs` suite:
+All skills belong to the `tl-docs` suite:
 
 ```yaml
-# In tl-docs-create-review SKILL.md (this skill):
+# In tl-docs-create SKILL.md (this skill):
 metadata:
   suite: tl-docs
   related:
-    - tl-docs-viewer
+    - tl-docs-audit
+    - tl-docs-viewer-create
 
-# In tl-docs-viewer SKILL.md (separate skill):
+# In tl-docs-viewer-create SKILL.md:
 metadata:
   suite: tl-docs
   related:
-    - tl-docs-create-review
+    - tl-docs-create
+    - tl-docs-audit
 ```
 
 ---
 
-## tl-docs-viewer AskQuestion Flow
+## tl-docs-viewer-create AskQuestion Flow
 
-The viewer skill should have its own configuration discovery:
+The viewer skill has its own configuration discovery:
 
 ### Question 1: Admin Area Detection
 
@@ -164,4 +166,4 @@ options:
 ## See Also
 
 - **JamBase implementation**: `data.jambase.com/client/src/pages/admin/readme/`
-- **tl-docs-viewer skill**: (To be created — see `.cursor/plans/tl-docs-viewer.plan.md`)
+- **tl-docs-viewer-create skill**: See `tl-agent-skills/skills/tl-docs-viewer-create/`

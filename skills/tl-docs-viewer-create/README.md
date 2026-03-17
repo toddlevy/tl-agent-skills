@@ -1,4 +1,4 @@
-# tl-docs-viewer
+# tl-docs-viewer-create
 
 Create a React admin UI for browsing documentation folders with tree navigation, markdown rendering, Mermaid diagrams, and TOC generation.
 
@@ -63,7 +63,8 @@ Part of the `tl-docs` suite.
 
 ### Related Skills
 
-- **tl-docs-create-review** — Create and maintain documentation content
+- **tl-docs-create** — Create documentation from scratch
+- **tl-docs-audit** — Audit and fix documentation gaps
 
 ## Source Attribution
 

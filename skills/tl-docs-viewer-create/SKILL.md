@@ -1,5 +1,5 @@
 ---
-name: tl-docs-viewer
+name: tl-docs-viewer-create
 description: Create a React admin UI for browsing documentation folders with tree navigation, markdown rendering, Mermaid diagrams, and TOC generation. Use when adding a docs viewer to an admin interface.
 license: MIT
 metadata:
@@ -10,7 +10,8 @@ metadata:
   posture: opinionated
   suite: tl-docs
   related:
-    - tl-docs-create-review
+    - tl-docs-create
+    - tl-docs-audit
 ---
 
 # Documentation Viewer UI
