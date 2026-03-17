@@ -43,9 +43,9 @@ quilted:
     - url: https://skills.sh/am-will/codex-skills/openai-docs-skill
       reason: "Different domain — MCP for fetching external docs"
     - url: https://skills.sh/openai/openai-agents-python/docs-sync
-      reason: "Gap analysis moved to tl-docs-audit"
+      reason: "Gap analysis scope — see tl-docs-audit"
     - url: https://skills.sh/jezweb/claude-skills/docs-workflow
-      reason: "Staleness audit moved to tl-docs-audit"
+      reason: "Staleness audit scope — see tl-docs-audit"
   enhancements:
     - "Unified 4-phase workflow (assess, select, write, verify)"
     - "Doc type selection gate"

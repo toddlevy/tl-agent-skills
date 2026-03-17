@@ -59,13 +59,6 @@ This is a quilted skill synthesized from 11 sources.
 | JamBase docs (local) | 0.04 | SSOT generation, hierarchical READMEs, source attribution |
 | agents-md-create (local) | 0.02 | Project type templates |
 
-### Excluded Sources (Moved to tl-docs-audit)
-
-| Source | Reason |
-|--------|--------|
-| [openai-agents-python/docs-sync](https://skills.sh/openai/openai-agents-python/docs-sync) | Gap analysis moved to tl-docs-audit |
-| [jezweb/docs-workflow](https://skills.sh/jezweb/claude-skills/docs-workflow) | Staleness audit moved to tl-docs-audit |
-
 ## Suite
 
 Part of the `tl-docs` suite.
