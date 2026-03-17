@@ -1,0 +1,79 @@
+---
+description: Add CHANGELOG entry for feat/fix commits
+globs:
+  - "**/*"
+alwaysApply: false
+---
+
+<rule>
+<meta>
+  <title>CHANGELOG from Commits</title>
+  <priority>recommend</priority>
+</meta>
+
+<requirements>
+  <guideline priority="moderate">
+    <description>
+      When committing with conventional commit prefixes, add corresponding entry
+      to CHANGELOG.md under the [Unreleased] section.
+      
+      Commit type to section mapping:
+      - `feat:` → Added
+      - `fix:` → Fixed
+      - `perf:` → Changed
+      - `BREAKING CHANGE:` → Changed (with breaking change note)
+      - `security:` → Security
+      - `deprecate:` → Deprecated
+      
+      Write human-readable descriptions. Do not copy commit messages verbatim.
+    </description>
+    <examples>
+      <example type="correct">
+        Commit: "feat: add magic link authentication"
+        
+        CHANGELOG.md update:
+        ## [Unreleased]
+        ### Added
+        - Magic link authentication for passwordless login
+      </example>
+      <example type="correct">
+        Commit: "fix: resolve memory leak in WebSocket handler"
+        
+        CHANGELOG.md update:
+        ## [Unreleased]
+        ### Fixed
+        - Memory leak in WebSocket connection handler
+      </example>
+      <example type="incorrect">
+        Commit: "feat: add magic link authentication"
+        
+        No CHANGELOG entry added.
+      </example>
+      <example type="incorrect">
+        Commit: "feat(auth): add magic link with email verification"
+        
+        CHANGELOG.md update:
+        ### Added
+        - feat(auth): add magic link with email verification
+        
+        (Don't copy commit format, write human-readable description)
+      </example>
+    </examples>
+  </guideline>
+  
+  <guideline priority="low">
+    <description>
+      Skip CHANGELOG for these commit types:
+      - `chore:` — Maintenance tasks
+      - `docs:` — Documentation only
+      - `style:` — Code style/formatting
+      - `test:` — Test changes only
+      - `ci:` — CI configuration
+    </description>
+  </guideline>
+</requirements>
+
+<references>
+  <reference as="related" href="CHANGELOG.md">Project CHANGELOG</reference>
+</references>
+</rule>

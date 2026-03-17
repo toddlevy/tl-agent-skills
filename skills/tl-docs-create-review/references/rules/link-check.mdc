@@ -1,0 +1,101 @@
+---
+description: Validate internal doc links on save
+globs:
+  - "docs/**/*.md"
+  - "*.md"
+alwaysApply: false
+---
+
+<rule>
+<meta>
+  <title>Link Validation</title>
+  <priority>recommend</priority>
+  <applies-to>
+    <file-matcher glob="docs/**/*.md">Documentation files</file-matcher>
+    <file-matcher glob="*.md">Root markdown files</file-matcher>
+  </applies-to>
+</meta>
+
+<requirements>
+  <guideline priority="moderate">
+    <description>
+      Use relative paths for internal documentation links.
+      This ensures links work across environments and deployments.
+    </description>
+    <examples>
+      <example type="correct">
+        See [Configuration](./config.md) for details.
+        See [API Reference](../reference/api/README.md).
+      </example>
+      <example type="incorrect">
+        See [Configuration](/docs/config.md) for details.
+        See [Configuration](https://example.com/docs/config.md).
+      </example>
+    </examples>
+  </guideline>
+  
+  <guideline priority="moderate">
+    <description>
+      Verify that linked files exist before committing.
+      Check both the file path and any anchor links.
+    </description>
+    <examples>
+      <example type="correct">
+        [Configuration](./config.md) — file exists at docs/config.md
+        [Setup Section](./README.md#setup) — file exists and has ## Setup heading
+      </example>
+      <example type="incorrect">
+        [Configuration](./configuration.md) — file is actually named config.md
+        [Setup](./README.md#installation) — heading is actually "Setup" not "Installation"
+      </example>
+    </examples>
+  </guideline>
+  
+  <guideline priority="moderate">
+    <description>
+      Use descriptive link text that indicates the destination.
+      Avoid generic text like "click here" or "this link".
+    </description>
+    <examples>
+      <example type="correct">
+        See the [Configuration Guide](./config.md) for all options.
+        Read about [authentication setup](./auth.md).
+      </example>
+      <example type="incorrect">
+        Click [here](./config.md) for configuration.
+        See [this page](./auth.md) for authentication.
+      </example>
+    </examples>
+  </guideline>
+  
+  <guideline priority="low">
+    <description>
+      For external links, verify the URL is correct and the resource exists.
+      Consider adding the domain name for clarity.
+    </description>
+    <examples>
+      <example type="correct">
+        See the [PostgreSQL documentation](https://www.postgresql.org/docs/).
+      </example>
+    </examples>
+  </guideline>
+  
+  <guideline priority="low">
+    <description>
+      When renaming or moving documentation files, update all references to those files.
+      Search for the old filename in all markdown files.
+    </description>
+  </guideline>
+</requirements>
+
+<references>
+  <reference as="context">
+    Common link issues:
+    - Case sensitivity (README.md vs readme.md)
+    - File extension (.md vs no extension)
+    - Anchor case mismatch (#Setup vs #setup)
+    - Moved or renamed files
+    - Typos in filenames
+  </reference>
+</references>
+</rule>

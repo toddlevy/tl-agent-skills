@@ -1,0 +1,75 @@
+---
+description: Keep API docs in sync with code changes
+globs:
+  - "src/routes/**/*.ts"
+  - "src/api/**/*.ts"
+  - "app/routes/**/*.ts"
+  - "app/routes/**/*.tsx"
+  - "server/**/*.ts"
+alwaysApply: false
+---
+
+<rule>
+<meta>
+  <title>API Doc Sync</title>
+  <priority>recommend</priority>
+  <applies-to>
+    <file-matcher glob="**/routes/**/*.ts">Route handlers</file-matcher>
+    <file-matcher glob="**/api/**/*.ts">API endpoints</file-matcher>
+    <file-matcher glob="server/**/*.ts">Server routes</file-matcher>
+  </applies-to>
+</meta>
+
+<requirements>
+  <guideline priority="moderate">
+    <description>
+      When adding or modifying API endpoints, update corresponding documentation.
+      
+      Changes that require doc updates:
+      - New endpoints
+      - Changed request/response schemas
+      - New or changed query parameters
+      - New or changed headers
+      - Error code changes
+      - Authentication requirement changes
+      
+      API docs typically live in `docs/reference/api/` or `docs/api/`.
+    </description>
+    <examples>
+      <example type="correct">
+        Added POST /api/users endpoint.
+        Created docs/reference/api/users-create.md with:
+        - Request schema
+        - Response schema
+        - Error codes
+        - Examples
+      </example>
+      <example type="correct">
+        Changed GET /api/users to require pagination.
+        Updated docs/reference/api/users-list.md:
+        - Added page and limit query parameters
+        - Updated response to include pagination metadata
+      </example>
+      <example type="incorrect">
+        Added POST /api/users endpoint.
+        No documentation created.
+      </example>
+      <example type="incorrect">
+        Added required `Authorization` header.
+        Docs still show endpoint as public.
+      </example>
+    </examples>
+  </guideline>
+  
+  <guideline priority="low">
+    <description>
+      Internal or admin-only endpoints may have lighter documentation requirements,
+      but should still be documented for team reference.
+    </description>
+  </guideline>
+</requirements>
+
+<references>
+  <reference as="related" href="docs/reference/api/">API documentation</reference>
+</references>
+</rule>

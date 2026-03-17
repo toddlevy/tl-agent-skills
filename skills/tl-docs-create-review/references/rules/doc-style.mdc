@@ -1,0 +1,143 @@
+---
+description: Enforce documentation style standards
+globs:
+  - "docs/**/*.md"
+  - "*.md"
+alwaysApply: false
+---
+
+<rule>
+<meta>
+  <title>Documentation Style</title>
+  <priority>recommend</priority>
+  <applies-to>
+    <file-matcher glob="docs/**/*.md">Documentation files</file-matcher>
+    <file-matcher glob="*.md">Root markdown files</file-matcher>
+  </applies-to>
+</meta>
+
+<requirements>
+  <guideline priority="moderate">
+    <description>
+      Follow documentation writing standards for consistency and readability.
+    </description>
+  </guideline>
+  
+  <guideline priority="moderate">
+    <description>
+      Address the reader as "you", not "we" or passive constructions.
+    </description>
+    <examples>
+      <example type="correct">
+        You can configure the server using environment variables.
+      </example>
+      <example type="incorrect">
+        We can configure the server using environment variables.
+      </example>
+      <example type="incorrect">
+        The server can be configured using environment variables.
+      </example>
+    </examples>
+  </guideline>
+  
+  <guideline priority="moderate">
+    <description>
+      Use full English phrases instead of Latin abbreviations.
+    </description>
+    <examples>
+      <example type="correct">
+        For example, you can use environment variables.
+        That is, the default port is 3000.
+      </example>
+      <example type="incorrect">
+        E.g., you can use environment variables.
+        I.e., the default port is 3000.
+      </example>
+    </examples>
+  </guideline>
+  
+  <guideline priority="moderate">
+    <description>
+      Use the serial (Oxford) comma in lists.
+    </description>
+    <examples>
+      <example type="correct">
+        The stack includes React, Node.js, and PostgreSQL.
+      </example>
+      <example type="incorrect">
+        The stack includes React, Node.js and PostgreSQL.
+      </example>
+    </examples>
+  </guideline>
+  
+  <guideline priority="moderate">
+    <description>
+      Use sentence case for headings (capitalize first word only).
+    </description>
+    <examples>
+      <example type="correct">
+        ## Getting started with the API
+      </example>
+      <example type="incorrect">
+        ## Getting Started With The API
+      </example>
+    </examples>
+  </guideline>
+  
+  <guideline priority="moderate">
+    <description>
+      Provide an overview paragraph after each heading before lists or subheadings.
+    </description>
+    <examples>
+      <example type="correct">
+        ## Configuration
+        
+        Configure the server using environment variables or a config file.
+        All options have sensible defaults except where noted.
+        
+        ### Required options
+      </example>
+      <example type="incorrect">
+        ## Configuration
+        
+        ### Required options
+        
+        (No overview paragraph)
+      </example>
+    </examples>
+  </guideline>
+  
+  <guideline priority="moderate">
+    <description>
+      Avoid dismissive words: "simply", "just", "obviously", "easy".
+    </description>
+    <examples>
+      <example type="correct">
+        Run the migration script to update the database.
+      </example>
+      <example type="incorrect">
+        Simply run the migration script to update the database.
+        Just run the migration script.
+      </example>
+    </examples>
+  </guideline>
+  
+  <guideline priority="low">
+    <description>
+      Use descriptive link text. Avoid "click here" or "this link".
+    </description>
+    <examples>
+      <example type="correct">
+        See the [Configuration Guide](./config.md) for details.
+      </example>
+      <example type="incorrect">
+        Click [here](./config.md) for configuration details.
+      </example>
+    </examples>
+  </guideline>
+</requirements>
+
+<references>
+  <reference as="related" href="docs/writing-standards.md">Writing standards reference</reference>
+</references>
+</rule>

@@ -1,0 +1,81 @@
+---
+description: Add/update Last Updated dates on doc changes
+globs:
+  - "docs/**/*.md"
+alwaysApply: false
+---
+
+<rule>
+<meta>
+  <title>Last Updated Tracking</title>
+  <priority>recommend</priority>
+  <applies-to>
+    <file-matcher glob="docs/**/*.md">Documentation files</file-matcher>
+  </applies-to>
+</meta>
+
+<requirements>
+  <guideline priority="moderate">
+    <description>
+      When editing documentation files, update the Last Updated blockquote.
+      
+      Format: `> **Last Updated:** YYYY-MM-DD`
+      
+      Place immediately after the H1 title.
+    </description>
+    <examples>
+      <example type="correct">
+        # Configuration Guide
+        
+        > **Last Updated:** 2026-03-17
+        
+        This guide covers all configuration options...
+      </example>
+      <example type="correct">
+        # API Reference
+        
+        > **Last Updated:** 2026-03-17
+        
+        Complete reference for the REST API.
+      </example>
+      <example type="incorrect">
+        # Configuration Guide
+        
+        This guide covers all configuration options...
+        
+        (No Last Updated date)
+      </example>
+      <example type="incorrect">
+        # Configuration Guide
+        
+        Last Updated: March 17, 2026
+        
+        (Wrong format - use blockquote and ISO date)
+      </example>
+    </examples>
+  </guideline>
+  
+  <guideline priority="moderate">
+    <description>
+      If the document doesn't have a Last Updated blockquote, add one.
+      Use today's date in ISO 8601 format (YYYY-MM-DD).
+    </description>
+  </guideline>
+  
+  <guideline priority="low">
+    <description>
+      For auto-generated documentation (from source code), the Last Updated
+      date should reflect the generation date, not the source file date.
+    </description>
+  </guideline>
+</requirements>
+
+<references>
+  <reference as="context">
+    Tracking Last Updated dates enables:
+    - Staleness detection (docs not updated in 90+ days)
+    - Reader confidence (knowing docs are current)
+    - Maintenance prioritization (oldest docs first)
+  </reference>
+</references>
+</rule>

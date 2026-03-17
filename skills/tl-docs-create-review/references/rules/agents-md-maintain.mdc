@@ -1,0 +1,89 @@
+---
+description: Keep AGENTS.md current with project commands
+globs:
+  - "package.json"
+  - "AGENTS.md"
+alwaysApply: false
+---
+
+<rule>
+<meta>
+  <title>AGENTS.md Maintenance</title>
+  <priority>recommend</priority>
+  <applies-to>
+    <file-matcher glob="package.json">Script changes</file-matcher>
+    <file-matcher glob="AGENTS.md">Direct edits</file-matcher>
+  </applies-to>
+</meta>
+
+<requirements>
+  <non-negotiable priority="critical">
+    <description>
+      AGENTS.md must stay under 60 lines. Instruction quality degrades with length.
+      If adding information, remove something less important.
+    </description>
+    <examples>
+      <example type="correct">
+        AGENTS.md is 45 lines with essential commands and conventions.
+      </example>
+      <example type="incorrect">
+        AGENTS.md is 120 lines with detailed explanations and examples.
+      </example>
+    </examples>
+  </non-negotiable>
+  
+  <guideline priority="moderate">
+    <description>
+      When adding or modifying npm scripts in package.json, update the Commands
+      section in AGENTS.md.
+      
+      Prioritize:
+      - File-scoped commands over project-wide
+      - Common workflows over edge cases
+      - Current conventions over historical context
+    </description>
+    <examples>
+      <example type="correct">
+        Added `test:e2e` script to package.json.
+        Updated AGENTS.md Commands section:
+        
+        ## Commands
+        Test: `pnpm test`
+        E2E tests: `pnpm test:e2e`
+      </example>
+      <example type="correct">
+        Changed lint command from `eslint .` to `biome lint`.
+        Updated AGENTS.md to reflect new command.
+      </example>
+      <example type="incorrect">
+        Added `test:e2e` script to package.json.
+        AGENTS.md Commands section not updated.
+      </example>
+    </examples>
+  </guideline>
+  
+  <guideline priority="low">
+    <description>
+      Do not duplicate content from README or linter configuration.
+      Reference existing docs instead.
+    </description>
+    <examples>
+      <example type="correct">
+        See [README](./README.md) for detailed setup.
+      </example>
+      <example type="incorrect">
+        ## Setup
+        1. Install Node.js 20+
+        2. Run pnpm install
+        3. Copy .env.example to .env
+        ... (duplicating README)
+      </example>
+    </examples>
+  </guideline>
+</requirements>
+
+<references>
+  <reference as="related" href="AGENTS.md">AI assistant context</reference>
+  <reference as="related" href="README.md">Project README</reference>
+</references>
+</rule>

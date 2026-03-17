@@ -1,0 +1,65 @@
+---
+description: Update README.md when features change
+globs:
+  - "package.json"
+  - "src/**/*.ts"
+  - "src/**/*.tsx"
+alwaysApply: false
+---
+
+<rule>
+<meta>
+  <title>README Sync</title>
+  <priority>recommend</priority>
+  <applies-to>
+    <file-matcher glob="package.json">Package changes</file-matcher>
+    <file-matcher glob="src/**/*.ts">Source changes</file-matcher>
+    <file-matcher glob="src/**/*.tsx">Component changes</file-matcher>
+  </applies-to>
+</meta>
+
+<requirements>
+  <guideline priority="moderate">
+    <description>
+      When adding, removing, or significantly changing features, update README.md
+      to reflect the changes. Check these sections:
+      
+      - Features list
+      - Usage examples
+      - Configuration options
+      - Scripts/commands (if package.json scripts changed)
+      - Prerequisites (if dependencies changed significantly)
+    </description>
+    <examples>
+      <example type="correct">
+        Added new `--verbose` flag to CLI.
+        Updated README.md Usage section to document the flag.
+      </example>
+      <example type="correct">
+        Added new API endpoint POST /api/users.
+        Updated README.md with endpoint documentation or link to API docs.
+      </example>
+      <example type="incorrect">
+        Added new `--verbose` flag to CLI.
+        README.md still shows old usage without the flag.
+      </example>
+      <example type="incorrect">
+        Changed default port from 3000 to 8080.
+        README.md still references port 3000.
+      </example>
+    </examples>
+  </guideline>
+  
+  <guideline priority="low">
+    <description>
+      For minor changes (bug fixes, refactoring), README update is not required
+      unless the user-visible behavior changed.
+    </description>
+  </guideline>
+</requirements>
+
+<references>
+  <reference as="related" href="README.md">Project README</reference>
+  <reference as="related" href="docs/README.md">Documentation index</reference>
+</references>
+</rule>
