@@ -1,6 +1,7 @@
 ---
 name: tl-devlog
 description: Maintain a structured development changelog (DEVLOG.md) capturing architectural decisions, milestones, incidents, and insights. Use when the user says "log this", "devlog", "archive this", or at natural pause points after significant decisions. Trigger on changelog, decision log, work log, or progress tracking.
+version: "1.1"
 metadata:
   moment: implement
   surface:
@@ -11,38 +12,19 @@ metadata:
   posture: opinionated
   agentFit: repo-write
   dryRun: none
-  quilted:
-    version: 1
-    synthesized: 2026-03-05
-    sources:
-      - url: https://github.com/d6veteran/devlog-skill
-        borrowed:
-          - Entry format
-          - Category system (architecture/milestone/takeaway/strategy)
-          - Proactive suggestions
-          - Why-focus philosophy
-          - GitHub push workflow
-          - Reading devlog for context
-        weight: 0.45
-      - url: https://github.com/maoruibin/devlog
-        borrowed:
-          - Extended categories (incident/bug/ops)
-          - Explicit trigger rules
-          - Global/local storage modes
-        weight: 0.30
-      - url: https://github.com/josephmiclaus/skill-devlog
-        borrowed:
-          - Safety constraints
-          - APPEND/CHANGE modes
-          - Structured entry sections
-        weight: 0.25
-    excluded:
-      - url: https://github.com/lordshashank/devlog
-        reason: Different domain — generates narrative blog posts from session transcripts rather than maintaining a structured work log
-    enhancements:
-      - Unified category system merging strategic and operational categories
-      - Combined explicit triggers with optional proactive suggestions
-      - Simplified workflow without external script dependencies
+quilted:
+  - source: d6veteran/devlog-skill
+    weight: 0.40
+    description: Entry format, category system, proactive suggestions, why-focus philosophy
+  - source: maoruibin/devlog
+    weight: 0.25
+    description: Extended categories (incident/bug/ops), explicit trigger rules
+  - source: josephmiclaus/skill-devlog
+    weight: 0.20
+    description: Safety constraints, APPEND/CHANGE modes, structured entry sections
+  - source: skillrecordings/adr-skill
+    weight: 0.15
+    description: ADR integration, MADR 4.0 template, promotion workflow
 ---
 
 # tl-devlog
@@ -293,3 +275,173 @@ Default to project mode. Switch to local/global only if user explicitly requests
 | `references/entry-examples.md` | Complete examples for each category |
 
 Load the examples reference when you need inspiration for a specific category.
+
+---
+
+## ADR Integration
+
+Some `architecture` entries deserve promotion to formal Architecture Decision Records.
+
+### When to Promote to ADR
+
+| Devlog Entry | Promote? | Reasoning |
+|--------------|----------|-----------|
+| "Chose PostgreSQL over MongoDB" | ✓ Yes | Significant, reversible-with-effort decision |
+| "Added rate limiting to API" | Maybe | If it affects system design |
+| "Fixed typo in config" | ✗ No | Trivial, no alternatives considered |
+
+### MADR 4.0 Template
+
+When promoting to ADR, use this format in `docs/decisions/NNNN-decision-title.md`:
+
+```markdown
+---
+status: accepted
+date: 2026-03-18
+decision-makers: [team members]
+consulted: [stakeholders]
+informed: [affected parties]
+---
+
+# ADR-NNNN: [Decision Title]
+
+## Context and Problem Statement
+
+[1-2 sentences describing the situation and the decision to be made]
+
+## Decision Drivers
+
+* [Concern 1]
+* [Concern 2]
+
+## Considered Options
+
+1. [Option A]
+2. [Option B]
+3. [Option C]
+
+## Decision Outcome
+
+Chosen option: "[Option X]" because [justification].
+
+### Consequences
+
+* Good, because [positive outcome]
+* Bad, because [negative outcome]
+* Neutral, because [side effect]
+
+## Links
+
+* [Link to devlog entry]
+* [Link to related ADRs]
+```
+
+### Bidirectional Linking
+
+When promoting a devlog entry to ADR:
+
+1. Create the ADR file
+2. Update the devlog entry with a link:
+
+```markdown
+### Related
+- **ADR**: [ADR-0015: PostgreSQL for Audit System](docs/decisions/0015-postgresql-for-audit.md)
+```
+
+---
+
+## CHANGELOG Bridging
+
+Extract `milestone` entries to generate CHANGELOG releases.
+
+### Workflow
+
+1. **Query milestones since last release:**
+   ```bash
+   grep -A 20 "Category.*milestone" DEVLOG.md | head -50
+   ```
+
+2. **Map to CHANGELOG categories:**
+   
+   | Devlog Tag | CHANGELOG Section |
+   |------------|-------------------|
+   | `new-feature` | Added |
+   | `enhancement` | Changed |
+   | `deprecation` | Deprecated |
+   | `removal` | Removed |
+   | `fix`, `bug` | Fixed |
+   | `security` | Security |
+
+3. **Generate entry:**
+
+   ```markdown
+   ## [1.2.0] - 2026-03-18
+   
+   ### Added
+   - API endpoint for bulk imports (#123)
+   
+   ### Changed  
+   - Improved rate limiting algorithm
+   
+   ### Fixed
+   - Memory leak in worker process (incident 2026-03-15)
+   ```
+
+### Keep a Changelog Format
+
+Follow [keepachangelog.com](https://keepachangelog.com/):
+
+- Newest entries at top
+- Group by version, then by type
+- Use ISO dates (YYYY-MM-DD)
+- Link versions to git tags
+
+---
+
+## Search Patterns
+
+### Find entries by category
+
+```bash
+grep -B 2 "Category.*architecture" DEVLOG.md
+```
+
+### Find entries by tag
+
+```bash
+grep -B 5 "Tags:.*auth-flow" DEVLOG.md
+```
+
+### Find entries by date range
+
+```bash
+awk '/## \[2026-03-/{flag=1} flag; /## \[2026-02-/{flag=0}' DEVLOG.md
+```
+
+### Full-text search
+
+```bash
+grep -B 10 -A 10 "PostgreSQL" DEVLOG.md
+```
+
+---
+
+## References
+
+### Quilted Skills
+
+- [d6veteran/devlog-skill](https://github.com/d6veteran/devlog-skill) — Entry format, categories
+- [maoruibin/devlog](https://github.com/maoruibin/devlog) — Extended categories
+- [josephmiclaus/skill-devlog](https://github.com/josephmiclaus/skill-devlog) — Safety constraints
+- [skillrecordings/adr-skill](https://github.com/skillrecordings/adr-skill) — ADR integration
+
+### First-Party Documentation
+
+- [Keep a Changelog](https://keepachangelog.com/) — CHANGELOG format standard
+- [MADR](https://adr.github.io/madr/) — Markdown Architectural Decision Records
+- [Conventional Commits](https://www.conventionalcommits.org/) — Commit message convention
+
+### Industry Perspectives
+
+- [Engineering Daybook (Fowler)](https://martinfowler.com/bliki/EngineeringDaybook.html) — Philosophy
+- [Documenting Architecture Decisions (Nygard)](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) — Original ADR proposal

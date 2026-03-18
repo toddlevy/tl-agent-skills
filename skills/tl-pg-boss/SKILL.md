@@ -1,7 +1,15 @@
 ---
 name: tl-pg-boss
 description: PostgreSQL-backed job queue with exactly-once delivery using SKIP LOCKED. Use when adding background jobs, task scheduling, cron jobs, or async processing to Node.js apps already using Postgres.
+version: "1.1"
 license: MIT
+quilted:
+  - source: triggerdotdev/skills/trigger-tasks
+    weight: 0.15
+    description: Async workflow patterns, retry strategies, cron scheduling
+  - source: omer-metin/skills-for-antigravity/pg-boss
+    weight: 0.10
+    description: SKIP LOCKED principles, archiving patterns
 metadata:
   moment: implement
   surface:
@@ -25,6 +33,20 @@ PostgreSQL-backed job queue for Node.js with exactly-once delivery, cron schedul
 - "Set up cron jobs / scheduled tasks"
 - "Process async work with retries"
 - User mentions: job queue, background processing, task scheduling, worker
+
+### When to Consider Alternatives
+
+For **managed background jobs with dashboard UI**, consider [Trigger.dev](https://trigger.dev) instead. pg-boss is best when:
+- You want self-hosted, PostgreSQL-native job queues
+- You already have Postgres and don't want external dependencies
+- You need transactional job enqueuing (same transaction as your data writes)
+- Cost matters (pg-boss is free, managed services charge per job)
+
+Trigger.dev is better when:
+- You need a polished dashboard out of the box
+- You want managed infrastructure with auto-scaling
+- Your team prefers a hosted SaaS experience
+- You need complex workflows with visual orchestration
 
 ## Outcomes
 
@@ -272,6 +294,192 @@ SELECT * FROM pgboss.job WHERE state = 'failed' ORDER BY completedon DESC LIMIT 
 
 ---
 
+## Observability
+
+### Prometheus Metrics
+
+Expose queue metrics for monitoring:
+
+```typescript
+import { register, Gauge, Counter } from 'prom-client';
+
+const queueSize = new Gauge({
+  name: 'pgboss_queue_size',
+  help: 'Number of jobs in queue',
+  labelNames: ['queue', 'state'],
+});
+
+const jobsProcessed = new Counter({
+  name: 'pgboss_jobs_processed_total',
+  help: 'Total jobs processed',
+  labelNames: ['queue', 'status'],
+});
+
+async function collectMetrics(boss: PgBoss) {
+  const queues = await boss.getQueues();
+  for (const queue of queues) {
+    const stats = await boss.getQueueSize(queue.name);
+    queueSize.set({ queue: queue.name, state: 'active' }, stats.active);
+    queueSize.set({ queue: queue.name, state: 'created' }, stats.created);
+  }
+}
+
+boss.on('job', (job) => jobsProcessed.inc({ queue: job.name, status: 'completed' }));
+boss.on('fail', (job) => jobsProcessed.inc({ queue: job.name, status: 'failed' }));
+```
+
+### Alerting Rules
+
+```yaml
+groups:
+  - name: pgboss
+    rules:
+      - alert: JobQueueBacklog
+        expr: pgboss_queue_size{state="created"} > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Job queue {{ $labels.queue }} has backlog"
+
+      - alert: JobFailureRate
+        expr: rate(pgboss_jobs_processed_total{status="failed"}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: critical
+```
+
+---
+
+## Testing Patterns
+
+### Unit Testing Job Handlers
+
+```typescript
+describe('EmailJob', () => {
+  it('sends email with correct parameters', async () => {
+    const sendEmail = vi.fn();
+    const handler = createEmailHandler({ sendEmail });
+    
+    await handler({ to: 'test@example.com', subject: 'Test' });
+    
+    expect(sendEmail).toHaveBeenCalledWith({
+      to: 'test@example.com',
+      subject: 'Test',
+    });
+  });
+});
+```
+
+### Integration Testing with Real Database
+
+```typescript
+import { PgBoss } from 'pg-boss';
+
+describe('Job Queue Integration', () => {
+  let boss: PgBoss;
+  
+  beforeAll(async () => {
+    boss = new PgBoss(process.env.TEST_DATABASE_URL);
+    await boss.start();
+    await boss.createQueue('test-queue');
+  });
+  
+  afterAll(async () => {
+    await boss.stop();
+  });
+  
+  it('processes job end-to-end', async () => {
+    const results: any[] = [];
+    await boss.work('test-queue', async (job) => {
+      results.push(job.data);
+    });
+    
+    await boss.send('test-queue', { id: 1 });
+    await new Promise((r) => setTimeout(r, 1000));
+    
+    expect(results).toEqual([{ id: 1 }]);
+  });
+});
+```
+
+### Mocking pg-boss
+
+```typescript
+const mockBoss = {
+  start: vi.fn().mockResolvedValue(undefined),
+  send: vi.fn().mockResolvedValue('job-id'),
+  work: vi.fn().mockResolvedValue(undefined),
+  createQueue: vi.fn().mockResolvedValue(undefined),
+};
+
+vi.mock('pg-boss', () => ({
+  PgBoss: vi.fn(() => mockBoss),
+}));
+```
+
+---
+
+## Kubernetes Deployment
+
+### Worker Deployment
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: job-worker
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: job-worker
+  template:
+    metadata:
+      labels:
+        app: job-worker
+    spec:
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: worker
+          image: app:latest
+          command: ["node", "dist/worker.js"]
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: url
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/sh", "-c", "sleep 10"]
+```
+
+### Graceful Shutdown Handler
+
+```typescript
+process.on('SIGTERM', async () => {
+  console.log('SIGTERM received, stopping gracefully...');
+  await boss.stop({ graceful: true, timeout: 30000 });
+  process.exit(0);
+});
+```
+
+---
+
 ## Verification
 
 1. [ ] `boss.start()` completes without error
@@ -282,30 +490,46 @@ SELECT * FROM pgboss.job WHERE state = 'failed' ORDER BY completedon DESC LIMIT 
 
 ---
 
-## Reference
+## References
 
-- [GitHub](https://github.com/timgit/pg-boss)
-- [Documentation](https://timgit.github.io/pg-boss/)
-- [Dashboard](https://github.com/timgit/pg-boss/tree/master/packages/dashboard)
+### Quilted Skills
+
+- [triggerdotdev/skills/trigger-tasks](https://skills.sh/triggerdotdev/skills/trigger-tasks) — Workflow patterns
+- [omer-metin/skills-for-antigravity/pg-boss](https://playbooks.com/skills/omer-metin/skills-for-antigravity/pg-boss) — SKIP LOCKED principles
+
+### First-Party Documentation
+
+- [pg-boss GitHub](https://github.com/timgit/pg-boss) — Official repository
+- [pg-boss API Docs](https://timgit.github.io/pg-boss/) — API reference
+- [pg-boss Dashboard](https://github.com/timgit/pg-boss/tree/master/packages/dashboard) — Web UI
+
+### PostgreSQL Resources
+
+- [PostgreSQL SKIP LOCKED](https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE) — Locking semantics
+- [PostgreSQL Advisory Locks](https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS) — Application-level locks
+- [Connection Pooling with PgBouncer](https://www.pgbouncer.org/) — Connection management
+
+### Alternative Solutions
+
+- [Graphile Worker](https://worker.graphile.org/) — PostgreSQL queue alternative
+- [Trigger.dev](https://trigger.dev/docs/) — Managed background jobs
+- [BullMQ](https://docs.bullmq.io/) — Redis-based alternative
 
 ### Skill References
 
-- `references/send-options.md` - Full send options
-- `references/typescript-patterns.md` - BaseJob, JobManager
-- `references/monitoring.md` - Dashboard + SQL queries
-- `references/advanced-patterns.md` - Singleton, throttling, pub/sub
-- `references/schedule-management.md` - Cron schedules, unschedule, pause patterns
-- `references/wordpress-migration.md` - WP-Cron & Action Scheduler mapping
+- `references/send-options.md` — Full send options
+- `references/typescript-patterns.md` — BaseJob, JobManager
+- `references/monitoring.md` — Dashboard + SQL queries
+- `references/advanced-patterns.md` — Singleton, throttling, pub/sub
+- `references/schedule-management.md` — Cron schedules, unschedule, pause patterns
+- `references/wordpress-migration.md` — WP-Cron & Action Scheduler mapping
 
 ---
 
 ## Attribution
 
-This skill synthesizes patterns and insights from:
-
 | Source | Author | Contribution |
 |--------|--------|--------------|
-| [pg-boss](https://github.com/timgit/pg-boss) | Tim Gilbert (@timgit) | Core library, official docs, Discussion #416 clarifications |
+| [pg-boss](https://github.com/timgit/pg-boss) | Tim Gilbert (@timgit) | Core library, official docs |
 | [TypeScript Deep Dive](https://logsnag.com/blog/deep-dive-into-background-jobs-with-pg-boss-and-typescript) | Shayan (@ImSh4yy) | BaseJob class, JobManager pattern |
-| [pg-boss skill](https://playbooks.com/skills/omer-metin/skills-for-antigravity/pg-boss) | Omer Metin | SKIP LOCKED principles, archiving best practices |
 | [pg-boss-admin-dashboard](https://github.com/lpetrov/pg-boss-admin-dashboard) | Lyubomir Petrov (@lpetrov) | Alternative dashboard with JMESPath |

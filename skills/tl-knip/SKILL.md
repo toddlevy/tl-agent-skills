@@ -3,44 +3,26 @@ name: tl-knip
 description: Find and remove unused files, dependencies, and exports in TypeScript/JavaScript projects using Knip. Covers configuration-first workflow, plugin system, barrel file handling, CI integration, monorepo support, and agent-specific cleanup guidance.
 license: MIT
 compatibility: TypeScript, JavaScript, monorepos. Node.js 18+.
+version: "2.0"
+quilted:
+  - source: brianlovin/claude-config/knip
+    weight: 0.35
+    description: Configuration-first workflow, never-use-ignore-patterns rule, ignoreExportsUsedInFile
+  - source: laurigates/claude-plugins/knip-dead-code-detection
+    weight: 0.30
+    description: Framework/test runner plugin tables, CI/CD YAML, knip-ignore comments
+  - source: artivilla/agents-config/knip
+    weight: 0.20
+    description: Auto-delete vs ask-first categorization, re-run loop workflow
+  - source: knoopx/pi/knip
+    weight: 0.10
+    description: Quick command reference, trace-file/trace-export debug commands
+  - source: pproenca/dot-skills/knip-deadcode-best-practices
+    weight: 0.05
+    description: 8-category rule priority framework
 metadata:
   author: tl-agent-skills
-  version: "2.0"
   suite: tl-knip
-  quilted:
-    version: 1
-    synthesized: '2026-02-22'
-    platform: tl-agent-skills (manual synthesis)
-    sources:
-      - url: https://skills.sh/brianlovin/claude-config/knip
-        weight: '0.35'
-        borrowed:
-          - Configuration-first workflow ordering
-          - Never-use-ignore-patterns rule
-          - ignoreExportsUsedInFile for types guidance
-          - Production mode vs --production flag preference
-      - url: https://skills.sh/laurigates/claude-plugins/knip-dead-code-detection
-        weight: '0.30'
-        borrowed:
-          - Framework plugin detection table
-          - Test runner plugin table
-          - CI/CD YAML examples
-          - Inline knip-ignore comment technique
-          - Troubleshooting section structure
-      - url: https://skills.sh/artivilla/agents-config/knip
-        weight: '0.20'
-        borrowed:
-          - Auto-delete vs ask-first confidence categorization
-          - Re-run loop workflow for agent execution
-      - url: https://skills.sh/knoopx/pi/knip
-        weight: '0.10'
-        borrowed:
-          - Concise quick command reference structure
-          - trace-file and trace-export debug commands
-      - url: https://skills.sh/pproenca/dot-skills/knip-deadcode-best-practices
-        weight: '0.05'
-        borrowed:
-          - 8-category rule priority framework as organizing model
 ---
 
 # Knip: Dead Code Detection & Removal
@@ -279,6 +261,30 @@ jobs:
 | Unused type | Exported type/interface unused elsewhere | Remove or `ignoreExportsUsedInFile` |
 | Unused enum member | Enum variant never referenced | Remove member |
 | Duplicate export | Same name exported from multiple files | Consolidate |
+
+---
+
+## References
+
+### First-Party Documentation
+
+- [Knip Documentation](https://knip.dev/) — Official documentation
+- [Knip GitHub](https://github.com/webpro-nl/knip) — Source code and issues
+- [Knip Reporters](https://knip.dev/reference/reporters) — Output formats (JSON, SARIF)
+- [Knip Plugins](https://knip.dev/reference/plugins) — Framework integrations
+
+### Related Tools
+
+- [ts-prune](https://github.com/nadeesha/ts-prune) — TypeScript-specific unused export finder
+- [depcheck](https://github.com/depcheck/depcheck) — Unused dependency checker
+- [unimported](https://github.com/smeijer/unimported) — Find unimported files
+
+### Pre-commit Integration
+
+```yaml
+# .husky/pre-commit
+npx knip --dependencies --max-issues 0
+```
 
 ---
 

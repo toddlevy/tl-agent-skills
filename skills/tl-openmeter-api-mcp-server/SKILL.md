@@ -1,11 +1,15 @@
 ---
 name: tl-openmeter-api-mcp-server
 description: MCP server providing tools to interact with a local OpenMeter instance. Enables AI assistants to list meters, manage customers, create subscriptions, query usage, and ingest events. Use when working with OpenMeter locally and you need to call the API directly from the agent.
+version: "1.1"
 license: MIT
 compatibility: Node.js 18+, local or remote OpenMeter instance
+quilted:
+  - source: anthropics/skills/mcp-builder
+    weight: 0.25
+    description: 4-phase MCP workflow, tool naming conventions, error handling, pagination patterns
 metadata:
   author: tl-agent-skills
-  version: "1.0"
   suite: tl-openmeter
   related: tl-openmeter-api tl-openmeter-local-dev
   type: mcp-server
@@ -127,3 +131,222 @@ Errors (e.g. connection refused) are returned as tool results so the agent can r
 | Connection refused | OpenMeter not running | Start OpenMeter (`docker compose up`) |
 | 401 Unauthorized | Missing API key | Set `OPENMETER_API_KEY` in env |
 | Server won't start | Not built | Run `npm run build` in skill directory |
+
+---
+
+## MCP Design Principles
+
+From anthropics/skills/mcp-builder:
+
+### Tool Naming
+
+Use consistent, action-oriented prefixes:
+
+```
+openmeter_list_meters     ✓ (list action)
+openmeter_get_customer    ✓ (get action)
+openmeter_create_subscription ✓ (create action)
+meters                    ✗ (no action prefix)
+```
+
+### API Coverage vs Workflow Tools
+
+Balance comprehensive API endpoint coverage with specialized workflow tools:
+
+- **Comprehensive coverage** gives agents flexibility to compose operations
+- **Workflow tools** (e.g., `openmeter_provision_customer`) combine multiple calls for common tasks
+
+When uncertain, prioritize comprehensive API coverage.
+
+### Actionable Error Messages
+
+Error messages should guide agents toward solutions:
+
+```typescript
+// Bad
+throw new Error('Request failed');
+
+// Good
+throw new Error(
+  `OpenMeter customer not found: ${customerId}. ` +
+  `Use openmeter_list_customers to find valid customer IDs.`
+);
+```
+
+---
+
+## Pagination
+
+All list operations support cursor-based pagination:
+
+```typescript
+interface PaginationParams {
+  page?: number;
+  pageSize?: number;  // default: 100, max: 1000
+}
+
+interface PaginatedResponse<T> {
+  items: T[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+}
+```
+
+### Tool Implementation
+
+```typescript
+server.registerTool({
+  name: 'openmeter_list_customers',
+  description: 'List customers with pagination. Returns page info and total count.',
+  inputSchema: z.object({
+    page: z.number().optional().describe('Page number (1-indexed)'),
+    pageSize: z.number().max(1000).optional().describe('Items per page, max 1000'),
+  }),
+  async handler({ page = 1, pageSize = 100 }) {
+    const response = await fetch(
+      `${baseUrl}/api/v1/customers?page=${page}&pageSize=${pageSize}`
+    );
+    return {
+      content: [{ type: 'text', text: JSON.stringify(await response.json()) }],
+    };
+  },
+});
+```
+
+---
+
+## Batch Operations
+
+### Batch Event Ingestion
+
+```typescript
+server.registerTool({
+  name: 'openmeter_batch_ingest',
+  description: 'Ingest multiple CloudEvents in a single request',
+  inputSchema: z.object({
+    events: z.array(z.object({
+      type: z.string(),
+      subject: z.string(),
+      data: z.record(z.unknown()),
+    })),
+  }),
+  async handler({ events }) {
+    const cloudEvents = events.map(e => ({
+      specversion: '1.0',
+      id: crypto.randomUUID(),
+      source: 'mcp-server',
+      type: e.type,
+      subject: e.subject,
+      time: new Date().toISOString(),
+      data: e.data,
+    }));
+    
+    const response = await fetch(`${baseUrl}/api/v1/events`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/cloudevents-batch+json' },
+      body: JSON.stringify(cloudEvents),
+    });
+    
+    return { content: [{ type: 'text', text: `Ingested ${events.length} events` }] };
+  },
+});
+```
+
+---
+
+## Tool Annotations
+
+Mark tools with hints for agent behavior:
+
+```typescript
+server.registerTool({
+  name: 'openmeter_create_customer',
+  annotations: {
+    readOnlyHint: false,      // Modifies state
+    destructiveHint: false,   // Does not delete data
+    idempotentHint: false,    // Creates new resource each time
+    openWorldHint: true,      // External service interaction
+  },
+  // ...
+});
+
+server.registerTool({
+  name: 'openmeter_list_meters',
+  annotations: {
+    readOnlyHint: true,       // Only reads data
+    destructiveHint: false,
+    idempotentHint: true,     // Same result for same input
+    openWorldHint: true,
+  },
+  // ...
+});
+```
+
+---
+
+## Testing
+
+### MCP Inspector
+
+Test tools interactively:
+
+```bash
+npx @modelcontextprotocol/inspector
+```
+
+### Mock Server for Tests
+
+```typescript
+import { createMockMcpServer } from './test-utils';
+
+const mockServer = createMockMcpServer({
+  tools: {
+    openmeter_list_meters: async () => ({
+      content: [{ type: 'text', text: JSON.stringify([
+        { id: 'test-meter', slug: 'api-calls', aggregation: 'COUNT' }
+      ]) }],
+    }),
+  },
+});
+```
+
+### Integration Test Pattern
+
+```typescript
+describe('OpenMeter MCP Server', () => {
+  it('lists meters from running OpenMeter', async () => {
+    const result = await server.callTool('openmeter_list_meters', {});
+    expect(result.content[0].type).toBe('text');
+    const meters = JSON.parse(result.content[0].text);
+    expect(Array.isArray(meters)).toBe(true);
+  });
+
+  it('returns actionable error for invalid customer', async () => {
+    const result = await server.callTool('openmeter_get_customer', { 
+      idOrKey: 'nonexistent' 
+    });
+    expect(result.content[0].text).toContain('openmeter_list_customers');
+  });
+});
+```
+
+---
+
+## References
+
+### Quilted Skills
+
+- [anthropics/skills/mcp-builder](https://skills.sh/anthropics/skills/mcp-builder) — MCP server development guide
+
+### First-Party Documentation
+
+- [MCP Specification](https://modelcontextprotocol.io/) — Protocol specification
+- [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk) — SDK reference
+- [OpenMeter API](https://openmeter.io/docs/api) — API endpoints
+
+### MCP Resources
+
+- [MCP Server Examples](https://github.com/modelcontextprotocol/servers) — Reference implementations
+- [MCP Inspector](https://github.com/modelcontextprotocol/inspector) — Debugging tool
+- [MCP Best Practices](https://github.com/anthropics/skills/blob/HEAD/skills/mcp-builder/reference/mcp_best_practices.md) — Universal guidelines

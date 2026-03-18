@@ -219,3 +219,24 @@ curl -X POST http://127.0.0.1:3001/webhooks/openmeter \
 | Ngrok URL changed | Update `.env`, `config.local.yaml`, Stripe Dashboard; restart OpenMeter |
 
 See [references/REFERENCE.md](references/REFERENCE.md) for the full troubleshooting matrix.
+
+---
+
+## References
+
+### First-Party Documentation
+
+- [OpenMeter Docker Setup](https://openmeter.io/docs/installation/docker) — Official Docker guide
+- [OpenMeter Self-Hosted](https://openmeter.io/docs/guides/self-hosted) — Self-hosting guide
+- [Stripe App Setup](https://openmeter.io/docs/guides/stripe) — Stripe integration
+
+### Development Tools
+
+- [ngrok](https://ngrok.com/docs) — Secure tunnels for webhook testing
+- [Stripe CLI](https://stripe.com/docs/stripe-cli) — Local Stripe development
+- [Docker Compose](https://docs.docker.com/compose/) — Multi-container orchestration
+
+### Related Skills
+
+- [tl-openmeter-api](../tl-openmeter-api/SKILL.md) — REST API reference
+- [tl-openmeter-api-mcp-server](../tl-openmeter-api-mcp-server/SKILL.md) — MCP server for Cursor

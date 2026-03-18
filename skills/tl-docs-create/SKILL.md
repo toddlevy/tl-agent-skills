@@ -2,81 +2,43 @@
 name: tl-docs-create
 description: Create documentation from scratch for codebases. Covers SSOT-driven generation, writing standards, and templates for README/AGENTS.md/CHANGELOG. Use when creating new docs or documenting an undocumented codebase.
 license: MIT
+version: "1.1"
+quilted:
+  - source: google-gemini/gemini-cli/docs-writer
+    weight: 0.25
+    description: 4-phase workflow, voice/tone rules, verification checklist
+  - source: shpigford/skills/readme
+    weight: 0.15
+    description: Exploration-first, 3 purposes, absurd thoroughness
+  - source: getsentry/skills/agents-md
+    weight: 0.12
+    description: AGENTS.md structure, brevity rules, file-scoped commands
+  - source: softaworks/agent-toolkit/crafting-effective-readmes
+    weight: 0.10
+    description: Project type detection, audience analysis
+  - source: itechmeat/llm-code/changelog
+    weight: 0.08
+    description: CHANGELOG.md template, Keep a Changelog format
+  - source: patricio0312rev/skills/api-docs-generator
+    weight: 0.08
+    description: OpenAPI patterns, API doc templates
+  - source: remotion-dev/remotion/writing-docs
+    weight: 0.06
+    description: Language brevity, API-per-page rule
+  - source: plaited/development-skills/code-documentation
+    weight: 0.05
+    description: TSDoc patterns
+  - source: aj-geddes/useful-ai-prompts/markdown-documentation
+    weight: 0.05
+    description: GFM syntax, do/don't list
+  - source: local/jambase-docs
+    weight: 0.04
+    description: SSOT generation, hierarchical READMEs, source attribution
+  - source: local/agents-md-create
+    weight: 0.02
+    description: Project type templates
 metadata:
   moment: implement
-  quilted:
-    version: 1
-    synthesized: 2026-03-17
-    sources:
-      - url: https://skills.sh/google-gemini/gemini-cli/docs-writer
-        borrowed:
-          - "4-phase workflow"
-          - "voice/tone rules"
-          - "verification checklist"
-        weight: 0.25
-      - url: https://skills.sh/shpigford/skills/readme
-        borrowed:
-          - "exploration-first"
-          - "3 purposes"
-          - "absurd thoroughness"
-        weight: 0.15
-      - url: https://skills.sh/getsentry/skills/agents-md
-        borrowed:
-          - "AGENTS.md structure"
-          - "brevity rules"
-          - "file-scoped commands"
-        weight: 0.12
-      - url: https://skills.sh/softaworks/agent-toolkit/crafting-effective-readmes
-        borrowed:
-          - "project type detection"
-          - "audience analysis"
-        weight: 0.10
-      - url: https://skills.sh/itechmeat/llm-code/changelog
-        borrowed:
-          - "CHANGELOG.md template"
-          - "Keep a Changelog format"
-        weight: 0.08
-      - url: https://skills.sh/patricio0312rev/skills/api-docs-generator
-        borrowed:
-          - "OpenAPI patterns"
-          - "API doc templates"
-        weight: 0.08
-      - url: https://skills.sh/remotion-dev/remotion/writing-docs
-        borrowed:
-          - "language brevity"
-          - "API-per-page rule"
-        weight: 0.06
-      - url: https://skills.sh/plaited/development-skills/code-documentation
-        borrowed:
-          - "TSDoc patterns"
-        weight: 0.05
-      - url: https://skills.sh/aj-geddes/useful-ai-prompts/markdown-documentation
-        borrowed:
-          - "GFM syntax"
-          - "do/don't list"
-        weight: 0.05
-      - local: JamBase data.jambase.com/docs
-        borrowed:
-          - "SSOT generation"
-          - "hierarchical READMEs"
-          - "source attribution"
-        weight: 0.04
-      - local: agents-md-create
-        borrowed:
-          - "project type templates"
-        weight: 0.02
-    excluded:
-      - url: https://skills.sh/am-will/codex-skills/openai-docs-skill
-        reason: "Different domain — MCP for fetching external docs"
-      - url: https://skills.sh/openai/openai-agents-python/docs-sync
-        reason: "Gap analysis scope — see tl-docs-audit"
-      - url: https://skills.sh/jezweb/claude-skills/docs-workflow
-        reason: "Staleness audit scope — see tl-docs-audit"
-    enhancements:
-      - "Unified 4-phase workflow (assess, select, write, verify)"
-      - "Doc type selection gate"
-      - "Self-documentation generation from code"
-      - "Audience-aware templates"
   surface:
     - repo
   output: artifact
@@ -278,6 +240,8 @@ Available rules:
 
 ## References
 
+### Skill References
+
 | File | Purpose |
 |------|---------|
 | `references/configuration.md` | AskQuestion flows and branching logic |
@@ -286,6 +250,20 @@ Available rules:
 | `references/doc-types.md` | README, AGENTS.md, CHANGELOG, API patterns |
 | `references/docs-viewer.md` | Reference to `tl-docs-viewer-create` skill |
 | `references/doc-rules.md` | Cursor rules for doc maintenance |
+
+### First-Party Documentation
+
+- [Keep a Changelog](https://keepachangelog.com/) — CHANGELOG format standard
+- [MADR](https://adr.github.io/madr/) — Markdown Architectural Decision Records
+- [Diátaxis](https://diataxis.fr/) — Documentation framework (tutorial/how-to/reference/explanation)
+- [Conventional Commits](https://www.conventionalcommits.org/) — Commit message convention
+- [Write the Docs](https://www.writethedocs.org/guide/) — Documentation community style guide
+
+### Documentation Tools
+
+- [TypeDoc](https://typedoc.org/) — TypeScript API documentation generator
+- [JSDoc](https://jsdoc.app/) — JavaScript documentation generator
+- [OpenAPI](https://www.openapis.org/) — REST API specification
 
 ---
 

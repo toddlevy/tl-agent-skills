@@ -2,6 +2,23 @@
 name: tl-complexity-assessment
 description: Find large files, god modules, and refactoring candidates in TypeScript/JavaScript/React codebases. Use when files feel "too big", planning a refactor sprint, onboarding to legacy code, or asking "what should I split up?"
 license: MIT
+version: "1.2"
+quilted:
+  - source: trailofbits/skills/code-maturity-assessor
+    weight: 0.30
+    description: Assessment framework, rating system (0-4), phase structure
+  - source: tl-agent-skills/codebase-audit
+    weight: 0.25
+    description: Severity/Effort ROI matrix, time-boxing, discovery commands
+  - source: obra/superpowers/systematic-debugging
+    weight: 0.20
+    description: Iron Law pattern, phase gates, red flags
+  - source: obra/superpowers/verification-before-completion
+    weight: 0.15
+    description: Evidence before claims, rationalization prevention
+  - source: rmyndharis/antigravity-skills/code-refactoring-refactor-clean
+    weight: 0.10
+    description: SOLID assessment criteria, code smell categories
 metadata:
   version: 1.1.0
   author: Todd Levy <toddlevy@gmail.com>
@@ -14,45 +31,6 @@ metadata:
   posture: guided
   agentFit: repo-read
   dryRun: none
-  quilted:
-    version: 1
-    synthesized: 2026-03-10
-    sources:
-      - url: https://skills.sh/trailofbits/skills/code-maturity-assessor
-        borrowed:
-          - 9-category assessment framework
-          - Rating system (0-4)
-          - Phase structure
-          - Rationalizations table
-        weight: 0.30
-      - url: local://tl-agent-skills/codebase-audit
-        borrowed:
-          - Severity/Effort ROI matrix
-          - Time-boxing guidelines
-          - Discovery commands
-          - Evidence requirements
-        weight: 0.25
-      - url: https://skills.sh/obra/superpowers/systematic-debugging
-        borrowed:
-          - Iron Law pattern
-          - Phase gates
-          - Red flags section
-        weight: 0.20
-      - url: https://skills.sh/obra/superpowers/verification-before-completion
-        borrowed:
-          - Evidence before claims principle
-          - Rationalization prevention
-        weight: 0.15
-      - url: https://skills.sh/rmyndharis/antigravity-skills/code-refactoring-refactor-clean
-        borrowed:
-          - SOLID assessment criteria
-          - Code smell categories
-        weight: 0.10
-    enhancements:
-      - TypeScript/React-specific heuristics with numeric thresholds
-      - Automated detection commands with ripgrep/find
-      - Unified complexity scoring (0-10 scale)
-      - Split-recommendation output format
 ---
 
 # tl-complexity-assessment
@@ -432,6 +410,79 @@ Once you have findings, here's how to act on them:
 
 ---
 
+## Cognitive vs Cyclomatic Complexity
+
+**Cyclomatic complexity** counts decision points (branches). **Cognitive complexity** measures how hard code is for humans to understand.
+
+### Key Differences
+
+| Aspect | Cyclomatic | Cognitive |
+|--------|------------|-----------|
+| Counts | Branches | Mental effort |
+| Nesting | Not penalized | Penalized (+1 per level) |
+| Break in flow | Not counted | Counted (early return, goto) |
+| Recursion | Not counted | Counted |
+| Threshold | 10-15 | 15-25 |
+
+### Cognitive Complexity Rules
+
+1. **+1** for each control structure (`if`, `for`, `while`, `switch`, `catch`)
+2. **+1** for each break in linear flow (`else`, `elif`, early return)
+3. **+1 per nesting level** when structures are nested
+4. **+1** for recursion
+
+### ESLint Integration
+
+```json
+{
+  "rules": {
+    "complexity": ["warn", { "max": 10 }],
+    "sonarjs/cognitive-complexity": ["warn", 15]
+  }
+}
+```
+
+Install SonarJS for cognitive complexity:
+
+```bash
+pnpm add -D eslint-plugin-sonarjs
+```
+
+---
+
+## Code Review Metrics
+
+Integrate complexity into PR reviews:
+
+### Optimal PR Size
+
+| Lines Changed | Review Effectiveness |
+|---------------|---------------------|
+| < 200 | Optimal |
+| 200-400 | Good |
+| 400-800 | Reduced |
+| > 800 | Poor (split recommended) |
+
+### Review Time Budget
+
+- **200 LOC**: 15-20 minutes
+- **400 LOC**: 30-45 minutes  
+- **800 LOC**: 60+ minutes (diminishing returns)
+
+### CI Complexity Gate
+
+```yaml
+# .github/workflows/complexity.yml
+jobs:
+  complexity-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npx eslint --rule 'complexity: [error, 15]' src/
+```
+
+---
+
 ## Verification Checklist
 
 Before completing assessment:
@@ -478,3 +529,33 @@ Load these references when deeper analysis is needed for a specific category.
 - `tl-knip` - Find unused exports (reduces false positives in export counts)
 - `codebase-audit` - Broader code health assessment
 - `ui-audit` - UI-specific complexity and drift detection
+- `semgrep/skills/code-security` - Security vulnerability detection (complementary to structural complexity)
+
+---
+
+## References
+
+### Quilted Sources
+
+- [trailofbits/skills/code-maturity-assessor](https://skills.sh/trailofbits/skills/code-maturity-assessor) — Assessment framework
+- [obra/superpowers/systematic-debugging](https://skills.sh/obra/superpowers/systematic-debugging) — Iron Law pattern
+- [obra/superpowers/verification-before-completion](https://skills.sh/obra/superpowers/verification-before-completion) — Evidence principles
+- [rmyndharis/antigravity-skills/code-refactoring-refactor-clean](https://skills.sh/rmyndharis/antigravity-skills/code-refactoring-refactor-clean) — SOLID assessment
+
+### Official Skills
+
+- [semgrep/skills/semgrep](https://skills.sh/semgrep/skills/semgrep) — Static analysis and custom rule creation
+- [semgrep/skills/code-security](https://skills.sh/semgrep/skills/code-security) — Security vulnerability patterns
+- [jwynia/agent-skills/code-review](https://skills.sh/jwynia/agent-skills/code-review) — Review metrics
+
+### First-Party Documentation
+
+- [ESLint Complexity Rule](https://eslint.org/docs/rules/complexity) — Cyclomatic complexity linting
+- [SonarQube Cognitive Complexity](https://www.sonarsource.com/docs/cognitive-complexity/) — Cognitive complexity definition
+- [Semgrep Rule Writing](https://semgrep.dev/docs/writing-rules/overview/) — Custom complexity rules
+- [TypeScript Compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API) — AST analysis
+
+### Academic/Industry
+
+- [Cognitive Complexity Paper](https://www.sonarsource.com/docs/CognitiveComplexity.pdf) — Original SonarSource definition
+- [Code Complete 2](https://www.oreilly.com/library/view/code-complete-2nd/0735619670/) — McConnell complexity guidance

@@ -2,43 +2,25 @@
 name: tl-docs-audit
 description: Audit existing documentation for gaps, staleness, and sync issues. Generates sync reports with actionable findings. Use when reviewing doc coverage, finding outdated docs, or syncing docs with code.
 license: MIT
+version: "1.1"
+quilted:
+  - source: openai/openai-agents-python/docs-sync
+    weight: 0.35
+    description: Gap analysis, feature inventory, sync report format
+  - source: vercel/next.js/update-docs
+    weight: 0.25
+    description: Code-to-docs mapping table, shared content handling
+  - source: jezweb/claude-skills/docs-workflow
+    weight: 0.20
+    description: Lifecycle commands, staleness audit, staleness indicators
+  - source: local/codebase-audit
+    weight: 0.10
+    description: Finding categories, time-boxing
+  - source: plaited/development-skills/code-documentation
+    weight: 0.10
+    description: Maintenance workflow
 metadata:
   moment: review
-  quilted:
-    version: 1
-    synthesized: 2026-03-17
-    sources:
-      - url: https://skills.sh/openai/openai-agents-python/docs-sync
-        borrowed:
-          - "gap analysis"
-          - "feature inventory"
-          - "sync report format"
-        weight: 0.35
-      - url: https://skills.sh/vercel/next.js/update-docs
-        borrowed:
-          - "code-to-docs mapping table"
-          - "shared content handling"
-        weight: 0.25
-      - url: https://skills.sh/jezweb/claude-skills/docs-workflow
-        borrowed:
-          - "lifecycle commands"
-          - "staleness audit"
-          - "staleness indicators"
-        weight: 0.20
-      - local: codebase-audit
-        borrowed:
-          - "finding categories"
-          - "time-boxing"
-        weight: 0.10
-      - url: https://skills.sh/plaited/development-skills/code-documentation
-        borrowed:
-          - "maintenance workflow"
-        weight: 0.10
-    enhancements:
-      - "Two-pass audit (doc-first + code-first)"
-      - "Structured sync report template"
-      - "Lifecycle integration triggers"
-      - "AskQuestion for scope selection"
   surface:
     - repo
   output: decision
@@ -268,10 +250,32 @@ When content appears in multiple places, identify the source of truth.
 
 ## References
 
+### Skill References
+
 | File | Purpose |
 |------|---------|
 | `references/configuration.md` | AskQuestion flows for scope selection |
 | `references/sync-report.md` | Full sync report template |
+
+### Automated Tooling
+
+- [Vale](https://vale.sh/) — Prose linting (style, grammar, terminology)
+- [linkinator](https://github.com/JustinBeckwith/linkinator) — Dead link detection
+- [alex](https://alexjs.com/) — Inclusive writing checker
+- [markdownlint](https://github.com/DavidAnson/markdownlint) — Markdown style linting
+
+### CI Integration
+
+```yaml
+# .github/workflows/docs-lint.yml
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npx linkinator docs/ --recurse
+      - run: npx vale docs/
+```
 
 ---
 

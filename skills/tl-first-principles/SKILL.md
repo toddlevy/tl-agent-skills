@@ -1,11 +1,21 @@
 ---
 name: tl-first-principles
 description: Foundational software design principles traced to their intellectual origins. Covers information hiding, separation of concerns, abstraction, SSOT/DRY, conceptual integrity, and composition. Use when making architectural decisions, evaluating trade-offs, or understanding *why* best practices exist.
+version: "1.1"
 license: MIT
 compatibility: Universal. Language and framework agnostic.
+quilted:
+  - source: sickn33/antigravity-awesome-skills/software-architecture
+    weight: 0.15
+    description: Clean Architecture, DDD, hexagonal patterns
+  - source: athola/claude-night-market/code-quality-principles
+    weight: 0.10
+    description: KISS, YAGNI alongside SOLID
+  - source: ramziddin/solid-skills
+    weight: 0.12
+    description: SOLID principles, TDD connection
 metadata:
   author: tl-agent-skills
-  version: "1.0"
   suite: tl-first-principles
 ---
 
@@ -135,6 +145,99 @@ These principles emerged from different lineages but converge on the same goal: 
 
 See [sources/primary-sources.md](sources/primary-sources.md) for annotated bibliography with links to original papers and books.
 
+---
+
+## Decision Heuristics
+
+When principles appear to conflict, use these heuristics:
+
+### Information Hiding vs Explicitness
+
+| Choose Information Hiding | Choose Explicitness |
+|---------------------------|---------------------|
+| Implementation will change | Interface is the value |
+| Multiple consumers | Single-use utility |
+| Encapsulation aids testing | Debugging requires visibility |
+
+### SRP vs DRY
+
+| Choose SRP (accept duplication) | Choose DRY (accept coupling) |
+|---------------------------------|------------------------------|
+| Code changes for different reasons | Code truly represents one concept |
+| Teams own different copies | Central ownership is clear |
+| Coupling cost > duplication cost | Duplication cost > coupling cost |
+
+### YAGNI vs Extensibility
+
+| Choose YAGNI (build less) | Choose Extensibility (build hooks) |
+|---------------------------|-----------------------------------|
+| Uncertain requirements | Known variation points |
+| Prototype or MVP | Library or framework |
+| Single consumer | Multiple consumers |
+
+### Scale Considerations
+
+| Context | Principle Emphasis |
+|---------|-------------------|
+| Solo developer | Conceptual Integrity (one mind) |
+| Team | Separation of Concerns (parallel work) |
+| Prototype | YAGNI, Fail Fast |
+| Production | Information Hiding, Contracts |
+| Library | Liskov Substitution, Stable APIs |
+| Application | Composition, Flexibility |
+
+---
+
+## Anti-Pattern Catalog
+
+| Anti-Pattern | Violated Principle | Consequence |
+|--------------|-------------------|-------------|
+| **God Object** | SRP | Changes ripple everywhere; untestable |
+| **Leaky Abstraction** | Information Hiding | Consumers depend on implementation details |
+| **Shotgun Surgery** | SoC | One change requires editing many files |
+| **Primitive Obsession** | Abstraction | Scattered validation; unclear semantics |
+| **Feature Envy** | Information Hiding | Method uses another object's data more than its own |
+| **Divergent Change** | SRP | One class changes for multiple unrelated reasons |
+| **Parallel Inheritance** | Composition | Adding one class requires adding another |
+| **Dead Code** | Explicit over Implicit | Confusion about what's active |
+| **Speculative Generality** | YAGNI | Complexity for unused flexibility |
+| **Inappropriate Intimacy** | Information Hiding | Classes know too much about each other |
+
+### Diagnostic Questions
+
+- **Does this change for multiple reasons?** → SRP violation
+- **Could I swap this implementation?** → Information Hiding check
+- **Is this fact represented once?** → DRY/SSOT check
+- **Can I test this in isolation?** → Coupling smell
+- **Does the name explain the purpose?** → Abstraction quality
+
+---
+
+## Principle Interactions
+
+### Reinforcing Relationships
+
+```mermaid
+graph LR
+    SoC[Separation of Concerns] --> SRP[Single Responsibility]
+    SRP --> Testability
+    InfoHide[Information Hiding] --> Abstraction
+    Abstraction --> Substitutability
+    Testability --> SRP
+    DI[Dependency Injection] --> Testability
+```
+
+### Tension Relationships
+
+| Tension | Resolution |
+|---------|------------|
+| DRY ↔ Coupling | Accept duplication when coupling is worse |
+| YAGNI ↔ Extensibility | Build for known requirements only |
+| Explicitness ↔ Hiding | Hide implementation, expose intent |
+| Performance ↔ Abstraction | Optimize measured bottlenecks only |
+
+---
+
 ## Related Skills
 
 This skill provides the *theory*. For *practice*, see:
@@ -144,8 +247,38 @@ This skill provides the *theory*. For *practice*, see:
 | Database patterns | `drizzle-patterns` |
 | Code quality setup | `code-quality-setup` |
 | Codebase audit | `codebase-audit` |
+| Complexity assessment | `tl-complexity-assessment` |
+
+---
 
 ## References
+
+### Quilted Skills
+
+- [sickn33/software-architecture](https://skills.sh/sickn33/antigravity-awesome-skills/software-architecture) — Architecture patterns
+- [athola/code-quality-principles](https://skills.sh/athola/claude-night-market/code-quality-principles) — KISS, YAGNI
+- [ramziddin/solid-skills](https://github.com/ramziddin/solid-skills) — SOLID principles
+
+### First-Party Academic Sources
+
+- [Parnas 1972 — On the Criteria To Be Used in Decomposing Systems into Modules](https://dl.acm.org/doi/10.1145/361598.361623)
+- [Dijkstra — On the Role of Scientific Thought (EWD447)](https://www.cs.utexas.edu/~EWD/transcriptions/EWD04xx/EWD447.html)
+- [Liskov 1987 — Data Abstraction and Hierarchy](https://dl.acm.org/doi/10.1145/942572.807045)
+- [Brooks 1975 — The Mythical Man-Month](https://www.oreilly.com/library/view/mythical-man-month-the/0201835959/)
+
+### Modern Interpretation
+
+- [Martin Fowler's Bliki](https://martinfowler.com/bliki/) — Contemporary patterns
+- [Clean Coder Blog](https://blog.cleancoder.com/) — Robert Martin on SOLID
+- [Refactoring.Guru](https://refactoring.guru/design-patterns) — Pattern explanations
+
+### Books
+
+- [Clean Architecture (Martin)](https://www.oreilly.com/library/view/clean-architecture-a/9780134494272/)
+- [Domain-Driven Design (Evans)](https://www.oreilly.com/library/view/domain-driven-design-tackling/0321125215/)
+- [Patterns of Enterprise Application Architecture (Fowler)](https://www.oreilly.com/library/view/patterns-of-enterprise/0321127420/)
+
+### Skill References
 
 - [sources/primary-sources.md](sources/primary-sources.md) — Annotated bibliography
 - [principles/](principles/) — Individual principle deep-dives

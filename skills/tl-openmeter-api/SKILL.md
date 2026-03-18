@@ -517,6 +517,26 @@ RAILWAY_RUN_UID=0  # Confluent images need root for volume permissions
 
 ---
 
-## Reference
+## References
+
+### First-Party Documentation
+
+- [OpenMeter API Reference](https://openmeter.io/docs/api) — Official API documentation
+- [OpenMeter GitHub](https://github.com/openmeterio/openmeter) — Source code and examples
+- [CloudEvents Specification](https://cloudevents.io/) — Event format specification
+- [OpenMeter Cloud](https://openmeter.cloud/) — Managed service
+
+### SDKs
+
+- [Node.js SDK](https://www.npmjs.com/package/@openmeter/sdk) — Official Node.js client
+- [Python SDK](https://pypi.org/project/openmeter/) — Official Python client
+- [Go SDK](https://pkg.go.dev/github.com/openmeterio/openmeter/api/client/go) — Official Go client
+
+### Related Skills
+
+- [tl-openmeter-local-dev](../tl-openmeter-local-dev/SKILL.md) — Local development setup
+- [tl-openmeter-api-mcp-server](../tl-openmeter-api-mcp-server/SKILL.md) — MCP server for Cursor
+
+### Reference
 
 The full OpenAPI 3.0 spec is bundled at [assets/openapi-spec.json](assets/openapi-spec.json). Use it as the source of truth for request/response schemas, query parameters, and error codes.
