@@ -1,0 +1,14 @@
+name: tl-devlog
+displayName: TL Devlog
+description: Maintain structured development changelogs with decisions, milestones, and insights
+version: 1.0.0
+author:
+  name: Todd Levy
+  email: todd@toddlevy.com
+keywords: [devlog, changelog, decisions, documentation]
+
+skills:
+  - tl-devlog
+
+rules:
+  - tl-devlog-usage.mdc

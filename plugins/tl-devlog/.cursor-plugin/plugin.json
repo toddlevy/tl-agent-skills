@@ -1,0 +1,20 @@
+{
+  "skills": "skills",
+  "rules": "rules",
+  "keywords": [
+    "devlog",
+    "changelog",
+    "decisions",
+    "documentation"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/toddlevy/tl-agent-skills",
+  "version": "1.0.0",
+  "author": {
+    "name": "Todd Levy",
+    "email": "todd@toddlevy.com"
+  },
+  "repository": "https://github.com/toddlevy/tl-agent-skills",
+  "name": "tl-devlog",
+  "description": "Maintain structured development changelogs with decisions, milestones, and insights"
+}
