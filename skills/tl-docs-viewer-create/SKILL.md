@@ -4,7 +4,8 @@ description: Create a React admin UI for browsing documentation folders with tre
 license: MIT
 metadata:
   moment: implement
-  surface: [repo]
+  surface:
+    - repo
   output: artifact
   risk: safe
   posture: opinionated

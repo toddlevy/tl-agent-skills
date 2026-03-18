@@ -7,19 +7,30 @@ quilted:
   synthesized: 2026-03-17
   sources:
     - url: https://skills.sh/openai/openai-agents-python/docs-sync
-      borrowed: ["gap analysis", "feature inventory", "sync report format"]
+      borrowed:
+        - "gap analysis"
+        - "feature inventory"
+        - "sync report format"
       weight: 0.35
     - url: https://skills.sh/vercel/next.js/update-docs
-      borrowed: ["code-to-docs mapping table", "shared content handling"]
+      borrowed:
+        - "code-to-docs mapping table"
+        - "shared content handling"
       weight: 0.25
     - url: https://skills.sh/jezweb/claude-skills/docs-workflow
-      borrowed: ["lifecycle commands", "staleness audit", "staleness indicators"]
+      borrowed:
+        - "lifecycle commands"
+        - "staleness audit"
+        - "staleness indicators"
       weight: 0.20
     - local: codebase-audit
-      borrowed: ["finding categories", "time-boxing"]
+      borrowed:
+        - "finding categories"
+        - "time-boxing"
       weight: 0.10
     - url: https://skills.sh/plaited/development-skills/code-documentation
-      borrowed: ["maintenance workflow"]
+      borrowed:
+        - "maintenance workflow"
       weight: 0.10
   enhancements:
     - "Two-pass audit (doc-first + code-first)"
@@ -28,7 +39,8 @@ quilted:
     - "AskQuestion for scope selection"
 metadata:
   moment: review
-  surface: [repo]
+  surface:
+    - repo
   output: decision
   risk: safe
   posture: opinionated
