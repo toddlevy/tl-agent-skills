@@ -1,10 +1,10 @@
 ---
 name: tl-complexity-assessment
 description: Find large files, god modules, and refactoring candidates in TypeScript/JavaScript/React codebases. Use when files feel "too big", planning a refactor sprint, onboarding to legacy code, or asking "what should I split up?"
-version: 1.1.0
 license: MIT
-author: Todd Levy <toddlevy@gmail.com>
 metadata:
+  version: 1.1.0
+  author: Todd Levy <toddlevy@gmail.com>
   moment: review
   surface:
     - repo
