@@ -38,16 +38,11 @@ Install App → Create Billing Profile → Link Customers → Generate Invoices
 | Install Stripe (API key) | POST | `/api/v1/marketplace/listings/stripe/install/apikey` |
 | Install Stripe (OAuth) | POST | `/api/v1/marketplace/listings/stripe/install/oauth2` |
 
-## The Sandbox App Problem
+## About the Sandbox App
 
-OpenMeter installs a **Sandbox** app by default. This causes critical issues:
+OpenMeter installs a **Sandbox** app by default for testing billing flows without an external provider.
 
-- Sandbox and Stripe apps **conflict** when both are installed
-- Subscriptions created with Sandbox **can't be migrated** to Stripe
-- Billing profiles reference the **wrong app**
-- Invoice generation silently uses Sandbox instead of Stripe
-
-**Rule**: For any environment that uses Stripe, remove Sandbox first.
+When Stripe is installed, the Sandbox app is irrelevant and can be ignored. Subscriptions use the billing profile specified at creation time, so having both apps installed doesn't cause issues as long as subscriptions are created with the Stripe billing profile.
 
 ## Stripe App Install
 
@@ -59,17 +54,12 @@ npx tsx scripts/openmeter/openmeter-install-stripe-app.ts
 
 The script:
 1. Lists existing apps
-2. Removes the Sandbox app if present
-3. Installs the Stripe app with your `STRIPE_SECRET_KEY`
-4. Creates a billing profile linked to Stripe
+2. Installs the Stripe app with your `STRIPE_SECRET_KEY`
+3. Creates a billing profile linked to Stripe
 
 ### Via API (Manual)
 
 ```bash
-# Remove Sandbox (get ID first)
-curl http://localhost:8888/api/v1/apps
-curl -X DELETE http://localhost:8888/api/v1/apps/{sandbox-app-id}
-
 # Install Stripe
 curl -X POST http://localhost:8888/api/v1/marketplace/listings/stripe/install/apikey \
   -H "Content-Type: application/json" \
@@ -92,7 +82,6 @@ curl -X POST http://localhost:8888/api/v1/marketplace/listings/stripe/install/ap
 |-------------|-------|--------------------|
 | `apps.baseURL` publicly accessible | Via ngrok | Via deployed URL |
 | `STRIPE_SECRET_KEY` valid | Stripe test key | Stripe test or live key |
-| Sandbox app removed | Yes | Yes |
 | Billing profile exists | Auto-created by script | Auto-created by script |
 
 ## How the Stripe App Works

@@ -76,7 +76,7 @@ Both `apps.baseURL` and `notification.webhook.url` must be reachable from Docker
 | Script | Purpose | When to Run |
 |--------|---------|-------------|
 | `scripts/openmeter/openmeter-catalog-sync.ts` | Sync meters, features, plans | After Docker up, after plan changes |
-| `scripts/openmeter/openmeter-install-stripe-app.ts` | Install Stripe app, remove Sandbox | First-time setup, after `--openmeter-all` cleanup |
+| `scripts/openmeter/openmeter-install-stripe-app.ts` | Install Stripe app | First-time setup, after `--openmeter-all` cleanup |
 | `scripts/openmeter/set-openmeter-webhook-url.ts` | Update webhook URL from ngrok | After ngrok restart |
 | `scripts/start-ngrok.ps1` | Start ngrok tunnel | Before starting dev with Stripe |
 
@@ -95,7 +95,7 @@ Both `apps.baseURL` and `notification.webhook.url` must be reachable from Docker
 | Symptom | Check | Fix |
 |---------|-------|-----|
 | `500` on webhook channel creation | Expected locally | Script auto-skips; use YAML config |
-| Stripe App install fails | `curl /api/v1/apps` — Sandbox still there? | Remove Sandbox first |
+| Stripe App install fails | `curl /api/v1/apps` — check apps.baseURL | Ensure ngrok URL is correct in config |
 | Webhook not received locally | Is ngrok running? `http://127.0.0.1:4040` | Start ngrok, update URLs |
 | `host.docker.internal` not resolving | Docker Desktop DNS issue | Use ngrok instead, or add `extra_hosts` to Docker |
 | Events not metering | `curl /api/v1/meters/{slug}/query?subject=...` | Event `type` must match meter `eventType` |

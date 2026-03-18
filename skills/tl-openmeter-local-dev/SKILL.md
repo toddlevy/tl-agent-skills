@@ -110,11 +110,11 @@ See [references/apps.md](references/apps.md) for full details on OpenMeter Apps.
 npx tsx scripts/openmeter/openmeter-install-stripe-app.ts
 ```
 
-This removes the default Sandbox app, installs Stripe, and creates a billing profile.
+This installs Stripe and creates a billing profile.
 
 **Requires**: `STRIPE_SECRET_KEY` in `.env`
 
-Verify: `curl http://localhost:8888/api/v1/apps` — should show Stripe only.
+Verify: `curl http://localhost:8888/api/v1/apps` — should show Stripe (Sandbox may also be present and is irrelevant).
 
 ---
 
