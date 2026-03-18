@@ -1,0 +1,14 @@
+name: tl-first-principles
+displayName: TL First Principles
+description: Foundational software design principles traced to their intellectual origins. Covers information hiding, separation of concerns, abstraction, SSOT/DRY, conceptual integrity, and composition.
+version: 1.0.0
+author:
+  name: Todd Levy
+  email: todd@toddlevy.com
+keywords: [software-design, first-principles, architecture, best-practices, parnas, dijkstra, liskov, brooks, dry, solid]
+
+skills:
+  - tl-first-principles
+
+rules:
+  - first-principles.mdc

@@ -1,0 +1,82 @@
+---
+description: Adhere to foundational software design principles unless explicitly directed otherwise
+globs: "**/*.ts,**/*.tsx,**/*.js,**/*.jsx,**/*.py,**/*.go,**/*.rs,**/*.php"
+alwaysApply: true
+---
+
+<rule>
+<meta>
+  <title>First Principles Adherence</title>
+  <description>Apply foundational software design principles by default. These principles are the intellectual bedrock of quality software, traced to their origins. Deviate only when explicitly directed or when trade-offs are consciously acknowledged.</description>
+  <created-at utc-timestamp="1740067200">2025-02-20</created-at>
+  <applies-to>
+    <file-matcher glob="**/*.ts">TypeScript files</file-matcher>
+    <file-matcher glob="**/*.tsx">React components</file-matcher>
+    <file-matcher glob="**/*.py">Python files</file-matcher>
+    <file-matcher glob="**/*">All code files</file-matcher>
+    <action-matcher action="write-code">When writing code</action-matcher>
+    <action-matcher action="refactor">When refactoring</action-matcher>
+    <action-matcher action="review">When reviewing code</action-matcher>
+  </applies-to>
+</meta>
+
+<requirements>
+  <non-negotiable priority="critical">
+    <description>Apply these foundational principles by default. Each principle has intellectual lineage traced to its origins. Consult the tl-first-principles skill for deep context.</description>
+  </non-negotiable>
+
+  <requirement priority="high">
+    <description>**Information Hiding** (Parnas, 1972): Decompose by secrets, not steps. Hide decisions likely to change behind stable interfaces.</description>
+  </requirement>
+
+  <requirement priority="high">
+    <description>**Separation of Concerns** (Dijkstra, 1974): Each module has one reason to change. Don't mix concerns that can be thought about separately.</description>
+  </requirement>
+
+  <requirement priority="high">
+    <description>**Abstraction & Contracts** (Liskov, Hoare): Interfaces are behavioral promises. Depend on what something does, not how.</description>
+  </requirement>
+
+  <requirement priority="high">
+    <description>**Single Source of Truth** (Hunt & Thomas, 1999): Every fact defined once. Duplication is about knowledge, not code.</description>
+  </requirement>
+
+  <requirement priority="high">
+    <description>**Conceptual Integrity** (Brooks, 1975): One coherent vision. Consistency over feature count.</description>
+  </requirement>
+
+  <requirement priority="high">
+    <description>**Fail Fast** (Hamilton): Detect errors early, surface immediately. Don't let invalid state propagate.</description>
+  </requirement>
+
+  <requirement priority="high">
+    <description>**Composition Over Inheritance** (GoF, 1994): Build behavior by combining parts, not extending hierarchies.</description>
+  </requirement>
+
+  <requirement priority="high">
+    <description>**Explicit Over Implicit** (Peters, 1999): Clarity over cleverness. Make behavior visible in the code.</description>
+  </requirement>
+
+  <requirement priority="medium">
+    <description>When trade-offs exist, acknowledge them explicitly. State which principle is being relaxed and why.</description>
+  </requirement>
+</requirements>
+
+<context description="When to Deviate">
+Principles may be relaxed when:
+
+1. **User explicitly directs** — "Skip the abstraction, just inline it"
+2. **Trade-off is conscious** — Performance vs. clarity, acknowledged in code/PR
+3. **Framework constraints** — Some frameworks require specific patterns
+4. **Prototype/spike** — Explicitly temporary, marked as such
+
+When deviating, state the principle being relaxed and the reason.
+</context>
+
+<references>
+  <reference as="skill" href="tl-first-principles/SKILL.md" reason="Complete principle definitions with lineage">tl-first-principles</reference>
+  <reference as="related" href="tl-first-principles/principles/" reason="Individual principle deep-dives">Principle Files</reference>
+  <reference as="related" href="tl-first-principles/founders/" reason="Historical context">Founder Profiles</reference>
+  <reference as="related" href="tl-first-principles/sources/primary-sources.md" reason="Original papers and books">Primary Sources</reference>
+</references>
+</rule>
