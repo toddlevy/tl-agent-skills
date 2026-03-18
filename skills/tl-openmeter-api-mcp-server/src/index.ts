@@ -173,7 +173,7 @@ server.tool("openmeter_check_status", {}, wrapTool(() => client.checkStatus()));
 
 // --- Resources ---
 
-const quickRefPath = join(__dirname, "..", "..", "openmeter-api", "SKILL.md");
+const quickRefPath = join(__dirname, "..", "..", "tl-openmeter-api", "SKILL.md");
 let quickRefText = "# OpenMeter API quick reference\n\nSee openmeter-api skill or openmeter.io/docs for full docs.\n";
 
 try {

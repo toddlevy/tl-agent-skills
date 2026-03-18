@@ -2,7 +2,15 @@
 
 MCP server for your **local OpenMeter instance**: tools and resources so AI assistants (Cursor, Claude, etc.) can list meters, manage customers and subscriptions, query usage, and read the API quick reference.
 
-Same idea as [Railway’s MCP server](https://docs.railway.com/ai/mcp-server): pair this with the **openmeter-api** skill for knowledge; use this server to run operations against your own OpenMeter.
+Same idea as [Railway’s MCP server](https://docs.railway.com/ai/mcp-server): pair this with the **tl-openmeter-api** skill for knowledge; use this server to run operations against your own OpenMeter.
+
+## Suite
+
+| Skill | Purpose |
+|-------|---------|
+| **tl-openmeter-api** | REST API reference (knowledge) |
+| **tl-openmeter-local-dev** | Local dev setup: Docker, ngrok, Stripe App, webhooks |
+| **tl-openmeter-api-mcp-server** | This: MCP server for calling OpenMeter from Cursor |
 
 ## Prerequisites
 
@@ -50,16 +58,16 @@ In your user-level or workspace MCP config (e.g. `~/.cursor/mcp.json` or `.curso
 }
 ```
 
-**Option B — local path (this repo):**
+**Option B — local path (installed via skills):**
 
-If the server lives under `.agents/@tl-agent-skills/openmeter-mcp-server`:
+If the server is installed at `~/.cursor/skills/@tl-agent-skills/skills/tl-openmeter-api-mcp-server/`:
 
 ```json
 {
   "mcpServers": {
     "OpenMeter": {
       "command": "node",
-      "args": ["C:\\Users\\Todd\\.agents\\@tl-agent-skills\\openmeter-mcp-server\\dist\\index.js"],
+      "args": ["C:\\Users\\Todd\\.cursor\\skills\\@tl-agent-skills\\skills\\tl-openmeter-api-mcp-server\\dist\\index.js"],
       "env": {
         "OPENMETER_URL": "http://localhost:8888"
       }
@@ -97,7 +105,7 @@ Same pattern in `.vscode/mcp.json`: use `type: "stdio"`, and set `command`, `arg
 
 ## Resources
 
-- **OpenMeter quick reference** — Markdown from the openmeter-api skill (events, customers, subscriptions, gotchas), when the server is next to `openmeter-api/`.
+- **OpenMeter quick reference** — Markdown from the tl-openmeter-api skill (events, customers, subscriptions, gotchas), when the server is next to `tl-openmeter-api/`.
 - **OpenMeter spec note** — Plain text with spec URL and configured base URL.
 
 ## Verify
