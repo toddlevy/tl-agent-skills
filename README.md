@@ -21,6 +21,13 @@ Default branch can be `main`; use `staging` for development.
 
 Skills are organized into **suites** — groups of related skills that cross-reference each other via `metadata.suite` and `metadata.related` in frontmatter.
 
+### tl-agent-plan (Plan Lifecycle)
+
+| Skill | Type | Purpose |
+|-------|------|---------|
+| `skills/tl-agent-plan-create/` | methodology | Structured plan creation with strategic/technical templates |
+| `skills/tl-agent-plan-audit/` | methodology | Pre-execution audit: critique, pre-mortem, parallelization, readiness |
+
 ### tl-openmeter (OpenMeter)
 
 | Skill | Type | Purpose |
