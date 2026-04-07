@@ -1,9 +1,9 @@
 ---
 name: tl-agent-plan-audit
-description: Audit plan documents before execution. Performs Principal Engineer critique, Pre-Mortem simulation, Parallelization review, and Implementation Readiness analysis as a unified audit. Use when the user says "audit this plan", "review the plan", or before starting plan execution.
+description: Audit plan documents before execution. Validates structural compliance against tl-agent-plan-create, then performs Principal Engineer critique, Pre-Mortem simulation, Parallelization review, and Implementation Readiness analysis as a unified audit. Use when the user says "audit this plan", "review the plan", or before starting plan execution.
 license: MIT
 metadata:
-  version: 1.0.0
+  version: 1.1.0
   author: tl-agent-skills
   moment: review
   surface:
@@ -21,7 +21,7 @@ metadata:
 
 # Plan Audit
 
-Unified audit workflow for `.plan.md` files. Combines critique, pre-mortem simulation, parallelization review, and implementation readiness analysis into a single cohesive audit.
+Unified audit workflow for `.plan.md` files. Validates structural compliance against the `tl-agent-plan-create` specification, then combines critique, pre-mortem simulation, parallelization review, and implementation readiness analysis into a single cohesive audit.
 
 ## When to Use
 
@@ -38,7 +38,49 @@ Unified audit workflow for `.plan.md` files. Combines critique, pre-mortem simul
 
 ## Audit Process
 
-Perform all four analyses mentally, then produce a **unified output** grouped by subject matter. Do NOT reveal the four-phase structure to the user.
+Perform all five analyses mentally, then produce a **unified output** grouped by subject matter. Do NOT reveal the five-phase structure to the user. Analysis 0 (Structural Compliance) runs first as a structural gate — if a plan has major structural violations, flag them before deeper quality analysis.
+
+### Analysis 0: Structural Compliance
+
+Validate the plan against the `tl-agent-plan-create` specification before evaluating quality. This runs first as a structural gate.
+
+**Step 1 — Determine plan type** (technical vs strategic):
+- Infer from todo ID format (`t{p}-{g}-{s}` = technical, descriptive slugs = strategic) and body structure (`Phase N —` = technical, `Phase N:` = strategic)
+- If ambiguous or mixed, flag as a finding
+
+**Step 2 — YAML frontmatter checklist:**
+- Required fields present: `name`, `overview`, `todos[]`, `isProject`
+- File name matches `{descriptive-name}-{8-char-hex}.plan.md` convention
+
+**Step 3 — Todo structure validation (type-dependent):**
+
+For technical plans:
+- Todo IDs use hierarchical format: `t{phase}-{group}-{step}` (e.g., `t1-1-1`, `t2-3-2`)
+- One todo per atomic subtask — no multi-step grouping in a single todo
+- Gate todos use `gate-p{N}` or `gate-{descriptive-name}` format
+- Every phase has a corresponding gate todo
+
+For strategic plans:
+- Todo IDs are descriptive slugs: `phase1-foundation`, `gate-phase1`
+- One todo per phase (grouped)
+- Gates are milestone-level criteria, not bash commands
+
+**Step 4 — Phase/gate completeness:**
+- Every phase in the body has a `**Precondition:**` line (technical) or `**Goal:**` line (strategic)
+- Every phase has an `**Exit gate:**` section with a runnable command (technical) or milestone criteria (strategic)
+- Phase count in body matches phase count implied by todos
+
+**Step 5 — Body-YAML alignment:**
+- Todo count matches body subtask count
+- Numbering is consistent between YAML todo content and body headings/subtask numbers
+- No orphaned todos (in YAML but not in body) or orphaned subtasks (in body but not in YAML)
+
+**Step 6 — Specificity check:**
+- Subtasks reference concrete files or commands (not vague phrases like "update the service")
+- New files marked `(new)` next to the path
+- Deleted files have their own named gate: `gate-delete-{name}`
+
+If structural violations are found, report them in a "Structural Compliance" subject area in the unified output. If the plan is structurally clean, omit the section.
 
 ### Analysis 1: Principal Engineer Critique
 
@@ -109,6 +151,10 @@ Scale analysis depth to plan complexity:
 - Vague subtask → make atomic
 - Missing dependencies → add them
 - Parallelizable tasks not marked → add parallelization notes
+- Missing `isProject` field in frontmatter → add it
+- Todo IDs not matching convention → reformat to `t{p}-{g}-{s}` or slug style
+- Missing `Precondition:` or `Exit gate:` in a phase → add skeleton
+- Body/YAML numbering mismatch → reconcile
 
 **Implementation unknowns**: If a plan modifies a file but doesn't document the current signature/shape, add an "Implementation Context" section with those facts. This is an obvious fix — perform the pre-reads and add the results to the plan.
 
