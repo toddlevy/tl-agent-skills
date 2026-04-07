@@ -3,7 +3,7 @@ name: tl-agent-plan-audit
 description: Audit plan documents before execution. Validates structural compliance against tl-agent-plan-create, then performs Principal Engineer critique, Pre-Mortem simulation, Parallelization review, and Implementation Readiness analysis as a unified audit. Use when the user says "audit this plan", "review the plan", or before starting plan execution.
 license: MIT
 metadata:
-  version: 1.2.0
+  version: 1.3.0
   author: tl-agent-skills
   moment: review
   surface:
@@ -44,7 +44,7 @@ Run Analysis 0 first — it is mechanical validation that reads the plan and pro
 
 Validate the plan against the `tl-agent-plan-create` specification before evaluating quality. This is not a judgment call — it is mechanical validation that produces observable output.
 
-**This analysis MUST always produce a "Structural Compliance" section in the audit output.** If all checks pass, write "All 6 structural checks pass." If any fail, list each violation numbered.
+**This analysis MUST always produce a "Structural Compliance" section in the audit output.** If all checks pass, write "All 7 structural checks pass." If any fail, list each violation numbered.
 
 Execute these steps in order. For each step, read the actual plan content and report what you find.
 
@@ -95,6 +95,24 @@ Report each mismatch as a numbered violation.
 3. Files to be deleted have a corresponding named gate: `gate-delete-{name}`
 
 Report each vague subtask or missing marker as a numbered violation.
+
+**Step 7 — Decision Resolution.** Scan the entire plan body for unresolved decision markers. This is mechanical detection followed by active resolution.
+
+**Detection:** Search for these patterns in the plan body:
+- "Option A" / "Option B" or "Approach 1" / "Approach 2"
+- "Alternatively" / "Another approach"
+- "Either...or..." presenting uncommitted choices
+- "Could also" / "We might" / "One way... another way"
+- Paragraphs of 3+ sentences that explain context or trade-offs without concluding with a numbered subtask
+
+Report each instance as a numbered violation.
+
+**Resolution (auto-fix):** For each unresolved decision found:
+1. Read the relevant codebase files to understand existing patterns and conventions
+2. Apply first principles (separation of concerns, SSOT, information hiding, composition over inheritance)
+3. Choose the approach that is most consistent with existing architecture, most structurally sound, and most forward-thinking
+4. Replace the alternatives block with a single committed approach and a `> Decision:` rationale line
+5. If genuinely unable to resolve after codebase research, escalate to the user as a non-obvious decision — never leave it unresolved in the plan
 
 ### Analysis 1: Principal Engineer Critique
 
@@ -169,6 +187,7 @@ Scale analysis depth to plan complexity:
 - Todo IDs not matching convention → reformat to `t{p}-{g}-{s}` or slug style
 - Missing `Precondition:` or `Exit gate:` in a phase → add skeleton
 - Body/YAML numbering mismatch → reconcile
+- Unresolved "Option A / Option B" alternatives → research codebase, apply first principles, commit to one approach
 
 **Implementation unknowns**: If a plan modifies a file but doesn't document the current signature/shape, add an "Implementation Context" section with those facts. This is an obvious fix — perform the pre-reads and add the results to the plan.
 
@@ -177,6 +196,7 @@ Scale analysis depth to plan complexity:
 - Removing scope (user may have context you don't)
 - Architectural changes
 - Adding significant new work
+- Alternatives where both approaches have legitimate first-principles arguments and codebase evidence is ambiguous → ask the user
 
 ## Output Format
 

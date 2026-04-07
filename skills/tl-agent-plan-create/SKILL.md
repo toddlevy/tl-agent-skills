@@ -3,7 +3,7 @@ name: tl-agent-plan-create
 description: Create structured plan documents for features, projects, or multi-phase tasks. Includes YAML frontmatter, strategic/technical templates, phases, gates, and real-time update requirements.
 license: MIT
 metadata:
-  version: 1.1.0
+  version: 1.2.0
   author: tl-agent-skills
   moment: plan
   surface:
@@ -313,6 +313,34 @@ npx tsc --noEmit
 - **New files** are marked `(new)` next to the path
 - **Deleted files** get their own named gate: `gate-delete-{name}`
 - **Ratio**: minimal rationale, maximum specificity (what file, what function, what value changes to what)
+- **Every subtask is an action, not a narrative** — no prose explanation blocks; context goes in a brief section header, actions go in numbered subtasks
+
+---
+
+## Decision Resolution Rule (Both Types)
+
+Plans must contain resolved decisions, not open questions. If the planner encounters multiple valid approaches, they must:
+
+1. Read the codebase to understand existing patterns and conventions
+2. Apply first principles (separation of concerns, SSOT, information hiding — reference `tl-first-principles` if available)
+3. Evaluate which approach is most structurally sound, forward-thinking, and consistent with the existing architecture
+4. Commit to one approach in the plan with a one-line rationale
+
+**Banned patterns** — plans must never contain:
+- "Option A / Option B" or "Approach 1 / Approach 2"
+- "Alternatively..." or "Another approach would be..."
+- "Either...or..." presenting uncommitted choices
+- "Could also..." or "We might..."
+- Prose paragraphs explaining trade-offs without a conclusion
+- Narrative context blocks where a numbered subtask should be
+
+**When genuinely uncertain**: If the planner cannot resolve a decision after codebase research, they must ask the user via AskQuestion before writing the plan — not embed the question in the plan body.
+
+**Rationale format**: When a decision was non-obvious, add a single line after the relevant subtask or phase header:
+
+```
+> Decision: [chosen approach] — [one-sentence reason grounded in first principles or existing patterns]
+```
 
 ---
 
