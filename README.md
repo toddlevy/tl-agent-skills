@@ -28,6 +28,13 @@ Skills are organized into **suites** — groups of related skills that cross-ref
 | `skills/tl-agent-plan-create/` | methodology | Structured plan creation with strategic/technical templates |
 | `skills/tl-agent-plan-audit/` | methodology | Pre-execution audit: critique, pre-mortem, parallelization, readiness |
 
+### tl-database (Database)
+
+| Skill | Type | Purpose |
+|-------|------|---------|
+| `skills/tl-kysely-patterns/` | knowledge | Type-safe SQL with Kysely: query patterns, JSONB, migrations, pitfalls |
+| `skills/tl-pg-boss/` | knowledge | PostgreSQL job queue with exactly-once delivery via SKIP LOCKED |
+
 ### tl-openmeter (OpenMeter)
 
 | Skill | Type | Purpose |
