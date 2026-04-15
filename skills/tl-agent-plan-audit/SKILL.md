@@ -1,9 +1,9 @@
 ---
 name: tl-agent-plan-audit
-description: Audit plan documents before execution. Validates structural compliance against tl-agent-plan-create, then performs Principal Engineer critique, Pre-Mortem simulation, Parallelization review, and Implementation Readiness analysis as a unified audit. Use when the user says "audit this plan", "review the plan", or before starting plan execution.
+description: Audit plan documents before execution. Validates structural compliance, plan integrity, and verification metadata against tl-agent-plan-create, then performs Principal Engineer critique, Pre-Mortem simulation, Parallelization review, and Implementation Readiness analysis. Produces durable verification receipts so executors can trust factual claims without re-verification. Use when the user says "audit this plan", "review the plan", or before starting plan execution.
 license: MIT
 metadata:
-  version: 1.3.0
+  version: 1.5.0
   author: tl-agent-skills
   moment: review
   surface:
@@ -17,6 +17,7 @@ metadata:
   suite: tl-agent-plan
   related:
     - tl-agent-plan-create
+    - tl-agent-plan-execute
 ---
 
 # Plan Audit
@@ -44,7 +45,7 @@ Run Analysis 0 first — it is mechanical validation that reads the plan and pro
 
 Validate the plan against the `tl-agent-plan-create` specification before evaluating quality. This is not a judgment call — it is mechanical validation that produces observable output.
 
-**This analysis MUST always produce a "Structural Compliance" section in the audit output.** If all checks pass, write "All 7 structural checks pass." If any fail, list each violation numbered.
+**This analysis MUST always produce a "Structural Compliance" section in the audit output.** If all checks pass, write "All 9 structural checks pass." If any fail, list each violation numbered.
 
 Execute these steps in order. For each step, read the actual plan content and report what you find.
 
@@ -113,6 +114,56 @@ Report each instance as a numbered violation.
 3. Choose the approach that is most consistent with existing architecture, most structurally sound, and most forward-thinking
 4. Replace the alternatives block with a single committed approach and a `> Decision:` rationale line
 5. If genuinely unable to resolve after codebase research, escalate to the user as a non-obvious decision — never leave it unresolved in the plan
+
+**Step 8 — Plan Integrity Verification.** This step catches errors that slip past structural and decision-resolution checks. It verifies that the plan's claims are internally consistent, factually accurate, and complete in scope.
+
+**8a. Internal consistency.** Compare the YAML `todos` section against the plan body:
+1. Does each todo's `content` text accurately summarize what the body describes for that phase? If a todo says "keep fallback" but the body says "throw on unknown," that is a violation.
+2. Do exit gate descriptions in the body match any gate criteria stated in the YAML?
+3. Do phase preconditions form a consistent DAG? (e.g., Phase 4 says "Precondition: Phase 2" but Phase 3 also depends on Phase 2's output — is the ordering correct?)
+
+Report each inconsistency as a numbered violation.
+
+**8b. Factual accuracy and verification receipts.** For every file path, line number, and code snippet the plan cites as "current state":
+1. Read the file. Does it exist? If not, report: "VIOLATION: Plan references [path] which does not exist."
+2. Does the cited line number match the actual content? If the plan says "line 283" but the content is at line 310 (or the file has fewer lines), report the discrepancy.
+3. Does any "current state" code snippet match what is actually in the file? If the plan shows code that has already been changed by a prior plan or migration, report it as stale.
+
+This is not optional — every file reference must be spot-checked. For plans with 10+ file references, check at minimum: all files in the first phase, all files in the last phase, and any file referenced in multiple phases.
+
+Report each inaccuracy as a numbered violation.
+
+**Producing verification receipts:** After completing all 8b checks, update the plan's YAML frontmatter:
+1. Set `verified_at_commit` to the current `git rev-parse --short HEAD`.
+2. For every factual claim verified during this step (existence checks, importer counts, line number confirmations, scope greps from 8c), add or update an entry in the `verifications:` array with `claim`, `command`, and `result` fields.
+3. If the plan already has a `verifications:` array from the planner, re-run each listed verification command and update the `result` if it has changed. Flag any changed results as violations.
+
+The goal: after this audit, the `verifications:` block is a complete, current record of every factual claim in the plan. An executor reading this block can trust verified claims without re-running the checks, as long as `verified_at_commit` matches their HEAD.
+
+**8c. Scope completeness.** For every structural change (column drop, constant rename, type deletion, interface change):
+1. Grep the codebase for ALL consumers of the thing being changed — not just the ones the plan lists.
+2. Compare the grep results against the plan's file list. Any file that references the changed entity but is not in the plan is a violation.
+3. Check frontend, backend, scripts, tests, i18n files, and type definition files — not just the primary app code.
+
+Example: if the plan drops column `bounced` from a table, grep for `bounced` across the entire codebase. Every file that references it must appear in the plan or in a "no change needed" note with rationale.
+
+Report each missing file as a numbered violation.
+
+**8d. Cross-section coherence.** Scan for apparent contradictions between plan sections:
+1. If one phase adopts a "fail hard" philosophy (throw on unknown) and another phase uses a fallback/default for a similar concept, the plan must include an explicit rationale explaining why the philosophy differs. Absence of that rationale is a violation.
+2. If the plan says "no change needed" for a file in one section but modifies a related file that would break it, flag the dependency.
+3. If exit gate criteria use example values (e.g., "logs show `opened`"), verify those examples match the actual output the code would produce.
+
+Report each unresolved contradiction as a numbered violation.
+
+**Step 9 — Verification Metadata Compliance.** Check that the plan meets the verification requirements from `tl-agent-plan-create`:
+
+1. Does the YAML frontmatter contain `verified_at_commit`? If missing, this is a violation.
+2. Does the YAML frontmatter contain a `verifications:` array? If missing, this is a violation.
+3. For each factual claim in the plan body (existence assertions, importer counts, "always null" claims, scope claims like "only these N files reference X"), is there a corresponding entry in `verifications:`? List any unverified claims as violations.
+4. For each entry in `verifications:`, does the `command` field contain a runnable command (not prose), and does the `result` field contain the actual output (not a prediction)?
+
+If the `verifications:` block is absent or incomplete, this is an auto-fixable violation: run the checks as part of Step 8b and produce the block.
 
 ### Analysis 1: Principal Engineer Critique
 
@@ -191,6 +242,17 @@ Scale analysis depth to plan complexity:
 
 **Implementation unknowns**: If a plan modifies a file but doesn't document the current signature/shape, add an "Implementation Context" section with those facts. This is an obvious fix — perform the pre-reads and add the results to the plan.
 
+**Integrity violations (Steps 8-9)**: These are always obvious fixes — apply directly:
+- Stale file path → verify and correct or remove the reference
+- Wrong line number → read the file, update to the actual line
+- YAML/body inconsistency → update the YAML todo text to match the body
+- Missing files from scope → grep, find the consumers, add them to the plan
+- Exit gate example values that don't match actual output → correct the examples
+- Missing cross-section rationale → read both sections, add a `> Decision:` note explaining the difference
+- Missing `verified_at_commit` → run `git rev-parse --short HEAD` and add it
+- Missing or incomplete `verifications:` array → run the verification commands from Step 8b and produce the block
+- Stale verification results → re-run the command, update the result, flag if the claim changed
+
 **Non-obvious decisions**: Probe, ask questions, propose with rationale. Examples:
 - Reordering phases (may have unstated reasons)
 - Removing scope (user may have context you don't)
@@ -264,6 +326,8 @@ Actionable list for plan revision:
 ```
 
 ## After the Audit
+
+**Update plan-level status.** If the verdict is "Ready to execute," set the plan's YAML frontmatter `status` field to `audited`. This signals to `tl-agent-plan-execute` that the plan has been reviewed and its verification receipts are trustworthy. If the verdict is "Changes recommended" or "Rework needed," leave `status` as `planned` until the revisions are applied and the plan is re-audited.
 
 If verdict is "Changes recommended":
 

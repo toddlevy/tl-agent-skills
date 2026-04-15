@@ -3,7 +3,7 @@ name: tl-agent-plan-create
 description: Create structured plan documents for features, projects, or multi-phase tasks. Includes YAML frontmatter, strategic/technical templates, phases, gates, and real-time update requirements.
 license: MIT
 metadata:
-  version: 1.2.0
+  version: 1.3.0
   author: tl-agent-skills
   moment: plan
   surface:
@@ -17,6 +17,7 @@ metadata:
   suite: tl-agent-plan
   related:
     - tl-agent-plan-audit
+    - tl-agent-plan-execute
 ---
 
 # Create Plan Document
@@ -228,6 +229,12 @@ Each phase uses this format:
 ---
 name: [Plan Name]
 overview: [One-sentence summary — what changes and why]
+status: planned
+verified_at_commit: [short SHA — git rev-parse --short HEAD at plan creation time]
+verifications:
+  - claim: "[Factual claim made in the plan body]"
+    command: "[Exact command that was run to verify]"
+    result: "[Observed output — e.g. '0 matches', 'column exists', line content]"
 todos:
   # Phase 1 — [Name]
   - id: t1-1-1
@@ -327,12 +334,68 @@ Plans must contain resolved decisions, not open questions. If the planner encoun
 4. Commit to one approach in the plan with a one-line rationale
 
 **Banned patterns** — plans must never contain:
+
+*Unresolved alternatives:*
 - "Option A / Option B" or "Approach 1 / Approach 2"
 - "Alternatively..." or "Another approach would be..."
 - "Either...or..." presenting uncommitted choices
 - "Could also..." or "We might..."
 - Prose paragraphs explaining trade-offs without a conclusion
 - Narrative context blocks where a numbered subtask should be
+
+*Soft hedges and deferred specificity:*
+- "or equivalent" / "or similar" — name the exact command, file, or tool
+- "approximately" / "around line ~N" / "(line ~283)" — verify and state the exact line number, or omit it
+- "should be" / "will likely" / "probably" — confirm by reading the code, then state what IS
+- "update the relevant files" / "fix any remaining references" — list every file explicitly
+- "if needed" / "as necessary" / "when applicable" — decide now whether it is needed and state yes or no
+- "run it manually" appearing alongside an automatic path without choosing one — pick one approach
+
+*Factual claims that must be verified before writing:*
+- Every file path referenced in the plan must exist (check before writing)
+- Every line number cited must be current (read the file before citing)
+- Every code snippet shown as "current state" must match the actual file
+- YAML todo `content` fields must not contradict the plan body (e.g., todo says "keep fallback" but body says "throw")
+
+---
+
+## Verification Requirements
+
+Plans make factual claims about the codebase (file paths exist, constants have zero importers, columns are always null, etc.). These claims cost time to verify during planning — that investment is wasted if the executor re-verifies them from scratch.
+
+**Every factual claim must produce a verification receipt** in the YAML frontmatter `verifications:` array. This is not optional.
+
+### What requires a verification entry
+
+1. **Existence/absence claims** — "X has zero importers", "file Y does not exist", "column Z is always null"
+2. **Line number citations** — "lines 23-30 contain..." (record the command and result)
+3. **Code snippet assertions** — "current state is..." (verify by reading the file)
+4. **Scope claims** — "only these 5 files reference CONSTANT" (record the grep)
+
+### Verification entry schema
+
+```yaml
+verifications:
+  - claim: "ACTIVITY_TYPES has zero importers outside constants.ts"
+    command: "rg ACTIVITY_TYPES apps/"
+    result: "0 matches"
+  - claim: "bounced column on newsletters is always null"
+    command: "SELECT count(*) FROM newsletters WHERE bounced IS NOT NULL"
+    result: "0"
+  - claim: "formatEventType is at lines 28-44"
+    command: "read process-webhook-events.ts lines 28-44"
+    result: "function formatEventType(eventType: string): string { ... }"
+```
+
+### `verified_at_commit` field
+
+Record `git rev-parse --short HEAD` at plan creation time in the YAML frontmatter as `verified_at_commit`. This lets the executor determine whether the codebase has changed since verification.
+
+### What does NOT need a verification entry
+
+- Design decisions (these are documented via `> Decision:` rationale lines)
+- Exit gate criteria (these are outputs the executor will produce, not inputs from the codebase)
+- Commands to run (these are instructions, not claims)
 
 **When genuinely uncertain**: If the planner cannot resolve a decision after codebase research, they must ask the user via AskQuestion before writing the plan — not embed the question in the plan body.
 
@@ -391,6 +454,12 @@ todos:
 ---
 name: [Plan Name]
 overview: [One-sentence summary]
+status: planned
+verified_at_commit: [short SHA]
+verifications:
+  - claim: "[Factual claim]"
+    command: "[Verification command]"
+    result: "[Observed output]"
 todos:
   - id: phase1-name
     content: "Phase 1: [Goal]"
@@ -450,6 +519,25 @@ isProject: false
 
 ---
 
+## Plan-Level Status Lifecycle
+
+The YAML frontmatter `status` field tracks the plan's overall state. This is separate from individual todo statuses.
+
+```
+planned → audited → building → built
+```
+
+| Status | Set by | Meaning |
+|---|---|---|
+| `planned` | `tl-agent-plan-create` | Plan is written. Todos are all `pending`. |
+| `audited` | `tl-agent-plan-audit` | Plan passed audit. `verified_at_commit` and `verifications:` are populated. |
+| `building` | `tl-agent-plan-execute` | Execution has started. At least one todo is `in_progress`. |
+| `built` | `tl-agent-plan-execute` | All todos are `completed` and all exit gates pass. |
+
+The executor MUST update `status` in the plan's YAML frontmatter at the appropriate transitions. This is what makes the plan visible as actively being worked on or finished.
+
+---
+
 ## Real-Time Update Rule (Both Types)
 
 **Update the plan file before moving to the next subtask.**
@@ -465,4 +553,5 @@ isProject: false
 When a plan is complete:
 
 1. Verify all gates pass
-2. Move file to `.cursor/plans/archive/` folder
+2. Set plan-level `status: built` in the YAML frontmatter
+3. Move file to `.cursor/plans/archive/` folder

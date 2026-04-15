@@ -27,6 +27,7 @@ Skills are organized into **suites** — groups of related skills that cross-ref
 |-------|------|---------|
 | `skills/tl-agent-plan-create/` | methodology | Structured plan creation with strategic/technical templates |
 | `skills/tl-agent-plan-audit/` | methodology | Pre-execution audit: critique, pre-mortem, parallelization, readiness |
+| `skills/tl-agent-plan-execute/` | methodology | Execute verified plans with trust model and staleness protocol |
 
 ### tl-database (Database)
 
