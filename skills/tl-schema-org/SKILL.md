@@ -88,7 +88,7 @@ Everything descends from `Thing`. The major branches:
 | Product | ProductModel, ProductGroup, Vehicle | Tangible goods and variants |
 | BioChemEntity | Gene, Protein, MolecularEntity | Life sciences |
 
-For the complete hierarchy, see `data/tree.jsonld`. For type/property lookup, query `data/schemaorg-current-https-types.csv` and `data/schemaorg-current-https-properties.csv`.
+For the complete hierarchy, see `assets/tree.jsonld`. For type/property lookup, query `assets/schemaorg-current-https-types.csv` and `assets/schemaorg-current-https-properties.csv`.
 
 See: `references/taxonomy-guide.md`
 
@@ -258,69 +258,9 @@ See: `references/extension-patterns.md`
 
 ## 4. Database Modeling
 
-Schema.org is a vocabulary, not a database schema. Use it as design inspiration and naming convention, not as a direct table mapping. Relational databases need primary keys, foreign keys, and normalized structures that Schema.org's RDF-based model doesn't address.
+Schema.org is a vocabulary, not a database schema. Use it as design inspiration and naming convention. Map Schema.org types to tables, optimize for your query patterns, and store domain-specific enums in tables that get translated to Schema.org URIs at serialization time.
 
-### Type-to-Table Mapping
-
-Map Schema.org types to tables, but optimize for your query patterns:
-
-| Schema.org Type | Table | Key Columns |
-|----------------|-------|-------------|
-| Product | `products` | `id`, `name`, `slug`, `sku`, `description`, `material`, `production_date` |
-| ProductModel | `base_products` | `id`, `name`, `slug`, `description` (canonical product definition) |
-| Offer | `offers` | `id`, `product_id`, `price`, `currency_code`, `availability`, `condition_slug` |
-| Organization | `sellers`, `issuers` | `id`, `name`, `slug`, `url`, `country_code` |
-| Place / MusicVenue | `venues` | `id`, `name`, `address_id`, `latitude`, `longitude`, `capacity` |
-| Event / MusicEvent | `events` | `id`, `name`, `start_date`, `end_date`, `venue_id`, `status` |
-| Person / MusicGroup | `artists` | `id`, `name`, `slug`, `type` (person or group) |
-
-### Product Variant Architecture
-
-Use `ProductModel` as the canonical/base product and `Product` as the sellable variant. Link them with `isVariantOf`:
-
-- `base_products` table: canonical definition (name, description, material, weight)
-- `products` table: sellable variants with `base_product_id` FK, year, finish, specific weight
-- JSON-LD output uses `"isVariantOf": { "@type": "ProductModel", "@id": "..." }`
-
-### Enum Mapping Tables
-
-Store domain-specific values in the database and map them to Schema.org enumeration URIs at serialization time:
-
-```sql
--- Availability values mapped to Schema.org ItemAvailability
--- DB stores: 'instock', 'preorder', 'backorder', 'soldout', etc.
--- Serializer maps to: 'https://schema.org/InStock', 'https://schema.org/PreOrder', etc.
-```
-
-Normalize input values before lookup (lowercase, strip hyphens/underscores/spaces) to handle variant spellings from different data sources.
-
-### DB-Driven Property Routing
-
-For measurements and dimensions, let the database define which Schema.org property each measurement maps to. A `measurement_types` table with a `schema_org_property` column (`width`, `height`, `depth`, or `null` for generic `hasMeasurement`) keeps this mapping data-driven rather than hardcoded.
-
-### Unit Codes
-
-Use UN/CEFACT codes for `QuantitativeValue.unitCode`:
-
-| Unit | Code | unitText |
-|------|------|----------|
-| Troy ounce | APZ | oz t |
-| Gram | GRM | g |
-| Kilogram | KGM | kg |
-| Millimeter | MMT | mm |
-| Centimeter | CMT | cm |
-| Inch | INH | in |
-
-### Identifier Strategy
-
-| Column | Purpose | Schema.org Mapping |
-|--------|---------|--------------------|
-| `id` | Internal primary key (UUID) | -- |
-| `slug` | URL-friendly identifier | `identifier`, `sku` |
-| `external_ids` | IDs from other systems | `sameAs`, `identifier` with PropertyValue |
-| `url` | Canonical web URL | `url` |
-
-See: `references/database-modeling.md`
+> See [Database Modeling](references/database-modeling.md) for the full type-to-table strategies, product variant architecture, enum mapping tables (availability, condition, event status), DB-driven property routing for measurements, UN/CEFACT unit-code mapping, polymorphic relationship patterns, identifier strategies, and column naming conventions.
 
 ---
 
@@ -399,66 +339,17 @@ Each rich result type has required and recommended properties. Missing a require
 | LocalBusiness | name, address | geo, openingHours, telephone, aggregateRating |
 | Recipe | name, image | cookTime, nutrition, recipeIngredient, recipeInstructions |
 
-### Validation Workflow
+### Validation, Common Errors, Quality Rules
 
-1. **Build**: Generate JSON-LD from your data model
-2. **Validate syntax**: Ensure valid JSON (no trailing commas, proper quoting)
-3. **Validate schema**: Use https://validator.schema.org/ for Schema.org compliance
-4. **Validate rich results**: Use Google Rich Results Test for search eligibility
-5. **Monitor**: Watch Search Console Enhancement reports for ongoing issues
-
-### Common Errors
-
-| Error | Cause | Fix |
-|-------|-------|-----|
-| Missing required field | Required property omitted | Check per-type requirements |
-| Invalid URL | Relative path or malformed | Use fully qualified `https://` URLs |
-| Invalid date | Not ISO 8601 | Use `YYYY-MM-DDTHH:MM:SS+00:00` |
-| Invalid enum value | Bare string instead of URI | Use `https://schema.org/InStock`, not `InStock` |
-| Content mismatch | Schema data doesn't match visible page content | Ensure schema reflects what users see |
-| Invalid price | Currency symbol or commas | Use numeric string only (`"149.99"`) |
-
-### Quality Rules
-
-- Schema must accurately represent visible page content
-- Do not mark up content that doesn't exist on the page
-- Keep dynamic values (prices, availability, ratings) current
-- Do not use structured data to deceive or mislead
-
-See: `references/rich-results.md`
+> See [Rich Results](references/rich-results.md) for the full 5-step validation workflow (validator.schema.org, Google Rich Results Test, Search Console), the common-errors fix table, and the quality rules that govern when structured data is allowed.
 
 ---
 
 ## 7. Version Tracking and Governance
 
-Schema.org publishes numbered releases every few weeks. The vocabulary grows but rarely removes terms -- deprecated types move to an "attic" rather than being deleted.
+Schema.org publishes numbered releases every few weeks. The vocabulary grows but rarely removes terms — deprecated types move to an "attic" rather than being deleted.
 
-### Tracking Releases
-
-Run `scripts/update-schema-data.sh` (or `.ps1`) to download the latest release files into `data/`. The script writes a `data/VERSION` file with the version number and date.
-
-### Diffing Changes
-
-Compare CSV files between versions to identify:
-- New types or properties added
-- Properties gaining new domain or range types
-- Terms moving from "pending" to core (or to attic)
-
-### Impact Assessment
-
-| Change Type | Risk | Action |
-|-------------|------|--------|
-| New type added | None | Evaluate for relevance to your domain |
-| New property on existing type | Low | Consider adopting if it replaces an `x-` extension |
-| Property range expanded | Low | May enable richer data modeling |
-| Term moved to attic | Medium | Plan migration if you use it |
-| Property renamed | High | Rare, but requires coordinated update |
-
-### When Your Extension Becomes Official
-
-If Schema.org adds a property that matches one of your `x-` extensions, migrate: emit both the standard property and the `x-` extension during a transition period, then drop the extension.
-
-See: `references/version-tracking.md`
+> See [Version Tracking](references/version-tracking.md) for the release-tracking script (`scripts/update-schema-data.sh` writes `assets/VERSION`), CSV diff strategies, the impact-assessment matrix by change type, and the migration workflow when your `x-` extension becomes an official Schema.org property.
 
 ---
 

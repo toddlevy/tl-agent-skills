@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DATA_DIR="$SCRIPT_DIR/../data"
+DATA_DIR="$SCRIPT_DIR/../assets"
 
 BASE_URL="https://schema.org/version/latest"
 DOCS_URL="https://schema.org/docs"

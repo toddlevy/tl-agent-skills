@@ -10,7 +10,7 @@ Work through this hierarchy before adding custom fields:
 
 ### Level 1: Use an Existing Property
 
-Check `data/schemaorg-current-https-properties.csv` for properties that match your need. Schema.org property names are often more generic than you'd expect:
+Check `assets/schemaorg-current-https-properties.csv` for properties that match your need. Schema.org property names are often more generic than you'd expect:
 
 | You need | Schema.org already has |
 |----------|----------------------|
@@ -207,7 +207,7 @@ Schema.org uses a "pending" label for experimental terms. These are real Schema.
 - Acceptable for internal systems and APIs you control
 - Acceptable for JSON-LD on pages you can update quickly
 - Risky for third-party integrations or contractual API surfaces
-- Pin to a specific Schema.org version in your `data/VERSION` file if stability matters
+- Pin to a specific Schema.org version in your `assets/VERSION` file if stability matters
 
 ### Checking Pending Status
 

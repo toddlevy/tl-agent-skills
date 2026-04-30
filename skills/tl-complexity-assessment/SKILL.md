@@ -347,45 +347,7 @@ Provide a summary table followed by detailed findings:
 
 ### Example Real Output
 
-```markdown
-## Complexity Assessment Summary
-
-| Rank | File | Score | Severity | Recommendation |
-|------|------|-------|----------|----------------|
-| 1 | `src/lib/api-client.ts` | 9 | Critical | Split by domain |
-| 2 | `src/pages/Dashboard.tsx` | 8 | High | Extract widgets |
-| 3 | `src/hooks/useForm.ts` | 6 | Medium | Separate validation |
-
-### #1 File: `src/lib/api-client.ts`
-
-**Score:** 9/10 | **Severity:** Critical | **Effort:** E2 (4-8h)
-
-**Metrics:**
-- Lines: 1,247
-- Exports: 34
-- Imports: 22 (from 8 domains)
-
-**Observations:**
-- Handles ALL API endpoints in one file
-- Mixes auth, users, products, orders, analytics
-- Contains retry logic duplicated 6 times
-- No separation between fetch and transform
-
-**Recommendation:**
-Split into domain-specific clients:
-- `api/auth.ts` - Login, logout, refresh
-- `api/users.ts` - CRUD + search
-- `api/products.ts` - Catalog operations
-- `api/orders.ts` - Order management
-- `api/http.ts` - Shared fetch wrapper with retry
-
-**Evidence:**
-- Lines 1-180: Auth functions (login, logout, refresh, verify)
-- Lines 181-450: User CRUD (getUser, updateUser, searchUsers...)
-- Lines 451-780: Product operations
-- Lines 781-1100: Order management
-- Lines 1101-1247: Analytics tracking
-```
+> See [Example Output](references/example-output.md) for a worked-through assessment report (summary table, per-file score, observations, recommendations, evidence).
 
 ---
 
@@ -412,74 +374,13 @@ Once you have findings, here's how to act on them:
 
 ## Cognitive vs Cyclomatic Complexity
 
-**Cyclomatic complexity** counts decision points (branches). **Cognitive complexity** measures how hard code is for humans to understand.
-
-### Key Differences
-
-| Aspect | Cyclomatic | Cognitive |
-|--------|------------|-----------|
-| Counts | Branches | Mental effort |
-| Nesting | Not penalized | Penalized (+1 per level) |
-| Break in flow | Not counted | Counted (early return, goto) |
-| Recursion | Not counted | Counted |
-| Threshold | 10-15 | 15-25 |
-
-### Cognitive Complexity Rules
-
-1. **+1** for each control structure (`if`, `for`, `while`, `switch`, `catch`)
-2. **+1** for each break in linear flow (`else`, `elif`, early return)
-3. **+1 per nesting level** when structures are nested
-4. **+1** for recursion
-
-### ESLint Integration
-
-```json
-{
-  "rules": {
-    "complexity": ["warn", { "max": 10 }],
-    "sonarjs/cognitive-complexity": ["warn", 15]
-  }
-}
-```
-
-Install SonarJS for cognitive complexity:
-
-```bash
-pnpm add -D eslint-plugin-sonarjs
-```
+> See [Cognitive Complexity](references/cognitive-complexity.md) for the difference between cyclomatic and cognitive complexity, scoring rules, and ESLint/SonarJS integration.
 
 ---
 
 ## Code Review Metrics
 
-Integrate complexity into PR reviews:
-
-### Optimal PR Size
-
-| Lines Changed | Review Effectiveness |
-|---------------|---------------------|
-| < 200 | Optimal |
-| 200-400 | Good |
-| 400-800 | Reduced |
-| > 800 | Poor (split recommended) |
-
-### Review Time Budget
-
-- **200 LOC**: 15-20 minutes
-- **400 LOC**: 30-45 minutes  
-- **800 LOC**: 60+ minutes (diminishing returns)
-
-### CI Complexity Gate
-
-```yaml
-# .github/workflows/complexity.yml
-jobs:
-  complexity-check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: npx eslint --rule 'complexity: [error, 15]' src/
-```
+> See [Code Review Metrics](references/code-review-metrics.md) for optimal PR size thresholds, review time budgets, and a CI complexity-gate workflow example.
 
 ---
 

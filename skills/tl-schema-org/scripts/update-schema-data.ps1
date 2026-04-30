@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$dataDir = Join-Path $scriptDir "..\data"
+$dataDir = Join-Path $scriptDir "..\assets"
 
 $baseUrl = "https://schema.org/version/latest"
 $docsUrl = "https://schema.org/docs"

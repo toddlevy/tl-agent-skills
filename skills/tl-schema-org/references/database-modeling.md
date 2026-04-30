@@ -294,3 +294,69 @@ Prefer Schema.org property names for columns where the mapping is direct:
 | `eventAttendanceMode` | `attendance_mode` | Simplified |
 
 This makes the mapping between database and JSON-LD output transparent and reduces cognitive overhead.
+
+---
+
+## Catalog Modeling Examples
+
+The patterns below are pulled from the parent SKILL.md as supplemental, catalog-focused examples (coins/collectibles). They overlap with patterns above but show alternative table layouts and the unit-code mapping table in particular.
+
+### Type-to-Table Mapping (Catalog Variant)
+
+Map Schema.org types to tables, but optimize for your query patterns:
+
+| Schema.org Type | Table | Key Columns |
+|----------------|-------|-------------|
+| Product | `products` | `id`, `name`, `slug`, `sku`, `description`, `material`, `production_date` |
+| ProductModel | `base_products` | `id`, `name`, `slug`, `description` (canonical product definition) |
+| Offer | `offers` | `id`, `product_id`, `price`, `currency_code`, `availability`, `condition_slug` |
+| Organization | `sellers`, `issuers` | `id`, `name`, `slug`, `url`, `country_code` |
+| Place / MusicVenue | `venues` | `id`, `name`, `address_id`, `latitude`, `longitude`, `capacity` |
+| Event / MusicEvent | `events` | `id`, `name`, `start_date`, `end_date`, `venue_id`, `status` |
+| Person / MusicGroup | `artists` | `id`, `name`, `slug`, `type` (person or group) |
+
+### Product Variant Architecture (Quick Reference)
+
+Use `ProductModel` as the canonical/base product and `Product` as the sellable variant. Link them with `isVariantOf`:
+
+- `base_products` table: canonical definition (name, description, material, weight)
+- `products` table: sellable variants with `base_product_id` FK, year, finish, specific weight
+- JSON-LD output uses `"isVariantOf": { "@type": "ProductModel", "@id": "..." }`
+
+### Enum Mapping (Catalog Variant)
+
+Store domain-specific values in the database and map them to Schema.org enumeration URIs at serialization time:
+
+```sql
+-- Availability values mapped to Schema.org ItemAvailability
+-- DB stores: 'instock', 'preorder', 'backorder', 'soldout', etc.
+-- Serializer maps to: 'https://schema.org/InStock', 'https://schema.org/PreOrder', etc.
+```
+
+Normalize input values before lookup (lowercase, strip hyphens/underscores/spaces) to handle variant spellings from different data sources.
+
+### DB-Driven Property Routing
+
+For measurements and dimensions, let the database define which Schema.org property each measurement maps to. A `measurement_types` table with a `schema_org_property` column (`width`, `height`, `depth`, or `null` for generic `hasMeasurement`) keeps this mapping data-driven rather than hardcoded.
+
+### Unit Codes
+
+Use UN/CEFACT codes for `QuantitativeValue.unitCode`:
+
+| Unit | Code | unitText |
+|------|------|----------|
+| Troy ounce | APZ | oz t |
+| Gram | GRM | g |
+| Kilogram | KGM | kg |
+| Millimeter | MMT | mm |
+| Centimeter | CMT | cm |
+| Inch | INH | in |
+
+### Identifier Strategy (Catalog Variant)
+
+| Column | Purpose | Schema.org Mapping |
+|--------|---------|--------------------|
+| `id` | Internal primary key (UUID) | -- |
+| `slug` | URL-friendly identifier | `identifier`, `sku` |
+| `external_ids` | IDs from other systems | `sameAs`, `identifier` with PropertyValue |
+| `url` | Canonical web URL | `url` |

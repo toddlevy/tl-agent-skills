@@ -40,7 +40,7 @@ This downloads:
 - `tree.jsonld`
 - `jsonldcontext.json`
 
-And writes a `data/VERSION` file with the version number, date, and download timestamp.
+And writes an `assets/VERSION` file with the version number, date, and download timestamp.
 
 ---
 
@@ -134,7 +134,7 @@ Remove the `x-` field. Update your OpenAPI schema and documentation.
 
 For production systems, consider automating version checks:
 
-1. **Scheduled check**: Weekly or monthly, run the update script and compare `data/VERSION` to previous
+1. **Scheduled check**: Weekly or monthly, run the update script and compare `assets/VERSION` to previous
 2. **Diff report**: Generate a summary of new types and properties relevant to your domain clusters
 3. **Alert on attic moves**: Flag any term you use that moves to the attic
 4. **Alert on pending graduation**: Flag pending terms you use that graduate to core
@@ -157,8 +157,39 @@ Editorial work uses Turtle format with an RDFS-based approach. Changes flow thro
 
 If your system requires stability guarantees:
 
-1. Record the Schema.org version in `data/VERSION`
+1. Record the Schema.org version in `assets/VERSION`
 2. Only update when you've assessed the diff
 3. Pin your enum mapping tables to specific Schema.org enumeration members
 4. Document which Schema.org version your API contract is based on
 5. Test after each update to ensure no breaking changes in your serialization
+
+---
+
+## Governance Quick Reference
+
+The patterns below are pulled from the parent SKILL.md as a quick decision guide for handling Schema.org version changes. The longer body of this file goes deeper on tracking releases and update scripts.
+
+### Tracking Releases
+
+Run `scripts/update-schema-data.sh` (or `.ps1`) to download the latest release files into `assets/`. The script writes an `assets/VERSION` file with the version number and date.
+
+### Diffing Changes
+
+Compare CSV files between versions to identify:
+- New types or properties added
+- Properties gaining new domain or range types
+- Terms moving from "pending" to core (or to attic)
+
+### Impact Assessment
+
+| Change Type | Risk | Action |
+|-------------|------|--------|
+| New type added | None | Evaluate for relevance to your domain |
+| New property on existing type | Low | Consider adopting if it replaces an `x-` extension |
+| Property range expanded | Low | May enable richer data modeling |
+| Term moved to attic | Medium | Plan migration if you use it |
+| Property renamed | High | Rare, but requires coordinated update |
+
+### When Your Extension Becomes Official
+
+If Schema.org adds a property that matches one of your `x-` extensions, migrate: emit both the standard property and the `x-` extension during a transition period, then drop the extension.

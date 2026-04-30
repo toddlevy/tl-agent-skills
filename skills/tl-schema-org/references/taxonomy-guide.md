@@ -266,7 +266,7 @@ Does the entity genuinely belong to two types?
 
 ## Using the Data Files
 
-The `data/` directory contains machine-readable Schema.org release files for runtime lookup.
+The `assets/` directory contains machine-readable Schema.org release files for runtime lookup.
 
 ### Types CSV (`schemaorg-current-https-types.csv`)
 

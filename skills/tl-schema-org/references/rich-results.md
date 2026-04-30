@@ -219,3 +219,33 @@ Watch for:
 - [ ] Schema validates at https://validator.schema.org/
 - [ ] Rich results test passes at https://search.google.com/test/rich-results
 - [ ] Search Console Enhancement reports show no errors
+
+---
+
+## Validation Workflow
+
+The patterns below are pulled from the parent SKILL.md to keep all rich-results validation guidance in one place.
+
+1. **Build**: Generate JSON-LD from your data model
+2. **Validate syntax**: Ensure valid JSON (no trailing commas, proper quoting)
+3. **Validate schema**: Use https://validator.schema.org/ for Schema.org compliance
+4. **Validate rich results**: Use Google Rich Results Test for search eligibility
+5. **Monitor**: Watch Search Console Enhancement reports for ongoing issues
+
+## Common Errors
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| Missing required field | Required property omitted | Check per-type requirements |
+| Invalid URL | Relative path or malformed | Use fully qualified `https://` URLs |
+| Invalid date | Not ISO 8601 | Use `YYYY-MM-DDTHH:MM:SS+00:00` |
+| Invalid enum value | Bare string instead of URI | Use `https://schema.org/InStock`, not `InStock` |
+| Content mismatch | Schema data doesn't match visible page content | Ensure schema reflects what users see |
+| Invalid price | Currency symbol or commas | Use numeric string only (`"149.99"`) |
+
+## Quality Rules
+
+- Schema must accurately represent visible page content
+- Do not mark up content that doesn't exist on the page
+- Keep dynamic values (prices, availability, ratings) current
+- Do not use structured data to deceive or mislead
