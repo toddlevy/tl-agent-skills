@@ -7,36 +7,54 @@ description: >
   designing data models and APIs grounded in Schema.org.
 license: MIT
 metadata:
-  author: tl-agent-skills
   version: "1.0"
-quilted:
-  version: 1
-  synthesized: 2026-03-21
-  sources:
-    - url: https://playbooks.com/skills/openclaw/skills/schema-markup
-      borrowed: ["Validation checklist", "Common errors table", "React component pattern"]
-      weight: 0.25
-    - url: https://playbooks.com/skills/openclaw/skills/schema-markup-generator
-      borrowed: ["Schema type decision tree", "Rich result eligibility matrix", "Implementation workflow"]
-      weight: 0.25
-    - url: https://schema.org/docs/
-      borrowed: ["Data model", "Extension docs", "Conformance guidance", "Machine-readable files"]
-      weight: 0.25
-    - url: https://developers.google.com/search/docs/appearance/structured-data
-      borrowed: ["Required vs recommended properties", "Quality guidelines"]
-      weight: 0.10
-    - url: https://w3c.github.io/json-ld-bp/
-      borrowed: ["@id/@graph patterns", "Vocabulary reuse", "API integration"]
-      weight: 0.15
-  enhancements:
-    - "Full taxonomy coverage via machine-readable data files (1245 core types, 1532 core properties, plus 632 enum members and 460 pending terms)"
-    - "Database modeling patterns for Schema.org-grounded relational design"
-    - "API interoperability patterns with OpenAPI type hierarchy mirroring"
-    - "Two-tier extension system (x- public / _x- internal) with field ordering and stripping"
-    - "Enum mapping tables for availability/condition with normalization"
-    - "DB-driven schemaOrgProperty for measurement-to-property routing"
-    - "Version tracking and governance workflow"
+  author: Todd Levy <toddlevy@gmail.com>
+  homepage: https://github.com/toddlevy/tl-agent-skills
+  quilted:
+    version: 1
+    synthesized: 2026-03-21
+    sources:
+      - url: https://playbooks.com/skills/openclaw/skills/schema-markup
+        borrowed:
+          - Validation checklist
+          - Common errors table
+          - React component pattern
+        weight: 0.25
+      - url: https://playbooks.com/skills/openclaw/skills/schema-markup-generator
+        borrowed:
+          - Schema type decision tree
+          - Rich result eligibility matrix
+          - Implementation workflow
+        weight: 0.25
+      - url: https://schema.org/docs/
+        borrowed:
+          - Data model
+          - Extension docs
+          - Conformance guidance
+          - Machine-readable files
+        weight: 0.25
+      - url: https://developers.google.com/search/docs/appearance/structured-data
+        borrowed:
+          - Required vs recommended properties
+          - Quality guidelines
+        weight: 0.10
+      - url: https://w3c.github.io/json-ld-bp/
+        borrowed:
+          - "@id/@graph patterns"
+          - Vocabulary reuse
+          - API integration
+        weight: 0.15
+    enhancements:
+      - "Full taxonomy coverage via machine-readable data files (1245 core types, 1532 core properties, plus 632 enum members and 460 pending terms)"
+      - "Database modeling patterns for Schema.org-grounded relational design"
+      - "API interoperability patterns with OpenAPI type hierarchy mirroring"
+      - "Two-tier extension system (x- public / _x- internal) with field ordering and stripping"
+      - "Enum mapping tables for availability/condition with normalization"
+      - "DB-driven schemaOrgProperty for measurement-to-property routing"
+      - "Version tracking and governance workflow"
 ---
+
+<!-- Copyright (c) 2026 Todd Levy. Licensed under MIT. SPDX-License-Identifier: MIT -->
 
 # Schema.org
 
@@ -347,7 +365,7 @@ Each rich result type has required and recommended properties. Missing a require
 
 ## 7. Version Tracking and Governance
 
-Schema.org publishes numbered releases every few weeks. The vocabulary grows but rarely removes terms — deprecated types move to an "attic" rather than being deleted.
+Schema.org publishes numbered releases every few weeks. The vocabulary grows but rarely removes terms â€” deprecated types move to an "attic" rather than being deleted.
 
 > See [Version Tracking](references/version-tracking.md) for the release-tracking script (`scripts/update-schema-data.sh` writes `assets/VERSION`), CSV diff strategies, the impact-assessment matrix by change type, and the migration workflow when your `x-` extension becomes an official Schema.org property.
 

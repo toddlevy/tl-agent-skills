@@ -1,23 +1,26 @@
 ---
 name: tl-first-principles
 description: Foundational software design principles traced to their intellectual origins. Covers information hiding, separation of concerns, abstraction, SSOT/DRY, conceptual integrity, and composition. Use when making architectural decisions, evaluating trade-offs, or understanding *why* best practices exist.
-version: "1.1"
 license: MIT
 compatibility: Universal. Language and framework agnostic.
-quilted:
-  - source: sickn33/antigravity-awesome-skills/software-architecture
-    weight: 0.15
-    description: Clean Architecture, DDD, hexagonal patterns
-  - source: athola/claude-night-market/code-quality-principles
-    weight: 0.10
-    description: KISS, YAGNI alongside SOLID
-  - source: ramziddin/solid-skills
-    weight: 0.12
-    description: SOLID principles, TDD connection
 metadata:
-  author: tl-agent-skills
+  version: "1.1"
+  author: Todd Levy <toddlevy@gmail.com>
+  homepage: https://github.com/toddlevy/tl-agent-skills
+  quilted:
+    - source: sickn33/antigravity-awesome-skills/software-architecture
+      weight: 0.15
+      description: Clean Architecture, DDD, hexagonal patterns
+    - source: athola/claude-night-market/code-quality-principles
+      weight: 0.10
+      description: KISS, YAGNI alongside SOLID
+    - source: ramziddin/solid-skills
+      weight: 0.12
+      description: SOLID principles, TDD connection
   suite: tl-first-principles
 ---
+
+<!-- Copyright (c) 2026 Todd Levy. Licensed under MIT. SPDX-License-Identifier: MIT -->
 
 # First Principles of Software Design
 
@@ -25,8 +28,8 @@ The foundational axioms of quality software, traced to their intellectual origin
 
 **"First Principles"** carries a deliberate double meaning:
 
-1. **Epistemological** — Reasoning from irreducible truths rather than by analogy
-2. **Historical** — The *first* people who articulated these principles; the founders
+1. **Epistemological** â€” Reasoning from irreducible truths rather than by analogy
+2. **Historical** â€” The *first* people who articulated these principles; the founders
 
 This skill provides the *why* behind best practices by connecting modern conventions to their intellectual lineage.
 
@@ -73,9 +76,9 @@ When evaluating a design choice, identify which principles are at stake:
 ```
 "Should we duplicate this validation logic in both services?"
 
-→ Principle: Single Source of Truth (Hunt & Thomas)
-→ Risk: Drift when one copy changes but the other doesn't
-→ Decision: Extract to shared module or single service
+â†’ Principle: Single Source of Truth (Hunt & Thomas)
+â†’ Risk: Drift when one copy changes but the other doesn't
+â†’ Decision: Extract to shared module or single service
 ```
 
 ### For Code Review
@@ -86,9 +89,9 @@ Cite the principle and its lineage when explaining why something matters:
 "This component fetches data AND renders AND handles errors.
  That's three concerns in one place.
 
-→ Principle: Separation of Concerns (Dijkstra, 1974)
-→ Why it matters: Each concern changes for different reasons
-→ Suggestion: Extract data fetching to a hook"
+â†’ Principle: Separation of Concerns (Dijkstra, 1974)
+â†’ Why it matters: Each concern changes for different reasons
+â†’ Suggestion: Extract data fetching to a hook"
 ```
 
 ### For Learning
@@ -96,10 +99,10 @@ Cite the principle and its lineage when explaining why something matters:
 Trace modern patterns back to their origins:
 
 ```
-React hooks → Composition over Inheritance → GoF (1994)
-TypeScript interfaces → Contracts → Hoare (1969), Liskov (1987)
-Redux single store → SSOT → Hunt & Thomas (1999)
-Microservices → Information Hiding → Parnas (1972)
+React hooks â†’ Composition over Inheritance â†’ GoF (1994)
+TypeScript interfaces â†’ Contracts â†’ Hoare (1969), Liskov (1987)
+Redux single store â†’ SSOT â†’ Hunt & Thomas (1999)
+Microservices â†’ Information Hiding â†’ Parnas (1972)
 ```
 
 ## Convergence Map
@@ -107,38 +110,38 @@ Microservices → Information Hiding → Parnas (1972)
 These principles emerged from different lineages but converge on the same goal: **managing complexity in systems that must change over time**.
 
 ```
-                         ┌─────────────────────────────────────┐
-                         │   MANAGING COMPLEXITY IN SYSTEMS    │
-                         │       THAT MUST CHANGE OVER TIME    │
-                         └───────────────┬─────────────────────┘
-                                         │
-          ┌──────────────┬───────────────┼───────────────┬──────────────┐
-          ▼              ▼               ▼               ▼              ▼
-   ┌─────────────┐ ┌───────────┐ ┌─────────────┐ ┌─────────────┐ ┌──────────┐
-   │ MODULARITY  │ │ LEGIBILITY│ │ ABSTRACTION │ │  INTEGRITY  │ │ FEEDBACK │
-   │   Parnas    │ │  Dijkstra │ │Liskov/Hoare │ │   Brooks    │ │ Hamilton │
-   └─────────────┘ └───────────┘ └─────────────┘ └─────────────┘ └──────────┘
-          │              │               │               │              │
-          ▼              ▼               ▼               ▼              ▼
+                         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                         â”‚   MANAGING COMPLEXITY IN SYSTEMS    â”‚
+                         â”‚       THAT MUST CHANGE OVER TIME    â”‚
+                         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                         â”‚
+          â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+          â–¼              â–¼               â–¼               â–¼              â–¼
+   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+   â”‚ MODULARITY  â”‚ â”‚ LEGIBILITYâ”‚ â”‚ ABSTRACTION â”‚ â”‚  INTEGRITY  â”‚ â”‚ FEEDBACK â”‚
+   â”‚   Parnas    â”‚ â”‚  Dijkstra â”‚ â”‚Liskov/Hoare â”‚ â”‚   Brooks    â”‚ â”‚ Hamilton â”‚
+   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+          â”‚              â”‚               â”‚               â”‚              â”‚
+          â–¼              â–¼               â–¼               â–¼              â–¼
    Information     Separation      Contracts &     Conceptual      Fail Fast
      Hiding        of Concerns    Substitution      Integrity
-          │              │               │               │              │
-          └──────────────┴───────────────┴───────────────┴──────────────┘
-                                         │
-                         ┌───────────────┼───────────────┐
-                         ▼               ▼               ▼
-                  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-                  │    SOLID    │ │     DRY     │ │   PATTERNS  │
-                  │ Uncle Bob   │ │ Hunt/Thomas │ │     GoF     │
-                  └─────────────┘ └─────────────┘ └─────────────┘
-                         │               │               │
-                         └───────────────┼───────────────┘
-                                         ▼
-                         ┌─────────────────────────────────────┐
-                         │        MODERN PRACTICE              │
-                         │  Clean Architecture, Microservices, │
-                         │  Functional Core, React Composition │
-                         └─────────────────────────────────────┘
+          â”‚              â”‚               â”‚               â”‚              â”‚
+          â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                         â”‚
+                         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                         â–¼               â–¼               â–¼
+                  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                  â”‚    SOLID    â”‚ â”‚     DRY     â”‚ â”‚   PATTERNS  â”‚
+                  â”‚ Uncle Bob   â”‚ â”‚ Hunt/Thomas â”‚ â”‚     GoF     â”‚
+                  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                         â”‚               â”‚               â”‚
+                         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                                         â–¼
+                         â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                         â”‚        MODERN PRACTICE              â”‚
+                         â”‚  Clean Architecture, Microservices, â”‚
+                         â”‚  Functional Core, React Composition â”‚
+                         â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ## Primary Sources
@@ -205,11 +208,11 @@ When principles appear to conflict, use these heuristics:
 
 ### Diagnostic Questions
 
-- **Does this change for multiple reasons?** → SRP violation
-- **Could I swap this implementation?** → Information Hiding check
-- **Is this fact represented once?** → DRY/SSOT check
-- **Can I test this in isolation?** → Coupling smell
-- **Does the name explain the purpose?** → Abstraction quality
+- **Does this change for multiple reasons?** â†’ SRP violation
+- **Could I swap this implementation?** â†’ Information Hiding check
+- **Is this fact represented once?** â†’ DRY/SSOT check
+- **Can I test this in isolation?** â†’ Coupling smell
+- **Does the name explain the purpose?** â†’ Abstraction quality
 
 ---
 
@@ -231,10 +234,10 @@ graph LR
 
 | Tension | Resolution |
 |---------|------------|
-| DRY ↔ Coupling | Accept duplication when coupling is worse |
-| YAGNI ↔ Extensibility | Build for known requirements only |
-| Explicitness ↔ Hiding | Hide implementation, expose intent |
-| Performance ↔ Abstraction | Optimize measured bottlenecks only |
+| DRY â†” Coupling | Accept duplication when coupling is worse |
+| YAGNI â†” Extensibility | Build for known requirements only |
+| Explicitness â†” Hiding | Hide implementation, expose intent |
+| Performance â†” Abstraction | Optimize measured bottlenecks only |
 
 ---
 
@@ -255,22 +258,22 @@ This skill provides the *theory*. For *practice*, see:
 
 ### Quilted Skills
 
-- [sickn33/software-architecture](https://skills.sh/sickn33/antigravity-awesome-skills/software-architecture) — Architecture patterns
-- [athola/code-quality-principles](https://skills.sh/athola/claude-night-market/code-quality-principles) — KISS, YAGNI
-- [ramziddin/solid-skills](https://github.com/ramziddin/solid-skills) — SOLID principles
+- [sickn33/software-architecture](https://skills.sh/sickn33/antigravity-awesome-skills/software-architecture) â€” Architecture patterns
+- [athola/code-quality-principles](https://skills.sh/athola/claude-night-market/code-quality-principles) â€” KISS, YAGNI
+- [ramziddin/solid-skills](https://github.com/ramziddin/solid-skills) â€” SOLID principles
 
 ### First-Party Academic Sources
 
-- [Parnas 1972 — On the Criteria To Be Used in Decomposing Systems into Modules](https://dl.acm.org/doi/10.1145/361598.361623)
-- [Dijkstra — On the Role of Scientific Thought (EWD447)](https://www.cs.utexas.edu/~EWD/transcriptions/EWD04xx/EWD447.html)
-- [Liskov 1987 — Data Abstraction and Hierarchy](https://dl.acm.org/doi/10.1145/942572.807045)
-- [Brooks 1975 — The Mythical Man-Month](https://www.oreilly.com/library/view/mythical-man-month-the/0201835959/)
+- [Parnas 1972 â€” On the Criteria To Be Used in Decomposing Systems into Modules](https://dl.acm.org/doi/10.1145/361598.361623)
+- [Dijkstra â€” On the Role of Scientific Thought (EWD447)](https://www.cs.utexas.edu/~EWD/transcriptions/EWD04xx/EWD447.html)
+- [Liskov 1987 â€” Data Abstraction and Hierarchy](https://dl.acm.org/doi/10.1145/942572.807045)
+- [Brooks 1975 â€” The Mythical Man-Month](https://www.oreilly.com/library/view/mythical-man-month-the/0201835959/)
 
 ### Modern Interpretation
 
-- [Martin Fowler's Bliki](https://martinfowler.com/bliki/) — Contemporary patterns
-- [Clean Coder Blog](https://blog.cleancoder.com/) — Robert Martin on SOLID
-- [Refactoring.Guru](https://refactoring.guru/design-patterns) — Pattern explanations
+- [Martin Fowler's Bliki](https://martinfowler.com/bliki/) â€” Contemporary patterns
+- [Clean Coder Blog](https://blog.cleancoder.com/) â€” Robert Martin on SOLID
+- [Refactoring.Guru](https://refactoring.guru/design-patterns) â€” Pattern explanations
 
 ### Books
 
@@ -280,6 +283,6 @@ This skill provides the *theory*. For *practice*, see:
 
 ### Skill References
 
-- [sources/primary-sources.md](sources/primary-sources.md) — Annotated bibliography
-- [principles/](principles/) — Individual principle deep-dives
-- [founders/](founders/) — Biographical context for key figures
+- [sources/primary-sources.md](sources/primary-sources.md) â€” Annotated bibliography
+- [principles/](principles/) â€” Individual principle deep-dives
+- [founders/](founders/) â€” Biographical context for key figures

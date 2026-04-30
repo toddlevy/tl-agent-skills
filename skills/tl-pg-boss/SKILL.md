@@ -1,16 +1,18 @@
 ---
 name: tl-pg-boss
 description: PostgreSQL-backed job queue with exactly-once delivery using SKIP LOCKED. Use when adding background jobs, task scheduling, cron jobs, or async processing to Node.js apps already using Postgres.
-version: "1.1"
 license: MIT
-quilted:
-  - source: triggerdotdev/skills/trigger-tasks
-    weight: 0.15
-    description: Async workflow patterns, retry strategies, cron scheduling
-  - source: omer-metin/skills-for-antigravity/pg-boss
-    weight: 0.10
-    description: SKIP LOCKED principles, archiving patterns
 metadata:
+  version: "1.1"
+  author: Todd Levy <toddlevy@gmail.com>
+  homepage: https://github.com/toddlevy/tl-agent-skills
+  quilted:
+    - source: triggerdotdev/skills/trigger-tasks
+      weight: 0.15
+      description: Async workflow patterns, retry strategies, cron scheduling
+    - source: omer-metin/skills-for-antigravity/pg-boss
+      weight: 0.10
+      description: SKIP LOCKED principles, archiving patterns
   moment: implement
   surface:
     - api
@@ -21,6 +23,8 @@ metadata:
   agentFit: repo-write
   dryRun: partial
 ---
+
+<!-- Copyright (c) 2026 Todd Levy. Licensed under MIT. SPDX-License-Identifier: MIT -->
 
 # tl-pg-boss
 
@@ -326,35 +330,35 @@ SELECT * FROM pgboss.job WHERE state = 'failed' ORDER BY completedon DESC LIMIT 
 
 ### Quilted Skills
 
-- [triggerdotdev/skills/trigger-tasks](https://skills.sh/triggerdotdev/skills/trigger-tasks) — Workflow patterns
-- [omer-metin/skills-for-antigravity/pg-boss](https://playbooks.com/skills/omer-metin/skills-for-antigravity/pg-boss) — SKIP LOCKED principles
+- [triggerdotdev/skills/trigger-tasks](https://skills.sh/triggerdotdev/skills/trigger-tasks) â€” Workflow patterns
+- [omer-metin/skills-for-antigravity/pg-boss](https://playbooks.com/skills/omer-metin/skills-for-antigravity/pg-boss) â€” SKIP LOCKED principles
 
 ### First-Party Documentation
 
-- [pg-boss GitHub](https://github.com/timgit/pg-boss) — Official repository
-- [pg-boss API Docs](https://timgit.github.io/pg-boss/) — API reference
-- [pg-boss Dashboard](https://github.com/timgit/pg-boss/tree/master/packages/dashboard) — Web UI
+- [pg-boss GitHub](https://github.com/timgit/pg-boss) â€” Official repository
+- [pg-boss API Docs](https://timgit.github.io/pg-boss/) â€” API reference
+- [pg-boss Dashboard](https://github.com/timgit/pg-boss/tree/master/packages/dashboard) â€” Web UI
 
 ### PostgreSQL Resources
 
-- [PostgreSQL SKIP LOCKED](https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE) — Locking semantics
-- [PostgreSQL Advisory Locks](https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS) — Application-level locks
-- [Connection Pooling with PgBouncer](https://www.pgbouncer.org/) — Connection management
+- [PostgreSQL SKIP LOCKED](https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE) â€” Locking semantics
+- [PostgreSQL Advisory Locks](https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS) â€” Application-level locks
+- [Connection Pooling with PgBouncer](https://www.pgbouncer.org/) â€” Connection management
 
 ### Alternative Solutions
 
-- [Graphile Worker](https://worker.graphile.org/) — PostgreSQL queue alternative
-- [Trigger.dev](https://trigger.dev/docs/) — Managed background jobs
-- [BullMQ](https://docs.bullmq.io/) — Redis-based alternative
+- [Graphile Worker](https://worker.graphile.org/) â€” PostgreSQL queue alternative
+- [Trigger.dev](https://trigger.dev/docs/) â€” Managed background jobs
+- [BullMQ](https://docs.bullmq.io/) â€” Redis-based alternative
 
 ### Skill References
 
-- `references/send-options.md` — Full send options
-- `references/typescript-patterns.md` — BaseJob, JobManager
-- `references/monitoring.md` — Dashboard + SQL queries
-- `references/advanced-patterns.md` — Singleton, throttling, pub/sub
-- `references/schedule-management.md` — Cron schedules, unschedule, pause patterns
-- `references/wordpress-migration.md` — WP-Cron & Action Scheduler mapping
+- `references/send-options.md` â€” Full send options
+- `references/typescript-patterns.md` â€” BaseJob, JobManager
+- `references/monitoring.md` â€” Dashboard + SQL queries
+- `references/advanced-patterns.md` â€” Singleton, throttling, pub/sub
+- `references/schedule-management.md` â€” Cron schedules, unschedule, pause patterns
+- `references/wordpress-migration.md` â€” WP-Cron & Action Scheduler mapping
 
 ---
 

@@ -16,7 +16,8 @@ metadata:
   posture: guided
   agentFit: repo-write
   dryRun: full
-  author: tl-agent-skills
+  author: Todd Levy <toddlevy@gmail.com>
+  homepage: https://github.com/toddlevy/tl-agent-skills
   suite: database
   portability: high
   related:
@@ -92,6 +93,8 @@ metadata:
       - "v2: Migration reference expanded (Migrator API, allowUnorderedMigrations, custom providers)"
       - "v2: All additions sourced to official docs, API docs, or GitHub issues"
 ---
+
+<!-- Copyright (c) 2026 Todd Levy. Licensed under MIT. SPDX-License-Identifier: MIT -->
 
 # Kysely: Type-Safe SQL Patterns
 

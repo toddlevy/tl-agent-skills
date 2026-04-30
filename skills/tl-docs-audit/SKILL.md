@@ -2,24 +2,26 @@
 name: tl-docs-audit
 description: Audit existing documentation for gaps, staleness, and sync issues. Generates sync reports with actionable findings. Use when reviewing doc coverage, finding outdated docs, or syncing docs with code.
 license: MIT
-version: "1.1"
-quilted:
-  - source: openai/openai-agents-python/docs-sync
-    weight: 0.35
-    description: Gap analysis, feature inventory, sync report format
-  - source: vercel/next.js/update-docs
-    weight: 0.25
-    description: Code-to-docs mapping table, shared content handling
-  - source: jezweb/claude-skills/docs-workflow
-    weight: 0.20
-    description: Lifecycle commands, staleness audit, staleness indicators
-  - source: local/codebase-audit
-    weight: 0.10
-    description: Finding categories, time-boxing
-  - source: plaited/development-skills/code-documentation
-    weight: 0.10
-    description: Maintenance workflow
 metadata:
+  version: "1.1"
+  author: Todd Levy <toddlevy@gmail.com>
+  homepage: https://github.com/toddlevy/tl-agent-skills
+  quilted:
+    - source: openai/openai-agents-python/docs-sync
+      weight: 0.35
+      description: Gap analysis, feature inventory, sync report format
+    - source: vercel/next.js/update-docs
+      weight: 0.25
+      description: Code-to-docs mapping table, shared content handling
+    - source: jezweb/claude-skills/docs-workflow
+      weight: 0.20
+      description: Lifecycle commands, staleness audit, staleness indicators
+    - source: local/codebase-audit
+      weight: 0.10
+      description: Finding categories, time-boxing
+    - source: plaited/development-skills/code-documentation
+      weight: 0.10
+      description: Maintenance workflow
   moment: review
   surface:
     - repo
@@ -31,6 +33,8 @@ metadata:
     - tl-docs-create
     - tl-docs-viewer-create
 ---
+
+<!-- Copyright (c) 2026 Todd Levy. Licensed under MIT. SPDX-License-Identifier: MIT -->
 
 # Documentation Audit
 
@@ -65,10 +69,10 @@ Before auditing, gather scope through structured questions. See `references/conf
 
 ### Question Flow Summary
 
-1. **Light scan** — Inventory existing docs
-2. **Scope** — Full audit / Changed files only / Specific areas
-3. **Output** — Report only / Report + fixes
-4. **Fix confirmation** — Per-finding approval (if fixing)
+1. **Light scan** â€” Inventory existing docs
+2. **Scope** â€” Full audit / Changed files only / Specific areas
+3. **Output** â€” Report only / Report + fixes
+4. **Fix confirmation** â€” Per-finding approval (if fixing)
 
 ---
 
@@ -94,12 +98,12 @@ Scan the codebase for documentable elements before comparing.
 ## Feature Inventory
 
 ### Public API
-- `createUser(options)` — Creates a new user
-- `getUser(id)` — Retrieves user by ID
+- `createUser(options)` â€” Creates a new user
+- `getUser(id)` â€” Retrieves user by ID
 
 ### CLI Commands
-- `pnpm dev` — Start dev server
-- `pnpm build` — Production build
+- `pnpm dev` â€” Start dev server
+- `pnpm build` â€” Production build
 ```
 
 ---
@@ -195,8 +199,8 @@ Scope: Full codebase analysis
 
 ## Proposed Edits
 
-1. **docs/api/users.md** — Add PATCH endpoint documentation
-2. **README.md** — Add "Database Setup" section
+1. **docs/api/users.md** â€” Add PATCH endpoint documentation
+2. **README.md** â€” Add "Database Setup" section
 ```
 
 ---
@@ -242,9 +246,9 @@ When content appears in multiple places, identify the source of truth.
 
 ### Principles
 
-1. **Edit source, not duplicates** — Find the canonical location
-2. **Use links over repetition** — Reference instead of copying
-3. **Sync, don't diverge** — If duplication is necessary, ensure consistency
+1. **Edit source, not duplicates** â€” Find the canonical location
+2. **Use links over repetition** â€” Reference instead of copying
+3. **Sync, don't diverge** â€” If duplication is necessary, ensure consistency
 
 ---
 
@@ -259,10 +263,10 @@ When content appears in multiple places, identify the source of truth.
 
 ### Automated Tooling
 
-- [Vale](https://vale.sh/) — Prose linting (style, grammar, terminology)
-- [linkinator](https://github.com/JustinBeckwith/linkinator) — Dead link detection
-- [alex](https://alexjs.com/) — Inclusive writing checker
-- [markdownlint](https://github.com/DavidAnson/markdownlint) — Markdown style linting
+- [Vale](https://vale.sh/) â€” Prose linting (style, grammar, terminology)
+- [linkinator](https://github.com/JustinBeckwith/linkinator) â€” Dead link detection
+- [alex](https://alexjs.com/) â€” Inclusive writing checker
+- [markdownlint](https://github.com/DavidAnson/markdownlint) â€” Markdown style linting
 
 ### CI Integration
 
@@ -281,5 +285,5 @@ jobs:
 
 ## Related Skills
 
-- [tl-docs-create](../tl-docs-create/SKILL.md) — Create documentation from scratch
-- [tl-docs-viewer-create](../tl-docs-viewer-create/SKILL.md) — React admin UI for browsing docs/ folder
+- [tl-docs-create](../tl-docs-create/SKILL.md) â€” Create documentation from scratch
+- [tl-docs-viewer-create](../tl-docs-viewer-create/SKILL.md) â€” React admin UI for browsing docs/ folder

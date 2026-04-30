@@ -4,7 +4,8 @@ description: Execute a verified plan document. Consumes verification receipts fr
 license: MIT
 metadata:
   version: 1.1.0
-  author: tl-agent-skills
+  author: Todd Levy <toddlevy@gmail.com>
+  homepage: https://github.com/toddlevy/tl-agent-skills
   moment: implement
   surface:
     - repo
@@ -19,6 +20,8 @@ metadata:
     - tl-agent-plan-create
     - tl-agent-plan-audit
 ---
+
+<!-- Copyright (c) 2026 Todd Levy. Licensed under MIT. SPDX-License-Identifier: MIT -->
 
 # Execute Plan Document
 
@@ -39,7 +42,7 @@ A `.plan.md` file is **user-authored input**, not vendor-shipped configuration. 
 Plans and audits invest time verifying facts about the codebase. That investment is wasted if the executor re-verifies everything from scratch. The executor's job is to **implement**, not to re-plan.
 
 **Preconditions** are inputs verified during planning. Treat verified entries as trusted unless the staleness check (Step 0) says otherwise.
-**Exit gates** are outputs you produce. Run them every time, even when the plan is fully verified — they validate your work.
+**Exit gates** are outputs you produce. Run them every time, even when the plan is fully verified â€” they validate your work.
 
 ---
 
@@ -48,15 +51,15 @@ Plans and audits invest time verifying facts about the codebase. That investment
 The execute skill owns two transitions in the plan lifecycle:
 
 ```
-planned → audited → building → built
+planned â†’ audited â†’ building â†’ built
                     ^^^^^^^^^   ^^^^^
                     executor     executor
 ```
 
 | Transition | When | Action |
 |---|---|---|
-| `→ building` | First todo moves to `in_progress` | Update the plan file's YAML `status` field to `building` |
-| `→ built` | All todos are `completed`, all exit gates pass | Update the plan file's YAML `status` field to `built` |
+| `â†’ building` | First todo moves to `in_progress` | Update the plan file's YAML `status` field to `building` |
+| `â†’ built` | All todos are `completed`, all exit gates pass | Update the plan file's YAML `status` field to `built` |
 
 **These updates go in the plan's YAML frontmatter, not just in the agent's local todo list.** The plan file is the durable record. Update it alongside todo status changes.
 
@@ -84,7 +87,7 @@ The plan has both `verified_at_commit` and a populated `verifications:` array.
 The plan has `verified_at_commit` but the `verifications:` array is missing or incomplete (some factual claims in the body lack corresponding entries).
 
 1. Trust the entries that exist (applying the staleness check from State A).
-2. For unverified factual claims, run a targeted check before acting on them. This is a planning process gap — note it but don't block on it.
+2. For unverified factual claims, run a targeted check before acting on them. This is a planning process gap â€” note it but don't block on it.
 
 ### State C: Unverified Plan
 
@@ -102,7 +105,7 @@ For each phase:
 1. **Mark the phase todo as `in_progress` in both the agent's local todo list AND the plan file's YAML.** On the very first transition, also set the plan-level `status: building` in the YAML frontmatter.
 2. **Read the precondition.** If it says "Phase N complete," verify the prior gate todo is marked `completed`. Do not re-run prior exit gates.
 3. **Implement the subtasks** in the order specified by the plan. Follow the plan's specifics (file paths, function names, SQL, code snippets) as written, applying the Trust Boundary above. Treat the plan as the spec for what to build; treat your judgment as the spec for whether the build itself is reasonable.
-4. **Run the exit gate.** Exit gates are the executor's responsibility — always run them, even for fully verified plans. Gates validate your work, not the plan's claims.
+4. **Run the exit gate.** Exit gates are the executor's responsibility â€” always run them, even for fully verified plans. Gates validate your work, not the plan's claims.
 5. **Mark the gate todo as `completed`** in both the local todo list and the plan file's YAML, only after the gate passes.
 
 ### When the Plan Is Wrong

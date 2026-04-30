@@ -4,11 +4,14 @@ description: Set up and troubleshoot OpenMeter for local development with Docker
 license: MIT
 compatibility: Requires Docker Desktop, Node.js 18+, PowerShell or Bash. Ngrok required for Stripe billing.
 metadata:
-  author: tl-agent-skills
   version: "1.0"
+  author: Todd Levy <toddlevy@gmail.com>
+  homepage: https://github.com/toddlevy/tl-agent-skills
   suite: tl-openmeter
   related: tl-openmeter-api tl-openmeter-api-mcp-server
 ---
+
+<!-- Copyright (c) 2026 Todd Levy. Licensed under MIT. SPDX-License-Identifier: MIT -->
 
 # OpenMeter Local Dev Setup
 
@@ -36,11 +39,11 @@ This skill is part of the **tl-openmeter** suite:
 
 ## Resources
 
-- [references/REFERENCE.md](references/REFERENCE.md) — Env vars, Docker services, config files
-- [references/apps.md](references/apps.md) — OpenMeter Apps deep dive (Stripe, Sandbox, Custom)
-- [references/webhooks.md](references/webhooks.md) — Webhook auth modes, event types, testing
-- [scripts/verify-setup.ps1](scripts/verify-setup.ps1) — Verify local OpenMeter environment health
-- [assets/env-openmeter.template](assets/env-openmeter.template) — Environment variable template
+- [references/REFERENCE.md](references/REFERENCE.md) â€” Env vars, Docker services, config files
+- [references/apps.md](references/apps.md) â€” OpenMeter Apps deep dive (Stripe, Sandbox, Custom)
+- [references/webhooks.md](references/webhooks.md) â€” Webhook auth modes, event types, testing
+- [scripts/verify-setup.ps1](scripts/verify-setup.ps1) â€” Verify local OpenMeter environment health
+- [assets/env-openmeter.template](assets/env-openmeter.template) â€” Environment variable template
 
 ---
 
@@ -49,17 +52,17 @@ This skill is part of the **tl-openmeter** suite:
 Before proceeding, use the **AskQuestion tool** to determine what applies:
 
 **Question 1: Environment**
-- Local development (Docker) — proceed with this skill
-- Staging or Production — redirect to `tl-openmeter-api` and deployment docs
+- Local development (Docker) â€” proceed with this skill
+- Staging or Production â€” redirect to `tl-openmeter-api` and deployment docs
 
 **Question 2: Stripe billing needed?**
-- Yes → Steps 1, 2, 3, 4, 5, 6 (full setup with ngrok)
-- No → Steps 1, 4, 5 only (metering and entitlements without billing)
+- Yes â†’ Steps 1, 2, 3, 4, 5, 6 (full setup with ngrok)
+- No â†’ Steps 1, 4, 5 only (metering and entitlements without billing)
 
 **Question 3: Ngrok status** (only if Stripe = yes)
-- Already set up → skip ngrok install in Step 3
-- Need to set it up → full Step 3
-- Paid plan with static domain → note in Step 3 about skipping URL updates
+- Already set up â†’ skip ngrok install in Step 3
+- Need to set it up â†’ full Step 3
+- Paid plan with static domain â†’ note in Step 3 about skipping URL updates
 
 ---
 
@@ -114,7 +117,7 @@ This installs Stripe and creates a billing profile.
 
 **Requires**: `STRIPE_SECRET_KEY` in `.env`
 
-Verify: `curl http://localhost:8888/api/v1/apps` — should show Stripe (Sandbox may also be present and is irrelevant).
+Verify: `curl http://localhost:8888/api/v1/apps` â€” should show Stripe (Sandbox may also be present and is irrelevant).
 
 ---
 
@@ -133,7 +136,7 @@ Then configure (or use the helper script):
 npx tsx scripts/openmeter/set-openmeter-webhook-url.ts
 ```
 
-Manual config requires updating three places — see [references/REFERENCE.md](references/REFERENCE.md) for the full list.
+Manual config requires updating three places â€” see [references/REFERENCE.md](references/REFERENCE.md) for the full list.
 
 After config changes: `docker compose restart openmeter`
 
@@ -145,7 +148,7 @@ After config changes: `docker compose restart openmeter`
 npx tsx scripts/openmeter/openmeter-catalog-sync.ts
 ```
 
-Expected local output includes `⊘ Skipping webhook channel (not supported on self-hosted OpenMeter)` — this is normal.
+Expected local output includes `âŠ˜ Skipping webhook channel (not supported on self-hosted OpenMeter)` â€” this is normal.
 
 See [references/REFERENCE.md](references/REFERENCE.md) for common errors and fixes.
 
@@ -179,7 +182,7 @@ See [references/webhooks.md](references/webhooks.md) for full details.
 |------|-------------|-----------|
 | Svix signatures | Cloud (staging/prod) | `SVIX_WEBHOOK_SECRET` + Svix headers |
 | x-webhook-secret | Self-hosted with secret | `OPENMETER_WEBHOOK_SECRET` header check |
-| Dev passthrough | Local (no secret set) | Accepts all — self-hosted sends plain HTTP |
+| Dev passthrough | Local (no secret set) | Accepts all â€” self-hosted sends plain HTTP |
 
 ---
 
@@ -214,7 +217,7 @@ curl -X POST http://127.0.0.1:3001/webhooks/openmeter \
 |---------|-----|
 | EADDRINUSE on 3001 | Kill existing process on that port |
 | OpenMeter container won't start | Check Docker logs; usually Kafka/PG not ready |
-| Catalog sync connection refused | OpenMeter not running — `docker ps` |
+| Catalog sync connection refused | OpenMeter not running â€” `docker ps` |
 | Stripe App missing after cleanup | `npx tsx scripts/openmeter/openmeter-install-stripe-app.ts` |
 | Ngrok URL changed | Update `.env`, `config.local.yaml`, Stripe Dashboard; restart OpenMeter |
 
@@ -226,17 +229,17 @@ See [references/REFERENCE.md](references/REFERENCE.md) for the full troubleshoot
 
 ### First-Party Documentation
 
-- [OpenMeter Docker Setup](https://openmeter.io/docs/installation/docker) — Official Docker guide
-- [OpenMeter Self-Hosted](https://openmeter.io/docs/guides/self-hosted) — Self-hosting guide
-- [Stripe App Setup](https://openmeter.io/docs/guides/stripe) — Stripe integration
+- [OpenMeter Docker Setup](https://openmeter.io/docs/installation/docker) â€” Official Docker guide
+- [OpenMeter Self-Hosted](https://openmeter.io/docs/guides/self-hosted) â€” Self-hosting guide
+- [Stripe App Setup](https://openmeter.io/docs/guides/stripe) â€” Stripe integration
 
 ### Development Tools
 
-- [ngrok](https://ngrok.com/docs) — Secure tunnels for webhook testing
-- [Stripe CLI](https://stripe.com/docs/stripe-cli) — Local Stripe development
-- [Docker Compose](https://docs.docker.com/compose/) — Multi-container orchestration
+- [ngrok](https://ngrok.com/docs) â€” Secure tunnels for webhook testing
+- [Stripe CLI](https://stripe.com/docs/stripe-cli) â€” Local Stripe development
+- [Docker Compose](https://docs.docker.com/compose/) â€” Multi-container orchestration
 
 ### Related Skills
 
-- [tl-openmeter-api](../tl-openmeter-api/SKILL.md) — REST API reference
-- [tl-openmeter-api-mcp-server](../tl-openmeter-api-mcp-server/SKILL.md) — MCP server for Cursor
+- [tl-openmeter-api](../tl-openmeter-api/SKILL.md) â€” REST API reference
+- [tl-openmeter-api-mcp-server](../tl-openmeter-api-mcp-server/SKILL.md) â€” MCP server for Cursor

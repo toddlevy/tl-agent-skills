@@ -1,162 +1,73 @@
 # tl-agent-skills
 
-Reusable agent skills and optional MCP servers — project-agnostic, for use with Cursor, Codex, Copilot, and other AI agents. Follows the [Agent Skills open standard](https://agentskills.io/specification).
+A curated collection of [Agent Skills](https://docs.anthropic.com/en/docs/agent-skills) authored by Todd Levy for use with Cursor, Claude Code, and other agent runtimes that support the Anthropic Agent Skills specification. Each skill is a self-contained `SKILL.md` (with optional `references/`, `scripts/`, and `assets/` folders) that gives an agent durable, composable expertise in a specific domain.
 
-**Repo:** [https://github.com/toddlevy/tl-agent-skills](https://github.com/toddlevy/tl-agent-skills)
+## Install
 
----
+Install all skills into the universal global skills directory (`~/.agents/skills/`):
 
-## Branches
-
-| Branch   | Purpose |
-|----------|---------|
-| **staging** | Work in progress, PRs, integration checks. Create or use this for new skills before release. |
-| **main**    | Production. Stable, released skills. Merge from `staging` after review. |
-
-Default branch can be `main`; use `staging` for development.
-
----
-
-## Suites
-
-Skills are organized into **suites** — groups of related skills that cross-reference each other via `metadata.suite` and `metadata.related` in frontmatter.
-
-### tl-agent-plan (Plan Lifecycle)
-
-| Skill | Type | Purpose |
-|-------|------|---------|
-| `skills/tl-agent-plan-create/` | methodology | Structured plan creation with strategic/technical templates |
-| `skills/tl-agent-plan-audit/` | methodology | Pre-execution audit: critique, pre-mortem, parallelization, readiness |
-| `skills/tl-agent-plan-execute/` | methodology | Execute verified plans with trust model and staleness protocol |
-
-### tl-database (Database)
-
-| Skill | Type | Purpose |
-|-------|------|---------|
-| `skills/tl-kysely-patterns/` | knowledge | Type-safe SQL with Kysely: query patterns, JSONB, migrations, pitfalls |
-| `skills/tl-pg-boss/` | knowledge | PostgreSQL job queue with exactly-once delivery via SKIP LOCKED |
-
-### tl-openmeter (OpenMeter)
-
-| Skill | Type | Purpose |
-|-------|------|---------|
-| `skills/tl-openmeter-api/` | knowledge | REST API reference: endpoints, schemas, gotchas |
-| `skills/tl-openmeter-local-dev/` | knowledge + scripts | Local dev setup: Docker, ngrok, Stripe App, webhooks |
-| `skills/tl-openmeter-api-mcp-server/` | MCP server | Tools for calling local OpenMeter from Cursor |
-
----
-
-## Skill Structure
-
-All skills live in the `skills/` directory. Each skill follows the [Agent Skills specification](https://agentskills.io/specification) with progressive disclosure:
-
-```
-skills/
-└── tl-skill-name/
-├── SKILL.md              # Required: instructions + metadata (<500 lines)
-├── references/           # Optional: detailed docs (loaded on demand)
-│   ├── REFERENCE.md      # Environment vars, config, troubleshooting
-│   └── topic.md          # Focused deep dives
-├── scripts/              # Optional: executable verification/setup scripts
-│   ├── verify-setup.ps1  # PowerShell health check
-│   └── verify-setup.sh   # Bash health check
-└── assets/               # Optional: templates, schemas, data files
-    └── env.template      # Environment variable template
+```powershell
+npx skills add toddlevy/tl-agent-skills -g -y --agent universal
 ```
 
-### Progressive Disclosure
+This is the canonical install command — use it for both fresh installs and updates. It overwrites every previously installed skill folder with the latest version from `origin/main`.
 
-1. **Metadata** (~100 tokens): `name` + `description` loaded at startup for all skills
-2. **Instructions** (<5000 tokens): Full `SKILL.md` body loaded when skill is activated
-3. **Resources** (as needed): `references/`, `scripts/`, `assets/` loaded only when required
+## Skills
 
----
+### Plan suite
 
-## Adding a New Skill
+| Skill | Purpose |
+|-------|---------|
+| [`tl-agent-plan-create`](skills/tl-agent-plan-create/SKILL.md) | Create structured plan documents for features, projects, or multi-phase tasks. |
+| [`tl-agent-plan-audit`](skills/tl-agent-plan-audit/SKILL.md) | Audit plan documents before execution and produce verification receipts. |
+| [`tl-agent-plan-execute`](skills/tl-agent-plan-execute/SKILL.md) | Execute a verified plan, consuming audit receipts to avoid redundant re-verification. |
 
-1. Create `skills/tl-<skill-name>/` with `SKILL.md` (frontmatter: name, description, license, metadata).
-2. Add `references/` for detailed documentation that shouldn't bloat `SKILL.md`.
-3. Add `scripts/` for executable helpers (health checks, setup verification).
-4. Add `assets/` for templates and static resources.
-5. If the skill needs tools: add `skills/tl-<skill-name>-mcp-server/` with Node/TS MCP server and `scripts/add-cursor-mcp.js`.
-6. Run `agentskills validate skills/tl-<skill-name>` to verify before pushing.
-7. Work on **staging**, then merge to **main** for prod.
+### Documentation suite
 
-### Naming Convention
+| Skill | Purpose |
+|-------|---------|
+| [`tl-docs-create`](skills/tl-docs-create/SKILL.md) | Create documentation from scratch with SSOT-driven generation and writing standards. |
+| [`tl-docs-audit`](skills/tl-docs-audit/SKILL.md) | Audit existing documentation for gaps, staleness, and sync issues. |
+| [`tl-docs-viewer-create`](skills/tl-docs-viewer-create/SKILL.md) | Build a React admin UI for browsing docs with tree navigation, markdown, and Mermaid. |
 
-All skills use the `tl-` prefix followed by a RESTful-style slug.
+### OpenMeter suite
 
-**Format**: `tl-{product}-{resource}[-{action}]`
+| Skill | Purpose |
+|-------|---------|
+| [`tl-openmeter-api`](skills/tl-openmeter-api/SKILL.md) | Reference for the OpenMeter REST API: metering, billing, entitlements, subscriptions. |
+| [`tl-openmeter-local-dev`](skills/tl-openmeter-local-dev/SKILL.md) | Set up and troubleshoot OpenMeter locally with Docker, ngrok, and the Stripe app. |
+| [`tl-openmeter-api-mcp-server`](skills/tl-openmeter-api-mcp-server/SKILL.md) | MCP server exposing local OpenMeter as tools for Cursor and other AI assistants. |
 
-The slug reads like a REST path: product first, then the resource or concept, then an optional action or qualifier.
+### Code quality and architecture
 
-| Pattern | Example | Reads as |
-|---------|---------|----------|
-| `tl-{product}-{resource}` | `tl-openmeter-api` | OpenMeter → API reference |
-| `tl-{product}-{resource}-{qualifier}` | `tl-openmeter-local-dev` | OpenMeter → local dev setup |
-| `tl-{product}-{resource}-{server}` | `tl-openmeter-api-mcp-server` | OpenMeter → API → MCP server |
-| `tl-{domain}-{action}` | `tl-agent-skill-create` | Agent skill → create |
+| Skill | Purpose |
+|-------|---------|
+| [`tl-first-principles`](skills/tl-first-principles/SKILL.md) | Foundational software design principles traced to their intellectual origins. |
+| [`tl-complexity-assessment`](skills/tl-complexity-assessment/SKILL.md) | Find large files, god modules, and refactoring candidates in TS/JS/React codebases. |
+| [`tl-knip`](skills/tl-knip/SKILL.md) | Find and remove unused files, dependencies, and exports using Knip. |
+| [`tl-devlog`](skills/tl-devlog/SKILL.md) | Maintain a structured `DEVLOG.md` capturing decisions, milestones, and incidents. |
 
-**Rules**:
-- Prefix: always `tl-`
-- Segments: lowercase, hyphen-separated
-- Max 64 characters (per [Agent Skills spec](https://agentskills.io/specification))
-- No consecutive hyphens (`--`)
-- Folder name **must** match the `name` field in SKILL.md frontmatter
+### Data and integrations
 
-**Suite grouping**: Skills in the same suite share a common `tl-{product}` prefix (e.g., `tl-openmeter-*`). This makes them sort together in file listings and easy to discover.
+| Skill | Purpose |
+|-------|---------|
+| [`tl-kysely-patterns`](skills/tl-kysely-patterns/SKILL.md) | Type-safe SQL query building with Kysely for PostgreSQL. |
+| [`tl-pg-boss`](skills/tl-pg-boss/SKILL.md) | PostgreSQL-backed job queue with exactly-once delivery via SKIP LOCKED. |
+| [`tl-schema-org`](skills/tl-schema-org/SKILL.md) | The full Schema.org vocabulary with production patterns for JSON-LD, DBs, and APIs. |
+| [`tl-live-music-data`](skills/tl-live-music-data/SKILL.md) | Reference for live music APIs (MusicBrainz, Setlist.fm, JamBase, Bandsintown, etc.). |
 
-See the **tl-agent-skill-create** skill for the full checklist.
+## License & Attribution
 
----
+This project is licensed under the [MIT License](LICENSE) — see the `LICENSE` file at the repo root and the per-skill `LICENSE` file inside each `skills/<name>/` folder. The MIT license permits use, modification, and redistribution provided the copyright notice and license text are preserved.
 
-## Validation
+Each `SKILL.md` carries an SPDX license header (`SPDX-License-Identifier: MIT`) immediately after its YAML frontmatter so the license travels with the file when individual skills are copied or vendored into other projects. Please preserve that header.
 
-Skills are validated against the [Agent Skills specification](https://agentskills.io/specification) using the [`skills-ref`](https://pypi.org/project/skills-ref/) reference library. CI runs validation automatically on every push and PR.
+Several skills in this repo are **quilted** — synthesized from multiple upstream sources with per-source weights and attribution recorded in each skill's `metadata.quilted` block. See [NOTICE](NOTICE) for the consolidated list of upstream sources by skill.
 
-### Install
+## Author
 
-```bash
-pip install skills-ref
-```
+**Todd Levy** — `<toddlevy@gmail.com>` — [github.com/toddlevy](https://github.com/toddlevy)
 
-Or with [uv](https://docs.astral.sh/uv/):
+## Contributing
 
-```bash
-uv tool install skills-ref
-```
-
-### Validate a single skill
-
-```bash
-agentskills validate skills/tl-openmeter-api
-```
-
-### Validate all skills
-
-```bash
-# Bash
-bash scripts/validate-all.sh
-
-# PowerShell
-pwsh scripts/validate-all.ps1
-```
-
-The scripts discover skill directories automatically (any directory containing `SKILL.md`) and exit non-zero if any fail.
-
----
-
-## Cursor Setup
-
-For a skill that ships an MCP server (e.g., `skills/tl-openmeter-api-mcp-server/`):
-
-1. From the server directory: `npm install && npm run build`
-2. Run the install script to add the server to user config:  
-   `node scripts/add-cursor-mcp.js`  
-   Use `--dry-run` to see the diff first.
-
----
-
-## License
-
-MIT
+This is a single-author repository. If you find a bug or have a suggestion, open an issue at [github.com/toddlevy/tl-agent-skills/issues](https://github.com/toddlevy/tl-agent-skills/issues).

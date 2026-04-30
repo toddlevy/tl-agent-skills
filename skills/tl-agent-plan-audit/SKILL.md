@@ -4,7 +4,8 @@ description: Audit plan documents before execution. Validates structural complia
 license: MIT
 metadata:
   version: 1.5.0
-  author: tl-agent-skills
+  author: Todd Levy <toddlevy@gmail.com>
+  homepage: https://github.com/toddlevy/tl-agent-skills
   moment: review
   surface:
     - repo
@@ -19,6 +20,8 @@ metadata:
     - tl-agent-plan-create
     - tl-agent-plan-execute
 ---
+
+<!-- Copyright (c) 2026 Todd Levy. Licensed under MIT. SPDX-License-Identifier: MIT -->
 
 # Plan Audit
 
@@ -39,7 +42,7 @@ Unified audit workflow for `.plan.md` files. Validates structural compliance aga
 
 ## Audit Process
 
-Run Analysis 0 first — it is mechanical validation that reads the plan and produces numbered findings. Then perform Analyses 1–4 mentally and merge all findings into a **unified output** grouped by subject matter. Do NOT reveal the analysis numbering to the user.
+Run Analysis 0 first â€” it is mechanical validation that reads the plan and produces numbered findings. Then perform Analyses 1â€“4 mentally and merge all findings into a **unified output** grouped by subject matter. Do NOT reveal the analysis numbering to the user.
 
 ### Analysis 0: Structural Compliance
 
@@ -47,7 +50,7 @@ Run Analysis 0 first — it is mechanical validation that reads the plan and pro
 
 This analysis MUST always produce a "Structural Compliance" section in the audit output. If all checks pass, write "All 9 structural checks pass." If any fail, list each violation numbered.
 
-Read the rules file first, then execute its 9 steps in order against the target plan. The validation is mechanical — no judgment calls.
+Read the rules file first, then execute its 9 steps in order against the target plan. The validation is mechanical â€” no judgment calls.
 
 
 ### Analysis 1: Principal Engineer Critique
@@ -81,7 +84,7 @@ Identify:
 
 For EVERY file the plan modifies, creates, or deletes, perform exhaustive pre-reads and document:
 
-- **Signatures**: Exact function signatures with parameter types, return types, and line numbers. Not summaries — the actual code.
+- **Signatures**: Exact function signatures with parameter types, return types, and line numbers. Not summaries â€” the actual code.
 - **Import graph**: Every file that currently imports the target. Every import the target file has that may break. Exact file paths and line numbers.
 - **Call sites**: The exact lines where changes hook in. If the plan says "add externalIdService.link after upsert", the audit must show the upsert call and its surrounding context.
 - **API surface**: For route handlers, the exact request schema (query params, body shape) and response shape today.
@@ -115,41 +118,41 @@ Scale analysis depth to plan complexity:
 ## Smart Auto-Fix Rule
 
 **Obvious improvements**: Apply directly without asking. Examples:
-- Missing gate criteria → add specific verification
-- Vague subtask → make atomic
-- Missing dependencies → add them
-- Parallelizable tasks not marked → add parallelization notes
-- Missing `isProject` field in frontmatter → add it
-- Todo IDs not matching convention → reformat to `t{p}-{g}-{s}` or slug style
-- Missing `Precondition:` or `Exit gate:` in a phase → add skeleton
-- Body/YAML numbering mismatch → reconcile
-- Unresolved "Option A / Option B" alternatives → research codebase, apply first principles, commit to one approach
+- Missing gate criteria â†’ add specific verification
+- Vague subtask â†’ make atomic
+- Missing dependencies â†’ add them
+- Parallelizable tasks not marked â†’ add parallelization notes
+- Missing `isProject` field in frontmatter â†’ add it
+- Todo IDs not matching convention â†’ reformat to `t{p}-{g}-{s}` or slug style
+- Missing `Precondition:` or `Exit gate:` in a phase â†’ add skeleton
+- Body/YAML numbering mismatch â†’ reconcile
+- Unresolved "Option A / Option B" alternatives â†’ research codebase, apply first principles, commit to one approach
 
-**Implementation unknowns**: If a plan modifies a file but doesn't document the current signature/shape, add an "Implementation Context" section with those facts. This is an obvious fix — perform the pre-reads and add the results to the plan.
+**Implementation unknowns**: If a plan modifies a file but doesn't document the current signature/shape, add an "Implementation Context" section with those facts. This is an obvious fix â€” perform the pre-reads and add the results to the plan.
 
-**Integrity violations (Steps 8-9)**: These are always obvious fixes — apply directly:
-- Stale file path → verify and correct or remove the reference
-- Wrong line number → read the file, update to the actual line
-- YAML/body inconsistency → update the YAML todo text to match the body
-- Missing files from scope → grep, find the consumers, add them to the plan
-- Exit gate example values that don't match actual output → correct the examples
-- Missing cross-section rationale → read both sections, add a `> Decision:` note explaining the difference
-- Missing `verified_at_commit` → run `git rev-parse --short HEAD` and add it
-- Missing or incomplete `verifications:` array → run the verification commands from Step 8b and produce the block
-- Stale verification results → re-run the command, update the result, flag if the claim changed
+**Integrity violations (Steps 8-9)**: These are always obvious fixes â€” apply directly:
+- Stale file path â†’ verify and correct or remove the reference
+- Wrong line number â†’ read the file, update to the actual line
+- YAML/body inconsistency â†’ update the YAML todo text to match the body
+- Missing files from scope â†’ grep, find the consumers, add them to the plan
+- Exit gate example values that don't match actual output â†’ correct the examples
+- Missing cross-section rationale â†’ read both sections, add a `> Decision:` note explaining the difference
+- Missing `verified_at_commit` â†’ run `git rev-parse --short HEAD` and add it
+- Missing or incomplete `verifications:` array â†’ run the verification commands from Step 8b and produce the block
+- Stale verification results â†’ re-run the command, update the result, flag if the claim changed
 
 **Non-obvious decisions**: Probe, ask questions, propose with rationale. Examples:
 - Reordering phases (may have unstated reasons)
 - Removing scope (user may have context you don't)
 - Architectural changes
 - Adding significant new work
-- Alternatives where both approaches have legitimate first-principles arguments and codebase evidence is ambiguous → ask the user
+- Alternatives where both approaches have legitimate first-principles arguments and codebase evidence is ambiguous â†’ ask the user
 
 ## Output Format
 
 > See [Output Format Template](references/output-format-template.md) for the complete audit report template (Summary, Findings grouped by subject area, Parallelization, Critical path, Agent allocation, Recommendations list).
 
-Produce a unified audit report. Group findings by **subject matter** (e.g., by phase, by system component, by risk area) — NOT by audit type.
+Produce a unified audit report. Group findings by **subject matter** (e.g., by phase, by system component, by risk area) â€” NOT by audit type.
 
 ## After the Audit
 
@@ -160,7 +163,7 @@ If verdict is "Changes recommended":
 ```
 Audit complete. I've identified [N] changes.
 
-[If any are obvious fixes]: I can apply items 1, 3, 5 directly — they're straightforward improvements.
+[If any are obvious fixes]: I can apply items 1, 3, 5 directly â€” they're straightforward improvements.
 
 [If any need discussion]: Items 2, 4 involve trade-offs. Want me to elaborate on any before proceeding?
 

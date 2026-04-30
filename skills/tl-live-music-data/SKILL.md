@@ -1,25 +1,27 @@
 ---
 name: tl-live-music-data
 description: Reference documentation for live music data APIs and ID mapping between services. Use when integrating MusicBrainz, Setlist.fm, JamBase, Bandsintown, Ticketmaster, or other concert/artist APIs.
-version: 1.1.0
 license: MIT
-author: Todd Levy <toddlevy@gmail.com>
-quilted:
-  - source: firecrawl/cli/firecrawl-scrape
-    weight: 0.10
-    description: Web scraping fallback patterns, workflow escalation
-  - source: local://jambase-local-replica-guide
-    weight: 0.15
-    description: Replica decision tree, sync patterns, overlap window recommendations
-  - source: local://colitas-data-enrichment
-    weight: 0.12
-    description: Phased enrichment, MusicBrainz artist-rels, candidate matching
-  - source: local://colitas-local-dev-setup
-    weight: 0.08
-    description: Multi-ID mapping, artist relationship types
 metadata:
+  version: 1.1.0
+  author: Todd Levy <toddlevy@gmail.com>
+  homepage: https://github.com/toddlevy/tl-agent-skills
+  quilted:
+    - source: firecrawl/cli/firecrawl-scrape
+      weight: 0.10
+      description: Web scraping fallback patterns, workflow escalation
+    - source: local://jambase-local-replica-guide
+      weight: 0.15
+      description: Replica decision tree, sync patterns, overlap window recommendations
+    - source: local://colitas-data-enrichment
+      weight: 0.12
+      description: Phased enrichment, MusicBrainz artist-rels, candidate matching
+    - source: local://colitas-local-dev-setup
+      weight: 0.08
+      description: Multi-ID mapping, artist relationship types
   moment: implement
-  surface: [api]
+  surface:
+    - api
   output: analysis
   risk: low
   effort: low
@@ -27,6 +29,8 @@ metadata:
   agentFit: chat-only
   dryRun: none
 ---
+
+<!-- Copyright (c) 2026 Todd Levy. Licensed under MIT. SPDX-License-Identifier: MIT -->
 
 # Live Music Data APIs
 
@@ -89,7 +93,7 @@ Reference documentation for live music data APIs and how they connect via extern
 
 ### Web Scraping Fallback
 
-When APIs are unavailable (Tier 4) or rate-limited, use web scraping as a fallback. **Workflow escalation**: search → scrape → crawl.
+When APIs are unavailable (Tier 4) or rate-limited, use web scraping as a fallback. **Workflow escalation**: search â†’ scrape â†’ crawl.
 
 ```bash
 # Scrape a single artist page to markdown
@@ -345,20 +349,20 @@ To update this skill:
 ## References
 
 ### Quilted Skills
-- [firecrawl/cli/firecrawl-scrape](https://skills.sh/firecrawl/cli/firecrawl-scrape) — Web scraping patterns
+- [firecrawl/cli/firecrawl-scrape](https://skills.sh/firecrawl/cli/firecrawl-scrape) â€” Web scraping patterns
 
 ### First-Party API Documentation
-- [MusicBrainz API](https://musicbrainz.org/doc/MusicBrainz_API) — ID hub, url-rels, JSON responses
-- [MusicBrainz JSON Web Service](https://musicbrainz.org/doc/MusicBrainz_API/JSON) — JSON format details
-- [Setlist.fm API](https://api.setlist.fm/docs/1.0/index.html) — Setlist search and retrieval
-- [JamBase API](https://apidocs.jambase.com/) — Events, venues, multi-ID lookup
-- [Ticketmaster Discovery API](https://developer.ticketmaster.com/products-and-docs/apis/discovery-api/v2/) — Events, attractions
-- [Spotify Web API](https://developer.spotify.com/documentation/web-api) — OAuth 2.0, artist data
-- [Spotify Authorization Guide](https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow) — PKCE flow
-- [Discogs API](https://www.discogs.com/developers) — Discography, releases
-- [Last.fm API](https://www.last.fm/api) — Similar artists, tags
-- [Wikidata Query Service](https://query.wikidata.org/) — SPARQL cross-references
+- [MusicBrainz API](https://musicbrainz.org/doc/MusicBrainz_API) â€” ID hub, url-rels, JSON responses
+- [MusicBrainz JSON Web Service](https://musicbrainz.org/doc/MusicBrainz_API/JSON) â€” JSON format details
+- [Setlist.fm API](https://api.setlist.fm/docs/1.0/index.html) â€” Setlist search and retrieval
+- [JamBase API](https://apidocs.jambase.com/) â€” Events, venues, multi-ID lookup
+- [Ticketmaster Discovery API](https://developer.ticketmaster.com/products-and-docs/apis/discovery-api/v2/) â€” Events, attractions
+- [Spotify Web API](https://developer.spotify.com/documentation/web-api) â€” OAuth 2.0, artist data
+- [Spotify Authorization Guide](https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow) â€” PKCE flow
+- [Discogs API](https://www.discogs.com/developers) â€” Discography, releases
+- [Last.fm API](https://www.last.fm/api) â€” Similar artists, tags
+- [Wikidata Query Service](https://query.wikidata.org/) â€” SPARQL cross-references
 
 ### Community Resources
-- [MusicBrainz Picard Documentation](https://picard-docs.musicbrainz.org/) — Tagging patterns
-- [Wikidata SPARQL Examples](https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/queries/examples) — Cross-reference queries
+- [MusicBrainz Picard Documentation](https://picard-docs.musicbrainz.org/) â€” Tagging patterns
+- [Wikidata SPARQL Examples](https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/queries/examples) â€” Cross-reference queries

@@ -1,19 +1,22 @@
 ---
 name: tl-openmeter-api-mcp-server
 description: MCP server providing tools to interact with a local OpenMeter instance. Enables AI assistants to list meters, manage customers, create subscriptions, query usage, and ingest events. Use when working with OpenMeter locally and you need to call the API directly from the agent.
-version: "1.1"
 license: MIT
 compatibility: Node.js 18+, local or remote OpenMeter instance
-quilted:
-  - source: anthropics/skills/mcp-builder
-    weight: 0.25
-    description: 4-phase MCP workflow, tool naming conventions, error handling, pagination patterns
 metadata:
-  author: tl-agent-skills
+  version: "1.1"
+  author: Todd Levy <toddlevy@gmail.com>
+  homepage: https://github.com/toddlevy/tl-agent-skills
+  quilted:
+    - source: anthropics/skills/mcp-builder
+      weight: 0.25
+      description: 4-phase MCP workflow, tool naming conventions, error handling, pagination patterns
   suite: tl-openmeter
   related: tl-openmeter-api tl-openmeter-local-dev
   type: mcp-server
 ---
+
+<!-- Copyright (c) 2026 Todd Levy. Licensed under MIT. SPDX-License-Identifier: MIT -->
 
 # tl-openmeter-api-mcp-server
 
@@ -111,8 +114,8 @@ Local dev often runs without `OPENMETER_API_KEY`.
 
 ## Resources
 
-- **OpenMeter quick reference** — Markdown from the tl-openmeter-api skill
-- **OpenMeter spec note** — Plain text with spec URL and configured base URL
+- **OpenMeter quick reference** â€” Markdown from the tl-openmeter-api skill
+- **OpenMeter spec note** â€” Plain text with spec URL and configured base URL
 
 ## Verification
 
@@ -143,10 +146,10 @@ From anthropics/skills/mcp-builder:
 Use consistent, action-oriented prefixes:
 
 ```
-openmeter_list_meters     ✓ (list action)
-openmeter_get_customer    ✓ (get action)
-openmeter_create_subscription ✓ (create action)
-meters                    ✗ (no action prefix)
+openmeter_list_meters     âœ“ (list action)
+openmeter_get_customer    âœ“ (get action)
+openmeter_create_subscription âœ“ (create action)
+meters                    âœ— (no action prefix)
 ```
 
 ### API Coverage vs Workflow Tools
@@ -337,16 +340,16 @@ describe('OpenMeter MCP Server', () => {
 
 ### Quilted Skills
 
-- [anthropics/skills/mcp-builder](https://skills.sh/anthropics/skills/mcp-builder) — MCP server development guide
+- [anthropics/skills/mcp-builder](https://skills.sh/anthropics/skills/mcp-builder) â€” MCP server development guide
 
 ### First-Party Documentation
 
-- [MCP Specification](https://modelcontextprotocol.io/) — Protocol specification
-- [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk) — SDK reference
-- [OpenMeter API](https://openmeter.io/docs/api) — API endpoints
+- [MCP Specification](https://modelcontextprotocol.io/) â€” Protocol specification
+- [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk) â€” SDK reference
+- [OpenMeter API](https://openmeter.io/docs/api) â€” API endpoints
 
 ### MCP Resources
 
-- [MCP Server Examples](https://github.com/modelcontextprotocol/servers) — Reference implementations
-- [MCP Inspector](https://github.com/modelcontextprotocol/inspector) — Debugging tool
-- [MCP Best Practices](https://github.com/anthropics/skills/blob/HEAD/skills/mcp-builder/reference/mcp_best_practices.md) — Universal guidelines
+- [MCP Server Examples](https://github.com/modelcontextprotocol/servers) â€” Reference implementations
+- [MCP Inspector](https://github.com/modelcontextprotocol/inspector) â€” Debugging tool
+- [MCP Best Practices](https://github.com/anthropics/skills/blob/HEAD/skills/mcp-builder/reference/mcp_best_practices.md) â€” Universal guidelines

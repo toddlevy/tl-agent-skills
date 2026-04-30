@@ -3,31 +3,34 @@ name: tl-knip
 description: Find and remove unused files, dependencies, and exports in TypeScript/JavaScript projects using Knip. Covers configuration-first workflow, plugin system, barrel file handling, CI integration, monorepo support, and agent-specific cleanup guidance.
 license: MIT
 compatibility: TypeScript, JavaScript, monorepos. Node.js 18+.
-version: "2.0"
-quilted:
-  - source: brianlovin/claude-config/knip
-    weight: 0.35
-    description: Configuration-first workflow, never-use-ignore-patterns rule, ignoreExportsUsedInFile
-  - source: laurigates/claude-plugins/knip-dead-code-detection
-    weight: 0.30
-    description: Framework/test runner plugin tables, CI/CD YAML, knip-ignore comments
-  - source: artivilla/agents-config/knip
-    weight: 0.20
-    description: Auto-delete vs ask-first categorization, re-run loop workflow
-  - source: knoopx/pi/knip
-    weight: 0.10
-    description: Quick command reference, trace-file/trace-export debug commands
-  - source: pproenca/dot-skills/knip-deadcode-best-practices
-    weight: 0.05
-    description: 8-category rule priority framework
 metadata:
-  author: tl-agent-skills
+  version: "2.0"
+  author: Todd Levy <toddlevy@gmail.com>
+  homepage: https://github.com/toddlevy/tl-agent-skills
+  quilted:
+    - source: brianlovin/claude-config/knip
+      weight: 0.35
+      description: Configuration-first workflow, never-use-ignore-patterns rule, ignoreExportsUsedInFile
+    - source: laurigates/claude-plugins/knip-dead-code-detection
+      weight: 0.30
+      description: Framework/test runner plugin tables, CI/CD YAML, knip-ignore comments
+    - source: artivilla/agents-config/knip
+      weight: 0.20
+      description: Auto-delete vs ask-first categorization, re-run loop workflow
+    - source: knoopx/pi/knip
+      weight: 0.10
+      description: Quick command reference, trace-file/trace-export debug commands
+    - source: pproenca/dot-skills/knip-deadcode-best-practices
+      weight: 0.05
+      description: 8-category rule priority framework
   suite: tl-knip
 ---
 
+<!-- Copyright (c) 2026 Todd Levy. Licensed under MIT. SPDX-License-Identifier: MIT -->
+
 # Knip: Dead Code Detection & Removal
 
-Knip finds unused files, dependencies, and exports across TypeScript and JavaScript projects. It understands your project's entry points, plugin ecosystem, and module graph — reporting only real dead code, not false positives.
+Knip finds unused files, dependencies, and exports across TypeScript and JavaScript projects. It understands your project's entry points, plugin ecosystem, and module graph â€” reporting only real dead code, not false positives.
 
 **What Knip detects:**
 
@@ -43,7 +46,7 @@ This is a standalone skill with no related suite members.
 
 ## When to Use
 
-Agent triggers — activate this skill when the user says:
+Agent triggers â€” activate this skill when the user says:
 
 - "Find dead code in this project"
 - "Clean up unused dependencies"
@@ -58,12 +61,12 @@ Agent triggers — activate this skill when the user says:
 
 Load these on demand when the user's question goes deeper than SKILL.md covers:
 
-- [references/configuration.md](references/configuration.md) — Complete knip.json / knip.ts option reference with examples
-- [references/plugins.md](references/plugins.md) — Full plugin ecosystem: all frameworks, test runners, build tools
-- [references/barrel-files.md](references/barrel-files.md) — Barrel file and re-export handling: false positives, public API tagging, index.ts patterns
-- [references/troubleshooting.md](references/troubleshooting.md) — Systematic diagnosis: false positives, performance, monorepo issues, exit codes
-- [scripts/knip-check.sh](scripts/knip-check.sh) — Health check script (bash)
-- [scripts/knip-check.ps1](scripts/knip-check.ps1) — Health check script (PowerShell)
+- [references/configuration.md](references/configuration.md) â€” Complete knip.json / knip.ts option reference with examples
+- [references/plugins.md](references/plugins.md) â€” Full plugin ecosystem: all frameworks, test runners, build tools
+- [references/barrel-files.md](references/barrel-files.md) â€” Barrel file and re-export handling: false positives, public API tagging, index.ts patterns
+- [references/troubleshooting.md](references/troubleshooting.md) â€” Systematic diagnosis: false positives, performance, monorepo issues, exit codes
+- [scripts/knip-check.sh](scripts/knip-check.sh) â€” Health check script (bash)
+- [scripts/knip-check.ps1](scripts/knip-check.ps1) â€” Health check script (PowerShell)
 
 ---
 
@@ -72,7 +75,7 @@ Load these on demand when the user's question goes deeper than SKILL.md covers:
 ```bash
 npx knip                              # Full analysis
 npx knip --production                 # Production code only (excludes tests/devDeps)
-npx knip --dependencies               # Only unused deps — fastest CI check
+npx knip --dependencies               # Only unused deps â€” fastest CI check
 npx knip --exports                    # Only unused exports
 npx knip --files                      # Only unused files
 npx knip --fix                        # Auto-remove safe issues
@@ -94,23 +97,23 @@ npx knip --trace-export myFunction         # Why is this export flagged?
 
 ## Configuration-First Workflow
 
-**Always configure before acting on reported issues.** Cleaning up issues before fixing configuration causes churn — removed items may be re-flagged or real issues masked.
+**Always configure before acting on reported issues.** Cleaning up issues before fixing configuration causes churn â€” removed items may be re-flagged or real issues masked.
 
-### Step 1 — Understand the project
+### Step 1 â€” Understand the project
 
 - Check `package.json` for frameworks, test runners, build tools
 - Look for existing Knip config: `knip.json`, `knip.jsonc`, `knip.ts`, or `"knip"` key in `package.json`
 - Review existing config for problems before running
 
-### Step 2 — Run and read configuration hints first
+### Step 2 â€” Run and read configuration hints first
 
 ```bash
 npx knip
 ```
 
-**Configuration hints appear at the top of output before issue lists.** Address these first — they identify missing entry points, unrecognized plugins, and path alias gaps that cause false positives.
+**Configuration hints appear at the top of output before issue lists.** Address these first â€” they identify missing entry points, unrecognized plugins, and path alias gaps that cause false positives.
 
-### Step 3 — Adjust config to eliminate false positives
+### Step 3 â€” Adjust config to eliminate false positives
 
 Common adjustments:
 
@@ -122,19 +125,19 @@ Common adjustments:
 | Test files flagging prod imports | Use `--production` instead of `ignore` patterns |
 | Barrel file exports all flagged | See [references/barrel-files.md](references/barrel-files.md) |
 
-### Step 4 — Repeat until hints are resolved
+### Step 4 â€” Repeat until hints are resolved
 
 Re-run after each config change. Only address reported issues once hints are gone and false positives are minimal.
 
-### Step 5 — Address issues in priority order
+### Step 5 â€” Address issues in priority order
 
-1. **Unused files** — tackle first; removing files exposes newly-unused exports downstream
-2. **Unused dependencies** — remove from `package.json`
-3. **Unused devDependencies** — remove from `package.json`
-4. **Unused exports** — remove `export` keyword or delete the item
-5. **Unused types/interfaces** — remove or add `ignoreExportsUsedInFile`
+1. **Unused files** â€” tackle first; removing files exposes newly-unused exports downstream
+2. **Unused dependencies** â€” remove from `package.json`
+3. **Unused devDependencies** â€” remove from `package.json`
+4. **Unused exports** â€” remove `export` keyword or delete the item
+5. **Unused types/interfaces** â€” remove or add `ignoreExportsUsedInFile`
 
-### Step 6 — Re-run and repeat
+### Step 6 â€” Re-run and repeat
 
 Each cleanup pass exposes more dead code. Repeat until output is clean or only intentionally-ignored items remain.
 
@@ -170,9 +173,9 @@ See [references/configuration.md](references/configuration.md) for all options.
 
 ## Barrel Files
 
-Barrel files (`index.ts` files that re-export from multiple modules) are the most common source of Knip false positives. Knip tracks whether re-exported items are actually consumed outside the barrel — if nothing imports them externally, they're flagged.
+Barrel files (`index.ts` files that re-export from multiple modules) are the most common source of Knip false positives. Knip tracks whether re-exported items are actually consumed outside the barrel â€” if nothing imports them externally, they're flagged.
 
-**Barrel file patterns and fixes — see [references/barrel-files.md](references/barrel-files.md).**
+**Barrel file patterns and fixes â€” see [references/barrel-files.md](references/barrel-files.md).**
 
 Quick reference:
 
@@ -210,12 +213,12 @@ When executing a Knip cleanup as an agent, categorize before acting.
 - Dependencies that might be used as CLI tools or peer dependencies
 - Anything the user has previously mentioned keeping
 
-Batch all clarifying questions into a single prompt — never ask one at a time.
+Batch all clarifying questions into a single prompt â€” never ask one at a time.
 
 ### Re-run loop
 
 ```
-Run → Categorize → Auto-delete safe → Ask about uncertain → Re-run → Repeat
+Run â†’ Categorize â†’ Auto-delete safe â†’ Ask about uncertain â†’ Re-run â†’ Repeat
 ```
 
 Stop when output is clean or only intentional suppressions remain.
@@ -268,16 +271,16 @@ jobs:
 
 ### First-Party Documentation
 
-- [Knip Documentation](https://knip.dev/) — Official documentation
-- [Knip GitHub](https://github.com/webpro-nl/knip) — Source code and issues
-- [Knip Reporters](https://knip.dev/reference/reporters) — Output formats (JSON, SARIF)
-- [Knip Plugins](https://knip.dev/reference/plugins) — Framework integrations
+- [Knip Documentation](https://knip.dev/) â€” Official documentation
+- [Knip GitHub](https://github.com/webpro-nl/knip) â€” Source code and issues
+- [Knip Reporters](https://knip.dev/reference/reporters) â€” Output formats (JSON, SARIF)
+- [Knip Plugins](https://knip.dev/reference/plugins) â€” Framework integrations
 
 ### Related Tools
 
-- [ts-prune](https://github.com/nadeesha/ts-prune) — TypeScript-specific unused export finder
-- [depcheck](https://github.com/depcheck/depcheck) — Unused dependency checker
-- [unimported](https://github.com/smeijer/unimported) — Find unimported files
+- [ts-prune](https://github.com/nadeesha/ts-prune) â€” TypeScript-specific unused export finder
+- [depcheck](https://github.com/depcheck/depcheck) â€” Unused dependency checker
+- [unimported](https://github.com/smeijer/unimported) â€” Find unimported files
 
 ### Pre-commit Integration
 
@@ -294,7 +297,7 @@ npx knip --dependencies --max-issues 0
 
 This skill documents [Knip](https://knip.dev) by [webpro-nl](https://github.com/webpro-nl/knip).
 
-> Knip is © webpro-nl and contributors, licensed under the [ISC License](https://github.com/webpro-nl/knip?tab=ISC-1-ov-file#readme).
+> Knip is Â© webpro-nl and contributors, licensed under the [ISC License](https://github.com/webpro-nl/knip?tab=ISC-1-ov-file#readme).
 > This skill is independent documentation and is not affiliated with or endorsed by the Knip project.
 
 ### Source skills
@@ -304,7 +307,7 @@ This skill synthesizes content from 5 community Knip skills:
 | Source | Author | Contribution |
 |--------|--------|--------------|
 | [brianlovin/claude-config](https://skills.sh/brianlovin/claude-config/knip) | Brian Lovin | Configuration-first workflow order (configure before acting), the "never use `ignore` patterns" discipline, and the false-positive symptom/fix table |
-| [laurigates/claude-plugins](https://skills.sh/laurigates/claude-plugins/knip-dead-code-detection) | Lauri Gates | Plugin ecosystem tables, CI YAML examples, and the troubleshooting structure (false positives → performance → monorepo issues) |
+| [laurigates/claude-plugins](https://skills.sh/laurigates/claude-plugins/knip-dead-code-detection) | Lauri Gates | Plugin ecosystem tables, CI YAML examples, and the troubleshooting structure (false positives â†’ performance â†’ monorepo issues) |
 | [artivilla/agents-config](https://skills.sh/artivilla/agents-config/knip) | Artivilla | Agent cleanup guidance: the auto-delete vs ask-first categorization and the re-run loop pattern |
 | [knoopx/pi](https://skills.sh/knoopx/pi/knip) | knoopx | Quick command reference table and the `--trace-file` / `--trace-export` debug commands |
-| [pproenca/dot-skills](https://skills.sh/pproenca/dot-skills/knip-deadcode-best-practices) | P. Proença | Issue type reference table with Meaning and Action columns |
+| [pproenca/dot-skills](https://skills.sh/pproenca/dot-skills/knip-deadcode-best-practices) | P. ProenÃ§a | Issue type reference table with Meaning and Action columns |

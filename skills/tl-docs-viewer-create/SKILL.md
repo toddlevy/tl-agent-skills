@@ -1,19 +1,21 @@
 ---
 name: tl-docs-viewer-create
 description: Create a React admin UI for browsing documentation folders with tree navigation, markdown rendering, Mermaid diagrams, and TOC generation. Use when adding a docs viewer to an admin interface.
-version: "1.1"
 license: MIT
-quilted:
-  - source: vercel/streamdown/streamdown
-    weight: 0.25
-    description: Streaming markdown, Shiki syntax highlighting, Mermaid plugin, Tailwind integration
-  - source: remotion-dev/remotion/writing-docs
-    weight: 0.10
-    description: API-per-page rule, language brevity, code example patterns
-  - source: vercel/components.build/building-components
-    weight: 0.10
-    description: Composable component architecture, accessibility, polymorphism
 metadata:
+  version: "1.1"
+  author: Todd Levy <toddlevy@gmail.com>
+  homepage: https://github.com/toddlevy/tl-agent-skills
+  quilted:
+    - source: vercel/streamdown/streamdown
+      weight: 0.25
+      description: Streaming markdown, Shiki syntax highlighting, Mermaid plugin, Tailwind integration
+    - source: remotion-dev/remotion/writing-docs
+      weight: 0.10
+      description: API-per-page rule, language brevity, code example patterns
+    - source: vercel/components.build/building-components
+      weight: 0.10
+      description: Composable component architecture, accessibility, polymorphism
   moment: implement
   surface:
     - repo
@@ -25,6 +27,8 @@ metadata:
     - tl-docs-create
     - tl-docs-audit
 ---
+
+<!-- Copyright (c) 2026 Todd Levy. Licensed under MIT. SPDX-License-Identifier: MIT -->
 
 # Documentation Viewer UI
 
@@ -68,11 +72,11 @@ flowchart TD
 
 ### Questions Summary
 
-1. **Admin Area Detection** — Existing admin area? (yes/no/scan)
-2. **Frontend Stack** — React Router / Wouter / Next.js / TanStack Router / Remix
-3. **Route Placement** — Detected path / /admin/docs / /docs / custom
-4. **Layout Pattern** — Three-column / Two-column / Single column
-5. **Library Preferences** — Markdown renderer + data fetching choices
+1. **Admin Area Detection** â€” Existing admin area? (yes/no/scan)
+2. **Frontend Stack** â€” React Router / Wouter / Next.js / TanStack Router / Remix
+3. **Route Placement** â€” Detected path / /admin/docs / /docs / custom
+4. **Layout Pattern** â€” Three-column / Two-column / Single column
+5. **Library Preferences** â€” Markdown renderer + data fetching choices
 
 ---
 
@@ -81,19 +85,19 @@ flowchart TD
 ### Three-Column Layout (Default)
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                    Admin Docs Layout                        │
-├──────────┬───────────────────────────────────┬──────────────┤
-│          │                                   │              │
-│  DocTree │         DocContent                │ OnThisPage   │
-│  (250px) │         (flex-1)                  │ (200px)      │
-│          │                                   │              │
-│  ├─ docs │  # Document Title                 │ - Section 1  │
-│  │  ├─ a │                                   │ - Section 2  │
-│  │  └─ b │  Content rendered from markdown   │   - Sub 2.1  │
-│  └─ ...  │                                   │ - Section 3  │
-│          │                                   │              │
-└──────────┴───────────────────────────────────┴──────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    Admin Docs Layout                        â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚          â”‚                                   â”‚              â”‚
+â”‚  DocTree â”‚         DocContent                â”‚ OnThisPage   â”‚
+â”‚  (250px) â”‚         (flex-1)                  â”‚ (200px)      â”‚
+â”‚          â”‚                                   â”‚              â”‚
+â”‚  â”œâ”€ docs â”‚  # Document Title                 â”‚ - Section 1  â”‚
+â”‚  â”‚  â”œâ”€ a â”‚                                   â”‚ - Section 2  â”‚
+â”‚  â”‚  â””â”€ b â”‚  Content rendered from markdown   â”‚   - Sub 2.1  â”‚
+â”‚  â””â”€ ...  â”‚                                   â”‚ - Section 3  â”‚
+â”‚          â”‚                                   â”‚              â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ### Data Flow
@@ -250,7 +254,7 @@ import { mermaid } from '@streamdown/mermaid';
 </Streamdown>
 ```
 
-**Tailwind v4 Setup** — Add to `globals.css`:
+**Tailwind v4 Setup** â€” Add to `globals.css`:
 
 ```css
 @source "../node_modules/streamdown/dist/*.js";
@@ -347,7 +351,7 @@ function SearchModal({ isOpen, onClose }) {
 |-----|--------|
 | `/` or `Cmd+K` | Open search |
 | `Esc` | Close search/modal |
-| `↑` `↓` | Navigate results |
+| `â†‘` `â†“` | Navigate results |
 | `Enter` | Select result |
 | `j` `k` | Navigate tree (optional) |
 
@@ -456,19 +460,19 @@ const components = {
 
 From remotion-dev patterns:
 
-- **One API per page** — Each function/component gets its own page
-- **Don't assume it's easy** — Avoid "simply" and "just"
-- **Address as "you"** — Not "we"
-- **Keep it brief** — Extra words cause information loss
-- **Use headings for fields** — Not bullet points for API options
-- **Add titles to code fences** — Always include file context
+- **One API per page** â€” Each function/component gets its own page
+- **Don't assume it's easy** â€” Avoid "simply" and "just"
+- **Address as "you"** â€” Not "we"
+- **Keep it brief** â€” Extra words cause information loss
+- **Use headings for fields** â€” Not bullet points for API options
+- **Add titles to code fences** â€” Always include file context
 
 ---
 
 ## Related Skills
 
-- [tl-docs-create](../tl-docs-create/SKILL.md) — Create documentation from scratch
-- [tl-docs-audit](../tl-docs-audit/SKILL.md) — Audit docs coverage, find gaps, generate sync reports
+- [tl-docs-create](../tl-docs-create/SKILL.md) â€” Create documentation from scratch
+- [tl-docs-audit](../tl-docs-audit/SKILL.md) â€” Audit docs coverage, find gaps, generate sync reports
 
 ---
 
@@ -476,21 +480,21 @@ From remotion-dev patterns:
 
 ### Quilted Skills
 
-- [vercel/streamdown](https://skills.sh/vercel/streamdown/streamdown) — Streaming markdown renderer
-- [remotion-dev/remotion/writing-docs](https://skills.sh/remotion-dev/remotion/writing-docs) — Documentation patterns
-- [vercel/components.build/building-components](https://skills.sh/vercel/components.build/building-components) — Component architecture
+- [vercel/streamdown](https://skills.sh/vercel/streamdown/streamdown) â€” Streaming markdown renderer
+- [remotion-dev/remotion/writing-docs](https://skills.sh/remotion-dev/remotion/writing-docs) â€” Documentation patterns
+- [vercel/components.build/building-components](https://skills.sh/vercel/components.build/building-components) â€” Component architecture
 
 ### First-Party Documentation
 
-- [Streamdown](https://github.com/vercel/streamdown) — Streaming markdown renderer
-- [Shiki](https://shiki.style/) — Syntax highlighting
-- [Mermaid](https://mermaid.js.org/) — Diagrams
-- [Pagefind](https://pagefind.app/) — Static site search
-- [Flexsearch](https://github.com/nextapps-de/flexsearch) — Full-text search
-- [MDX](https://mdxjs.com/) — Markdown + JSX
+- [Streamdown](https://github.com/vercel/streamdown) â€” Streaming markdown renderer
+- [Shiki](https://shiki.style/) â€” Syntax highlighting
+- [Mermaid](https://mermaid.js.org/) â€” Diagrams
+- [Pagefind](https://pagefind.app/) â€” Static site search
+- [Flexsearch](https://github.com/nextapps-de/flexsearch) â€” Full-text search
+- [MDX](https://mdxjs.com/) â€” Markdown + JSX
 
 ### Accessibility
 
-- [WAI-ARIA Tree View](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/) — Tree navigation pattern
-- [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) — Search modal pattern
-- [React Aria](https://react-spectrum.adobe.com/react-aria/) — Accessible component primitives
+- [WAI-ARIA Tree View](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/) â€” Tree navigation pattern
+- [WAI-ARIA Combobox](https://www.w3.org/WAI/ARIA/apg/patterns/combobox/) â€” Search modal pattern
+- [React Aria](https://react-spectrum.adobe.com/react-aria/) â€” Accessible component primitives

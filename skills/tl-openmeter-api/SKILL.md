@@ -4,11 +4,14 @@ description: Works with the OpenMeter REST API for usage metering, billing, and 
 license: MIT
 compatibility: Requires HTTP client. OpenMeter OSS or Cloud instance.
 metadata:
-  author: tl-agent-skills
   version: "2.1"
+  author: Todd Levy <toddlevy@gmail.com>
+  homepage: https://github.com/toddlevy/tl-agent-skills
   suite: tl-openmeter
   related: tl-openmeter-local-dev tl-openmeter-api-mcp-server
 ---
+
+<!-- Copyright (c) 2026 Todd Levy. Licensed under MIT. SPDX-License-Identifier: MIT -->
 
 # OpenMeter API
 
@@ -34,11 +37,11 @@ Project-agnostic reference for the OpenMeter REST API. Organized by the official
 
 ## Resources
 
-- [references/REFERENCE.md](references/REFERENCE.md) — Complete endpoint table by official tag
-- [references/billing.md](references/billing.md) — Invoice lifecycle, customer delete flow, rate cards
-- [references/notifications.md](references/notifications.md) — Channels, rules, events, testing
-- [references/product-catalog.md](references/product-catalog.md) — Plans, features, addons: versioning, rate cards, publish lifecycle
-- [assets/openapi-spec.json](assets/openapi-spec.json) — Full OpenAPI 3.0 spec (source of truth)
+- [references/REFERENCE.md](references/REFERENCE.md) â€” Complete endpoint table by official tag
+- [references/billing.md](references/billing.md) â€” Invoice lifecycle, customer delete flow, rate cards
+- [references/notifications.md](references/notifications.md) â€” Channels, rules, events, testing
+- [references/product-catalog.md](references/product-catalog.md) â€” Plans, features, addons: versioning, rate cards, publish lifecycle
+- [assets/openapi-spec.json](assets/openapi-spec.json) â€” Full OpenAPI 3.0 spec (source of truth)
 
 ## Official API Tags
 
@@ -59,7 +62,7 @@ The OpenMeter API organizes endpoints into these 15 tags:
 | 11 | **Notifications** | Channels, rules, events for threshold alerts |
 | 12 | **Portal** | Consumer-facing usage dashboards via scoped tokens |
 | 13 | **Product Catalog** | Plans, features, addons (versioning, rate cards, publish lifecycle) |
-| 14 | **Subjects** | **Deprecated** — use Customers with `usageAttribution.subjectKeys` |
+| 14 | **Subjects** | **Deprecated** â€” use Customers with `usageAttribution.subjectKeys` |
 | 15 | **Subscriptions** | Customer plan assignments, cancel, change, migrate, restore |
 
 ---
@@ -75,11 +78,11 @@ The OpenMeter API organizes endpoints into these 15 tags:
 ## Concepts
 
 ```
-Meter (aggregates events) → Feature (metered entitlement) → Plan (limits + pricing)
-                                                                    ↓
-Customer (subject keys) ←→ Subscription (customer + plan = active entitlements)
-                                    ↓
-                              Billing Profile → Invoices (via Stripe/Sandbox/Custom App)
+Meter (aggregates events) â†’ Feature (metered entitlement) â†’ Plan (limits + pricing)
+                                                                    â†“
+Customer (subject keys) â†â†’ Subscription (customer + plan = active entitlements)
+                                    â†“
+                              Billing Profile â†’ Invoices (via Stripe/Sandbox/Custom App)
 ```
 
 - **Meter:** Aggregation rule for events (COUNT, SUM, etc.). Events reference a meter via `type` matching `eventType`.
@@ -253,7 +256,7 @@ See [references/billing.md](references/billing.md) for invoice lifecycle, custom
 | Invoice actions | Advance, Approve, Retry, Void, Snapshot, Recalculate tax | POST on `/api/v1/billing/invoices/{id}/{action}` |
 | Pending lines | Create, Invoice | `/api/v1/billing/customers/{id}/invoices/pending-lines` |
 
-**Invoice lifecycle:** `gathering → draft → issuing → issued → (paid | void | uncollectible)`
+**Invoice lifecycle:** `gathering â†’ draft â†’ issuing â†’ issued â†’ (paid | void | uncollectible)`
 
 ---
 
@@ -356,7 +359,7 @@ Use Customers with `usageAttribution.subjectKeys` instead.
 |---------|-------|-----|
 | 409 on DELETE customer | Active subscriptions or non-final invoices | Cancel subs, void/delete invoices first |
 | 400 "single draft version" | Duplicate plan draft | Skip creation if plan key exists |
-| 400 "only Plans in [draft scheduled] can be published" | Plan already active | Expected — skip publish |
+| 400 "only Plans in [draft scheduled] can be published" | Plan already active | Expected â€” skip publish |
 | 500 on POST /notification/channels | Self-hosted: not implemented | Use YAML config for local; API for Cloud only |
 | 405 on PATCH invoice | PATCH not supported | Use POST subpaths: `/advance`, `/approve`, `/void` |
 | Usage not attributed | Subject mismatch | Event `subject` must match `usageAttribution.subjectKeys` |
@@ -377,21 +380,21 @@ Use Customers with `usageAttribution.subjectKeys` instead.
 
 ### First-Party Documentation
 
-- [OpenMeter API Reference](https://openmeter.io/docs/api) — Official API documentation
-- [OpenMeter GitHub](https://github.com/openmeterio/openmeter) — Source code and examples
-- [CloudEvents Specification](https://cloudevents.io/) — Event format specification
-- [OpenMeter Cloud](https://openmeter.cloud/) — Managed service
+- [OpenMeter API Reference](https://openmeter.io/docs/api) â€” Official API documentation
+- [OpenMeter GitHub](https://github.com/openmeterio/openmeter) â€” Source code and examples
+- [CloudEvents Specification](https://cloudevents.io/) â€” Event format specification
+- [OpenMeter Cloud](https://openmeter.cloud/) â€” Managed service
 
 ### SDKs
 
-- [Node.js SDK](https://www.npmjs.com/package/@openmeter/sdk) — Official Node.js client
-- [Python SDK](https://pypi.org/project/openmeter/) — Official Python client
-- [Go SDK](https://pkg.go.dev/github.com/openmeterio/openmeter/api/client/go) — Official Go client
+- [Node.js SDK](https://www.npmjs.com/package/@openmeter/sdk) â€” Official Node.js client
+- [Python SDK](https://pypi.org/project/openmeter/) â€” Official Python client
+- [Go SDK](https://pkg.go.dev/github.com/openmeterio/openmeter/api/client/go) â€” Official Go client
 
 ### Related Skills
 
-- [tl-openmeter-local-dev](../tl-openmeter-local-dev/SKILL.md) — Local development setup
-- [tl-openmeter-api-mcp-server](../tl-openmeter-api-mcp-server/SKILL.md) — MCP server for Cursor
+- [tl-openmeter-local-dev](../tl-openmeter-local-dev/SKILL.md) â€” Local development setup
+- [tl-openmeter-api-mcp-server](../tl-openmeter-api-mcp-server/SKILL.md) â€” MCP server for Cursor
 
 ### Reference
 

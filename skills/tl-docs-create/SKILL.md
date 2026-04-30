@@ -2,42 +2,44 @@
 name: tl-docs-create
 description: Create documentation from scratch for codebases. Covers SSOT-driven generation, writing standards, and templates for README/AGENTS.md/CHANGELOG. Use when creating new docs or documenting an undocumented codebase.
 license: MIT
-version: "1.1"
-quilted:
-  - source: google-gemini/gemini-cli/docs-writer
-    weight: 0.25
-    description: 4-phase workflow, voice/tone rules, verification checklist
-  - source: shpigford/skills/readme
-    weight: 0.15
-    description: Exploration-first, 3 purposes, absurd thoroughness
-  - source: getsentry/skills/agents-md
-    weight: 0.12
-    description: AGENTS.md structure, brevity rules, file-scoped commands
-  - source: softaworks/agent-toolkit/crafting-effective-readmes
-    weight: 0.10
-    description: Project type detection, audience analysis
-  - source: itechmeat/llm-code/changelog
-    weight: 0.08
-    description: CHANGELOG.md template, Keep a Changelog format
-  - source: patricio0312rev/skills/api-docs-generator
-    weight: 0.08
-    description: OpenAPI patterns, API doc templates
-  - source: remotion-dev/remotion/writing-docs
-    weight: 0.06
-    description: Language brevity, API-per-page rule
-  - source: plaited/development-skills/code-documentation
-    weight: 0.05
-    description: TSDoc patterns
-  - source: aj-geddes/useful-ai-prompts/markdown-documentation
-    weight: 0.05
-    description: GFM syntax, do/don't list
-  - source: local/jambase-docs
-    weight: 0.04
-    description: SSOT generation, hierarchical READMEs, source attribution
-  - source: local/agents-md-create
-    weight: 0.02
-    description: Project type templates
 metadata:
+  version: "1.1"
+  author: Todd Levy <toddlevy@gmail.com>
+  homepage: https://github.com/toddlevy/tl-agent-skills
+  quilted:
+    - source: google-gemini/gemini-cli/docs-writer
+      weight: 0.25
+      description: 4-phase workflow, voice/tone rules, verification checklist
+    - source: shpigford/skills/readme
+      weight: 0.15
+      description: Exploration-first, 3 purposes, absurd thoroughness
+    - source: getsentry/skills/agents-md
+      weight: 0.12
+      description: AGENTS.md structure, brevity rules, file-scoped commands
+    - source: softaworks/agent-toolkit/crafting-effective-readmes
+      weight: 0.10
+      description: Project type detection, audience analysis
+    - source: itechmeat/llm-code/changelog
+      weight: 0.08
+      description: CHANGELOG.md template, Keep a Changelog format
+    - source: patricio0312rev/skills/api-docs-generator
+      weight: 0.08
+      description: OpenAPI patterns, API doc templates
+    - source: remotion-dev/remotion/writing-docs
+      weight: 0.06
+      description: Language brevity, API-per-page rule
+    - source: plaited/development-skills/code-documentation
+      weight: 0.05
+      description: TSDoc patterns
+    - source: aj-geddes/useful-ai-prompts/markdown-documentation
+      weight: 0.05
+      description: GFM syntax, do/don't list
+    - source: local/jambase-docs
+      weight: 0.04
+      description: SSOT generation, hierarchical READMEs, source attribution
+    - source: local/agents-md-create
+      weight: 0.02
+      description: Project type templates
   moment: implement
   surface:
     - repo
@@ -49,6 +51,8 @@ metadata:
     - tl-docs-audit
     - tl-docs-viewer-create
 ---
+
+<!-- Copyright (c) 2026 Todd Levy. Licensed under MIT. SPDX-License-Identifier: MIT -->
 
 # Documentation Creation
 
@@ -81,12 +85,12 @@ Before creating documentation, gather user intent through structured questions. 
 
 ### Question Flow Summary
 
-1. **Light scan** — Check for existing `docs/`, `README.md`, `AGENTS.md`, `CHANGELOG.md`
-2. **Existing docs?** — If found, suggest `tl-docs-audit` instead; otherwise proceed
-3. **Audience** — Contributors / Users / Operators / Future self / Mixed
-4. **Scope** — Minimal / Standard / Comprehensive / Absurdly thorough
-5. **Doc Types** — README / AGENTS.md / CHANGELOG / docs/ / API reference / Rules
-6. **Rules** — Create Cursor rules for doc maintenance? Yes / Pick / No
+1. **Light scan** â€” Check for existing `docs/`, `README.md`, `AGENTS.md`, `CHANGELOG.md`
+2. **Existing docs?** â€” If found, suggest `tl-docs-audit` instead; otherwise proceed
+3. **Audience** â€” Contributors / Users / Operators / Future self / Mixed
+4. **Scope** â€” Minimal / Standard / Comprehensive / Absurdly thorough
+5. **Doc Types** â€” README / AGENTS.md / CHANGELOG / docs/ / API reference / Rules
+6. **Rules** â€” Create Cursor rules for doc maintenance? Yes / Pick / No
 
 ---
 
@@ -228,13 +232,13 @@ Generate tables from config:
 Optionally create Cursor rules for ongoing maintenance. See `references/doc-rules.md`.
 
 Available rules:
-- `readme-sync.mdc` — Update README when features change
-- `changelog-commits.mdc` — CHANGELOG from conventional commits
-- `api-doc-sync.mdc` — Sync API docs with code changes
-- `agents-md-maintain.mdc` — Keep AGENTS.md current
-- `doc-style.mdc` — Enforce documentation style
-- `last-updated.mdc` — Track Last Updated dates
-- `link-check.mdc` — Validate internal doc links
+- `readme-sync.mdc` â€” Update README when features change
+- `changelog-commits.mdc` â€” CHANGELOG from conventional commits
+- `api-doc-sync.mdc` â€” Sync API docs with code changes
+- `agents-md-maintain.mdc` â€” Keep AGENTS.md current
+- `doc-style.mdc` â€” Enforce documentation style
+- `last-updated.mdc` â€” Track Last Updated dates
+- `link-check.mdc` â€” Validate internal doc links
 
 ---
 
@@ -253,21 +257,21 @@ Available rules:
 
 ### First-Party Documentation
 
-- [Keep a Changelog](https://keepachangelog.com/) — CHANGELOG format standard
-- [MADR](https://adr.github.io/madr/) — Markdown Architectural Decision Records
-- [Diátaxis](https://diataxis.fr/) — Documentation framework (tutorial/how-to/reference/explanation)
-- [Conventional Commits](https://www.conventionalcommits.org/) — Commit message convention
-- [Write the Docs](https://www.writethedocs.org/guide/) — Documentation community style guide
+- [Keep a Changelog](https://keepachangelog.com/) â€” CHANGELOG format standard
+- [MADR](https://adr.github.io/madr/) â€” Markdown Architectural Decision Records
+- [DiÃ¡taxis](https://diataxis.fr/) â€” Documentation framework (tutorial/how-to/reference/explanation)
+- [Conventional Commits](https://www.conventionalcommits.org/) â€” Commit message convention
+- [Write the Docs](https://www.writethedocs.org/guide/) â€” Documentation community style guide
 
 ### Documentation Tools
 
-- [TypeDoc](https://typedoc.org/) — TypeScript API documentation generator
-- [JSDoc](https://jsdoc.app/) — JavaScript documentation generator
-- [OpenAPI](https://www.openapis.org/) — REST API specification
+- [TypeDoc](https://typedoc.org/) â€” TypeScript API documentation generator
+- [JSDoc](https://jsdoc.app/) â€” JavaScript documentation generator
+- [OpenAPI](https://www.openapis.org/) â€” REST API specification
 
 ---
 
 ## Related Skills
 
-- [tl-docs-audit](../tl-docs-audit/SKILL.md) — Audit docs coverage, find gaps, generate sync reports
-- [tl-docs-viewer-create](../tl-docs-viewer-create/SKILL.md) — React admin UI for browsing docs/ folder
+- [tl-docs-audit](../tl-docs-audit/SKILL.md) â€” Audit docs coverage, find gaps, generate sync reports
+- [tl-docs-viewer-create](../tl-docs-viewer-create/SKILL.md) â€” React admin UI for browsing docs/ folder
