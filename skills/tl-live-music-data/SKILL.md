@@ -3,7 +3,7 @@ name: tl-live-music-data
 description: Reference documentation for live music data APIs and ID mapping between services. Use when integrating MusicBrainz, Setlist.fm, JamBase, Bandsintown, Ticketmaster, or other concert/artist APIs.
 license: MIT
 metadata:
-  version: 1.1.0
+  version: 1.3.0
   author: Todd Levy <toddlevy@gmail.com>
   homepage: https://github.com/toddlevy/tl-agent-skills
   quilted:
@@ -40,8 +40,9 @@ Reference documentation for live music data APIs and how they connect via extern
 
 - "How do I get concert data for an artist?"
 - "Which API should I use for setlists?"
+- "Where can I get music livestream data?"
 - "How do I resolve artist IDs across platforms?"
-- Building applications that need artist metadata, concert events, or setlists
+- Building applications that need artist metadata, concert events, livestreams, or setlists
 - Resolving artist identities across multiple platforms
 - Integrating live music data APIs
 
@@ -69,7 +70,7 @@ Reference documentation for live music data APIs and how they connect via extern
 
 | API | Auth | Rate Limit | Primary Use | Reference |
 |-----|------|------------|-------------|-----------|
-| **JamBase** | API key | 3,600/hour | Most comprehensive events | [jambase.md](references/jambase.md) |
+| **JamBase** | Bearer token | 3,600–120,000/hour (plan-tiered) | Most comprehensive events + Streams | [jambase.md](references/jambase.md) |
 | **Songkick** | API key | Undocumented | Gigography (KEYS SUSPENDED) | [songkick.md](references/songkick.md) |
 | **Bandsintown** | App ID | Undocumented | Artist events, tour dates | [bandsintown.md](references/bandsintown.md) |
 | **Ticketmaster** | API key | 5,000/day | Events, venues, tickets | [ticketmaster.md](references/ticketmaster.md) |
@@ -133,7 +134,7 @@ flowchart LR
     end
     
     subgraph multi [Multi-ID Lookup]
-        JamBase[JamBase<br/>12 ID sources]
+        JamBase[JamBase<br/>15 ID sources for events]
     end
     
     subgraph linked [Via url-rels]
@@ -161,7 +162,7 @@ flowchart LR
 | Setlist.fm | `/artist/{mbid}/setlists` |
 | Fanart.tv | `/music/{mbid}` |
 | Last.fm | `?method=artist.getInfo&mbid={mbid}` |
-| JamBase | `/artists/id/musicbrainz:{mbid}` |
+| JamBase | `/v3/artists/id/musicbrainz:{mbid}` |
 | TheAudioDB | `/artist-mb.php?i={mbid}` (Premium only) |
 
 ### Services Requiring url-rels Lookup
@@ -176,13 +177,23 @@ Returns IDs for: spotify, discogs, wikidata, allmusic, lastfm, imdb, bandcamp, s
 
 ### JamBase Multi-ID Support
 
-JamBase accepts 12 different ID sources:
+JamBase v3 accepts different source slugs per resource. Use `{source}:{id}` everywhere an ID is accepted.
+
+**Events (15 sources)**:
+`axs`, `dice`, `etix`, `eventbrite`, `eventim-de`, `jambase`, `seated`, `seatgeek`, `see-tickets`, `see-tickets-uk`, `sofar-sounds`, `suitehop`, `ticketmaster`, `tixr`, `viagogo`
+
+**Artists (12 sources)**:
+`axs`, `dice`, `etix`, `eventbrite`, `eventim-de`, `jambase`, `musicbrainz`, `seated`, `seatgeek`, `spotify`, `ticketmaster`, `viagogo`
+
+**Venues (11 sources)**:
+`axs`, `dice`, `etix`, `eventbrite`, `eventim-de`, `jambase`, `seated`, `seatgeek`, `suitehop`, `ticketmaster`, `viagogo`
+
+**Streams**: `jambase` only (as of v3.0.0).
 
 ```
-/artists/id/{source}:{id}
-
-Sources: jambase, musicbrainz, spotify, ticketmaster, seatgeek, 
-         eventbrite, axs, dice, etix, seated, viagogo, eventim-de
+/v3/events/id/{source}:{id}
+/v3/artists/id/{source}:{id}
+/v3/venues/id/{source}:{id}
 ```
 
 ---
@@ -216,6 +227,7 @@ GENIUS_ACCESS_TOKEN=""
 |------|----------------|
 | Artist identity resolution | MusicBrainz (as hub) |
 | Live events/concerts | JamBase (most comprehensive) |
+| Music livestreams | JamBase (Streams) |
 | Historical setlists | Setlist.fm |
 | Artist images | Fanart.tv (if have MBID) or TheAudioDB |
 | Similar artists | Last.fm |
@@ -235,7 +247,7 @@ GENIUS_ACCESS_TOKEN=""
 
 ### Starting with Existing ID (Spotify, etc.)
 
-1. Use JamBase `/artists/id/{source}:{id}` for direct lookup
+1. Use JamBase `/v3/artists/id/{source}:{id}` for direct lookup
 2. Or lookup in Wikidata via property (P1902 for Spotify)
 3. Resolve to MBID for other services
 
@@ -247,7 +259,7 @@ GENIUS_ACCESS_TOKEN=""
 |-----|----------|
 | MusicBrainz | `sleep(1000)` between requests |
 | Discogs | Monitor `X-Discogs-Ratelimit-Remaining` header |
-| JamBase | 3,600/hour = ~1/sec sustained |
+| JamBase | 3,600/hr (Trial/Dev) → 120,000+/hr (Enterprise); honor IETF `RateLimit` headers |
 | Ticketmaster | 5,000/day = throttle during batch |
 | TheAudioDB | `sleep(500)` between requests |
 
@@ -295,7 +307,7 @@ Each API has comprehensive documentation in the `references/` folder:
 
 - [musicbrainz.md](references/musicbrainz.md) - ID hub, url-rels, search, rate limiting
 - [setlistfm.md](references/setlistfm.md) - Setlist search, MBID integration, response schemas
-- [jambase.md](references/jambase.md) - Multi-ID lookup, geo search, event filters
+- [jambase.md](references/jambase.md) - v3 events, streams, venues, artists, geographies, lookups, multi-source ID
 - [discogs.md](references/discogs.md) - Discography, releases, rate headers
 - [wikidata.md](references/wikidata.md) - SPARQL queries, property codes
 - [nugs.md](references/nugs.md) - Undocumented API, catalog methods
@@ -355,7 +367,10 @@ To update this skill:
 - [MusicBrainz API](https://musicbrainz.org/doc/MusicBrainz_API) â€” ID hub, url-rels, JSON responses
 - [MusicBrainz JSON Web Service](https://musicbrainz.org/doc/MusicBrainz_API/JSON) â€” JSON format details
 - [Setlist.fm API](https://api.setlist.fm/docs/1.0/index.html) â€” Setlist search and retrieval
-- [JamBase API](https://apidocs.jambase.com/) â€” Events, venues, multi-ID lookup
+- [JamBase Data API Reference](https://data.jambase.com/api/reference) — v3 events, streams, venues, artists, geographies, lookups
+- [JamBase Data llms-full.txt](https://data.jambase.com/llms-full.txt) — full LLM-tuned reference
+- [JamBase Data OpenAPI 3.1](https://data.jambase.com/openapi.json) — versioned spec
+- [JamBase Data ai-plugin.json](https://data.jambase.com/.well-known/ai-plugin.json) — discoverable plugin manifest
 - [Ticketmaster Discovery API](https://developer.ticketmaster.com/products-and-docs/apis/discovery-api/v2/) â€” Events, attractions
 - [Spotify Web API](https://developer.spotify.com/documentation/web-api) â€” OAuth 2.0, artist data
 - [Spotify Authorization Guide](https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow) â€” PKCE flow
