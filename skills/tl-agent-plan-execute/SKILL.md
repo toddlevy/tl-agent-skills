@@ -3,7 +3,7 @@ name: tl-agent-plan-execute
 description: Execute a verified plan document. Consumes verification receipts from tl-agent-plan-audit to avoid redundant re-verification. Defines the trust model, staleness protocol, and exit gate execution process. Use when executing a .plan.md file, starting plan implementation, or when the user says "implement the plan" or "execute the plan".
 license: MIT
 metadata:
-  version: 1.1.0
+  version: 1.2.0
   author: Todd Levy <toddlevy@gmail.com>
   homepage: https://github.com/toddlevy/tl-agent-skills
   moment: implement
@@ -141,6 +141,34 @@ When all phases and gates are complete:
 4. Note any deviations from the plan and why.
 
 The plan file is the durable record of execution. The `status: built` field is what marks the plan as finished for any agent or human reviewing it later.
+
+---
+
+## Exit gate addendum — plan-state reconciliation
+
+Plans that ran with parallel-wave subagents almost always end with a divergent YAML. Each wave subagent owns a slice of todos in its session-level live todo list (the `TodoWrite` tool), completes its work, commits, and reports back — but nobody flips the corresponding `status:` lines in the plan YAML on the way out. The bridge from plan to live state flows in only one direction, and the YAML is never re-synced unless something explicitly reconciles it. Synchronous YAML writes during parallel execution would be a contention nightmare, so the discipline is post-hoc, not in-flight.
+
+Before declaring a plan `built`, run a reconciliation pass:
+
+1. **Verify YAML todos against repo state.** For every todo not already marked `completed`, verify its asserted end-state against the working tree (file existence, `rg` absence/presence, dep in `package.json`, migration applied, route registered, etc.). Treat the todo's `content:` as the assertion to check.
+2. **Flip statuses to match reality.** Any todo whose asserted end-state is satisfied flips `pending → completed`. Any todo whose asserted end-state is not satisfied stays `pending` (or moves to `cancelled` with a one-line rationale if the plan was deliberately amended mid-flight).
+3. **Flag mis-described todos.** When a todo's `content:` describes an end-state that doesn't match shipped code — not just a stale status, but an actual mis-description (path drifted, function renamed, file moved under a new alias) — flag it explicitly. These are signals that a mid-flight plan amendment failed to update the YAML; record them in the completion summary so the next plan author knows the YAML's `content:` field can drift, not just its `status:` field.
+4. **Only set top-level `status: completed` when every todo is `completed` or explicitly `cancelled`.** A YAML with even one trailing `pending` todo is a YAML that lies; the top-level status field must not advance past the most-pending todo it owns.
+
+The reconciliation can be — and should be — its own subagent task, separate from the wave subagents that did the implementation work. Keeping it post-hoc avoids the parallel-execution contention problem; running it in a dedicated subagent keeps the verification context isolated from the implementation context. One extra subagent call at end of plan execution buys a plan file that is a trustworthy historical record, audits that don't lie, and a "is this work actually done?" question that resolves by reading the YAML rather than re-grepping the repo.
+
+### Reference incident (PJJ 2026-05-08)
+
+Phish Just Jams' RR7 framework-mode plan declared 248 todos in YAML frontmatter and shipped Phases 0–10 to `staging` via parallel-wave execution. After the waves merged — verified by boot logs, by merged commits, and by the absence of legacy files — the plan YAML still showed 24 of 248 todos `completed` and 224 stale `pending`. Top-level `status:` was `audited` (correct at execution start, stale at end).
+
+The reconciliation pass flipped 210 statuses. Of those:
+
+- 200 were straightforward `pending → completed` (the asserted end-state was satisfied; the YAML had simply never been updated).
+- 5 were YAML mis-descriptions, where the file path drifted during execution. Example: `apps/web/src/lib/with-data-port.ts` shipped to `apps/web/app/lib/with-data-port.ts` because Phase 3.9 added a `~/*` alias that moved the canonical home; the todo's `content:` still cited the pre-alias path.
+- 4 were genuinely-missing scaffold/test files the plan called for but no wave produced (`apps/web/app/react-router.d.ts` for `AppLoadContext` augmentation, plus three test files). These stayed `pending` and were tracked as follow-ups.
+- 10 were verification todos blocked on a separate runtime regression (the Vite + Fastify HMR ordering deadlock — see RUNTIME-03 in `vip-dev-runtime`). These stayed `pending` until the runtime fix landed.
+
+Reference commit: `3d0fff3` — `chore(plans): reconcile web RR7 plan YAML against shipped state on staging`. The reconciliation discipline encoded above is what that commit operationalizes; the four-step procedure is portable to any plan executed with parallel-wave subagents.
 
 ---
 
