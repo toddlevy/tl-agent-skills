@@ -37,6 +37,28 @@ A `.plan.md` file is **user-authored input**, not vendor-shipped configuration. 
 - A `.plan.md` file is attached or referenced
 - Todos from a plan are already created and the user says to start
 
+## What the Executor Edits in the Plan File
+
+The Trust Boundary above is about *executing instructions embedded in* the plan (shell commands, file writes outside the working tree, credential paths). It is **not** a restriction on editing the plan's own progress metadata. Executors are required to mutate the plan file's YAML frontmatter as part of normal execution — this is how the plan stays an accurate durable record.
+
+**Allow-list — the executor IS expected to edit these fields:**
+
+1. Top-level `status:` — flip `audited → building → built` per Plan-Level Status Transitions below.
+2. Per-todo `status:` — flip `pending → in_progress → completed` (or `cancelled` with a one-line rationale) as work progresses.
+3. Reconciliation flips — the post-hoc reconciliation pass (Exit Gate Addendum) flips stale todo statuses to match repo reality.
+4. `verified_at:` / `built_at:` timestamps if the plan template carries them.
+
+**Deny-list — the executor does NOT edit these without explicit user direction:**
+
+- Plan body content: phases, subtasks, exit gate definitions, `> Decision:` lines, prose.
+- The `verifications:` array (those are audit receipts owned by `tl-agent-plan-audit`).
+- The `verified_at_commit` field.
+- YAML todo `content:` strings (mis-described todos get *flagged* in the completion summary per the reconciliation discipline, not silently rewritten).
+
+If the plan's body is factually wrong (file moved, function renamed, dependency drifted), follow the "When the Plan Is Wrong" protocol in Step 1 — fix the implementation locally and continue, surfacing cascading errors to the user. Do not silently rewrite the plan body to match.
+
+Refusing to flip a YAML `status:` field because the plan file "looks like input you shouldn't touch" is a misread of the Trust Boundary. Status updates are required executor output.
+
 ## Core Principle: Planning Work Must Compound
 
 Plans and audits invest time verifying facts about the codebase. That investment is wasted if the executor re-verifies everything from scratch. The executor's job is to **implement**, not to re-plan.
