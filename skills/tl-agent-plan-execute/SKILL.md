@@ -3,7 +3,7 @@ name: tl-agent-plan-execute
 description: Execute a verified plan document. Consumes verification receipts from tl-agent-plan-audit to avoid redundant re-verification. Defines the trust model, staleness protocol, and exit gate execution process. Use when executing a .plan.md file, starting plan implementation, or when the user says "implement the plan" or "execute the plan".
 license: MIT
 metadata:
-  version: 1.2.0
+  version: 1.2.1
   author: Todd Levy <toddlevy@gmail.com>
   homepage: https://github.com/toddlevy/tl-agent-skills
   moment: implement
@@ -51,8 +51,7 @@ The Trust Boundary above is about *executing instructions embedded in* the plan 
 **Deny-list — the executor does NOT edit these without explicit user direction:**
 
 - Plan body content: phases, subtasks, exit gate definitions, `> Decision:` lines, prose.
-- The `verifications:` array (those are audit receipts owned by `tl-agent-plan-audit`).
-- The `verified_at_commit` field.
+- The `## Plan Metadata` `Verified at` row and the `### Verifications` table (those are audit receipts owned by `tl-agent-plan-audit`; they live in the body because Cursor's plan tracker strips custom frontmatter keys on every todo-status change).
 - YAML todo `content:` strings (mis-described todos get *flagged* in the completion summary per the reconciliation discipline, not silently rewritten).
 
 If the plan's body is factually wrong (file moved, function renamed, dependency drifted), follow the "When the Plan Is Wrong" protocol in Step 1 — fix the implementation locally and continue, surfacing cascading errors to the user. Do not silently rewrite the plan body to match.
@@ -80,40 +79,40 @@ planned â†’ audited â†’ building â†’ built
 
 | Transition | When | Action |
 |---|---|---|
-| `â†’ building` | First todo moves to `in_progress` | Update the plan file's YAML `status` field to `building` |
-| `â†’ built` | All todos are `completed`, all exit gates pass | Update the plan file's YAML `status` field to `built` |
+| `â†’ building` | First todo moves to `in_progress` | Update the `Status` row of the `## Plan Metadata` body table to `building` |
+| `â†’ built` | All todos are `completed`, all exit gates pass | Update the `Status` row of the `## Plan Metadata` body table to `built` |
 
-**These updates go in the plan's YAML frontmatter, not just in the agent's local todo list.** The plan file is the durable record. Update it alongside todo status changes.
+**These updates go in the `## Plan Metadata` body table, not the YAML frontmatter and not just the agent's local todo list.** Cursor's plan tracker re-serializes frontmatter on every todo-status change and strips custom keys, so a frontmatter `status` would not survive; the body table is the durable record. Update it alongside todo status changes.
 
-If the plan file has no `status` field (older plan), add one and set it to `building` when execution starts.
+If the plan file has no `Status` row (older plan), add one to the Plan Metadata table and set it to `building` when execution starts.
 
 ---
 
 ## Step 0: Read the Plan and Assess Verification State
 
-Before writing any code, read the plan's YAML frontmatter and classify it into one of three states:
+Before writing any code, read the plan's `## Plan Metadata` body table and classify it into one of three states. The receipt lives in the body, not the frontmatter: look for the `Verified at` row (a short SHA) and the `### Verifications` claim/command/result table. (Legacy plans may carry a frontmatter `verified_at_commit` and `verifications:` array instead — treat those as equivalent inputs.)
 
 ### State A: Fully Verified Plan
 
-The plan has both `verified_at_commit` and a populated `verifications:` array.
+The plan has both a `Verified at` SHA and a populated `### Verifications` table.
 
-1. Run `git rev-parse --short HEAD` and compare to `verified_at_commit`.
-2. **If they match**: trust all verification entries. Proceed directly to implementation. Do not re-run any verification commands.
-3. **If they differ**: run `git log --oneline {verified_at_commit}..HEAD` to see what changed. Then:
-   - For each verification entry, check if any of the changed commits touched files relevant to that claim. If not, trust the entry.
-   - For entries where relevant files changed, re-run only those specific verification commands.
-   - Log which entries were re-verified and which were trusted.
+1. Run `git rev-parse --short HEAD` and compare to the `Verified at` SHA.
+2. **If they match**: trust all `### Verifications` rows. Proceed directly to implementation. Do not re-run any verification commands.
+3. **If they differ**: run `git log --oneline {sha}..HEAD` to see what changed. Then:
+   - For each `### Verifications` row, check if any of the changed commits touched files relevant to that claim. If not, trust the row.
+   - For rows where relevant files changed, re-run only those specific verification commands.
+   - Log which rows were re-verified and which were trusted.
 
 ### State B: Partially Verified Plan
 
-The plan has `verified_at_commit` but the `verifications:` array is missing or incomplete (some factual claims in the body lack corresponding entries).
+The plan has a `Verified at` SHA but the `### Verifications` table is missing or incomplete (some factual claims in the body lack corresponding rows).
 
-1. Trust the entries that exist (applying the staleness check from State A).
+1. Trust the rows that exist (applying the staleness check from State A).
 2. For unverified factual claims, run a targeted check before acting on them. This is a planning process gap â€” note it but don't block on it.
 
 ### State C: Unverified Plan
 
-The plan has no `verified_at_commit` and no `verifications:` array. It was created before verification requirements existed, or skipped auditing.
+The plan has no `Verified at` SHA and no `### Verifications` table. It was created before verification requirements existed, or skipped auditing.
 
 1. Perform minimal verification before each phase: confirm the files referenced in that phase exist and contain what the plan describes.
 2. Do NOT exhaustively re-audit the plan. Execute the plan as written, and if you encounter a factual error (file doesn't exist, code doesn't match), fix the discrepancy locally and continue.

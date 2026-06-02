@@ -3,7 +3,7 @@ name: tl-agent-plan-create
 description: Create structured plan documents for features, projects, or multi-phase tasks. Includes YAML frontmatter, strategic/technical templates, phases, gates, and real-time update requirements.
 license: MIT
 metadata:
-  version: 1.4.1
+  version: 1.4.2
   author: Todd Levy <toddlevy@gmail.com>
   homepage: https://github.com/toddlevy/tl-agent-skills
   moment: plan
@@ -222,7 +222,7 @@ Plans must contain resolved decisions, not open questions. If the planner encoun
 
 > See [Verification Requirements](references/verification-requirements.md) for the full rules on what requires a verification receipt, the entry format, the `Verified at` field, and what does NOT require verification.
 
-Every factual claim a plan makes about the codebase (file existence, importer counts, "always null" claims, scope greps, line number citations) must produce a row in the `### Verifications` table inside the `## Plan Metadata` section of the plan body. Verification metadata MUST NOT go in the YAML frontmatter.
+Every factual claim a plan makes about the codebase (file existence, importer counts, "always null" claims, scope greps, line number citations) must produce a row in the `### Verifications` table inside the `## Plan Metadata` section of the plan body. The verification commit SHA lives in the `Verified at` row of the same table. Verification metadata MUST NOT go in the YAML frontmatter: Cursor's plan tracker owns the frontmatter of any plan under `.cursor/plans/` and re-serializes it on every todo-status change, silently dropping custom keys like `verified_at_commit` and `verifications:`. The body is never rewritten by the tracker, so receipts there survive. Any downstream gate (e.g. a CI plan-frontmatter check) MUST read these from the body, not require them in frontmatter.
 
 ---
 
@@ -242,7 +242,7 @@ Key constraints at a glance:
 
 ## Plan-Level Status Lifecycle
 
-The `Status` row in the `## Plan Metadata` table tracks the plan's overall state. This is separate from individual todo statuses. Status MUST NOT go in YAML frontmatter.
+The `Status` row in the `## Plan Metadata` table tracks the plan's overall state. This is separate from individual todo statuses. Status MUST NOT go in YAML frontmatter — Cursor's plan tracker strips custom frontmatter keys on every todo-status change, so a frontmatter `status` would not survive; the body table is the durable record.
 
 ```
 planned â†’ audited â†’ building â†’ built

@@ -4,7 +4,7 @@
 
 Plans make factual claims about the codebase (file paths exist, constants have zero importers, columns are always null, etc.). These claims cost time to verify during planning — that investment is wasted if the executor re-verifies them from scratch.
 
-**Every factual claim must produce a verification receipt** in the `### Verifications` table inside the `## Plan Metadata` section of the plan body. This is not optional. Verification metadata MUST NOT go in the YAML frontmatter — Cursor's frontmatter parser is fragile and breaks on complex nested arrays.
+**Every factual claim must produce a verification receipt** in the `### Verifications` table inside the `## Plan Metadata` section of the plan body. This is not optional. Verification metadata MUST NOT go in the YAML frontmatter — Cursor's plan tracker owns `.cursor/plans/**` frontmatter and re-serializes it on every todo-status change, silently dropping custom keys like `verified_at_commit` and `verifications:` (and it breaks on complex nested arrays besides). The plan body is never rewritten by the tracker, so receipts placed there survive. Downstream gates (e.g. a CI plan-frontmatter check) MUST read the receipt from the body.
 
 ## What requires a verification entry
 

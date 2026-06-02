@@ -3,7 +3,7 @@ name: tl-agent-plan-audit
 description: Audit plan documents before execution. Validates structural compliance, plan integrity, and verification metadata against tl-agent-plan-create, then performs Principal Engineer critique, Pre-Mortem simulation, Parallelization review, and Implementation Readiness analysis. Produces durable verification receipts so executors can trust factual claims without re-verification. Use when the user says "audit this plan", "review the plan", or before starting plan execution.
 license: MIT
 metadata:
-  version: 1.5.0
+  version: 1.5.1
   author: Todd Levy <toddlevy@gmail.com>
   homepage: https://github.com/toddlevy/tl-agent-skills
   moment: review
@@ -137,8 +137,8 @@ Scale analysis depth to plan complexity:
 - Missing files from scope â†’ grep, find the consumers, add them to the plan
 - Exit gate example values that don't match actual output â†’ correct the examples
 - Missing cross-section rationale â†’ read both sections, add a `> Decision:` note explaining the difference
-- Missing `verified_at_commit` â†’ run `git rev-parse --short HEAD` and add it
-- Missing or incomplete `verifications:` array â†’ run the verification commands from Step 8b and produce the block
+- Missing `Verified at` receipt â†’ run `git rev-parse --short HEAD` and add it as the `Verified at` row of the `## Plan Metadata` **body** table (never frontmatter â€” Cursor's plan tracker strips custom frontmatter keys on every todo-status change)
+- Missing or incomplete `### Verifications` table â†’ run the verification commands from Step 8b and produce the body block
 - Stale verification results â†’ re-run the command, update the result, flag if the claim changed
 
 **Non-obvious decisions**: Probe, ask questions, propose with rationale. Examples:

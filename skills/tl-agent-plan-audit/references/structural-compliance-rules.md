@@ -92,12 +92,30 @@ This is not optional — every file reference must be spot-checked. For plans wi
 
 Report each inaccuracy as a numbered violation.
 
-**Producing verification receipts:** After completing all 8b checks, update the plan's YAML frontmatter:
-1. Set `verified_at_commit` to the current `git rev-parse --short HEAD`.
-2. For every factual claim verified during this step (existence checks, importer counts, line number confirmations, scope greps from 8c), add or update an entry in the `verifications:` array with `claim`, `command`, and `result` fields.
-3. If the plan already has a `verifications:` array from the planner, re-run each listed verification command and update the `result` if it has changed. Flag any changed results as violations.
+**Producing verification receipts:** After completing all 8b checks, write the receipt into the plan **body** (never the YAML frontmatter — see "Why the body, not frontmatter" below), using the canonical Plan Metadata layout that `tl-agent-plan-create` mandates:
 
-The goal: after this audit, the `verifications:` block is a complete, current record of every factual claim in the plan. An executor reading this block can trust verified claims without re-running the checks, as long as `verified_at_commit` matches their HEAD.
+```markdown
+## Plan Metadata
+
+| Field | Value |
+|-------|-------|
+| Status | audited |
+| Verified at | `1a2b3c4` |
+
+### Verifications
+
+| Claim | Command | Result |
+|-------|---------|--------|
+| `assertCallingJob` lives in gateway/src/types.ts | `rg -n "function assertCallingJob" packages/gateway/src/types.ts` | 1 match at line 211 |
+```
+
+1. Set the `Verified at` row to the current `git rev-parse --short HEAD`. This row is the verification-commit receipt; the `verify-plan-frontmatter` gate reads it from the body.
+2. For every factual claim verified during this step (existence checks, importer counts, line number confirmations, scope greps from 8c), add or update a row in the `### Verifications` table with `Claim`, `Command`, and `Result` columns. Commands must be runnable (not prose); results must be actual output (not predictions).
+3. If the plan already has a `### Verifications` table from the planner, re-run each listed command and update the `Result` if it has changed. Flag any changed results as violations.
+
+**Why the body, not frontmatter:** Cursor's native plan tracker owns the YAML frontmatter of any plan under `.cursor/plans/` and re-serializes it on every todo-status change, silently dropping custom keys like `verified_at_commit` and `verifications:`. A receipt in frontmatter is destroyed the first time a todo flips status (verified: status-sync commits touch only `todos[].status`). The Plan Metadata body table is never rewritten by the tracker, so the receipt survives. Legacy plans that carry a frontmatter `verified_at_commit` remain valid — the gate reads the body row first and falls back to frontmatter — but all new receipts go in the body.
+
+The goal: after this audit, the `### Verifications` table is a complete, current record of every factual claim in the plan. An executor reading it can trust verified claims without re-running the checks, as long as the `Verified at` SHA matches their HEAD.
 
 **8c. Scope completeness.** For every structural change (column drop, constant rename, type deletion, interface change):
 1. Grep the codebase for ALL consumers of the thing being changed — not just the ones the plan lists.
@@ -117,9 +135,9 @@ Report each unresolved contradiction as a numbered violation.
 
 **Step 9 — Verification Metadata Compliance.** Check that the plan meets the verification requirements from `tl-agent-plan-create`:
 
-1. Does the YAML frontmatter contain `verified_at_commit`? If missing, this is a violation.
-2. Does the YAML frontmatter contain a `verifications:` array? If missing, this is a violation.
-3. For each factual claim in the plan body (existence assertions, importer counts, "always null" claims, scope claims like "only these N files reference X"), is there a corresponding entry in `verifications:`? List any unverified claims as violations.
-4. For each entry in `verifications:`, does the `command` field contain a runnable command (not prose), and does the `result` field contain the actual output (not a prediction)?
+1. Does the `## Plan Metadata` body table contain a `Verified at` row with a short SHA (canonical), or — for legacy plans only — a frontmatter `verified_at_commit` key? If neither is present, this is a violation.
+2. Does the plan body contain a `### Verifications` table? If missing, this is a violation.
+3. For each factual claim in the plan body (existence assertions, importer counts, "always null" claims, scope claims like "only these N files reference X"), is there a corresponding row in the `### Verifications` table? List any unverified claims as violations.
+4. For each `### Verifications` row, does the `Command` column contain a runnable command (not prose), and does the `Result` column contain the actual output (not a prediction)?
 
-If the `verifications:` block is absent or incomplete, this is an auto-fixable violation: run the checks as part of Step 8b and produce the block.
+If the receipts block is absent or incomplete, this is an auto-fixable violation: run the checks as part of Step 8b and produce the body block (never frontmatter).
