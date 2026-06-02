@@ -365,7 +365,7 @@ Each rich result type has required and recommended properties. Missing a require
 
 ## 7. Version Tracking and Governance
 
-Schema.org publishes numbered releases every few weeks. The vocabulary grows but rarely removes terms â€” deprecated types move to an "attic" rather than being deleted.
+Schema.org publishes numbered releases every few weeks. The vocabulary grows but rarely removes terms — deprecated types move to an "attic" rather than being deleted.
 
 > See [Version Tracking](references/version-tracking.md) for the release-tracking script (`scripts/update-schema-data.sh` writes `assets/VERSION`), CSV diff strategies, the impact-assessment matrix by change type, and the migration workflow when your `x-` extension becomes an official Schema.org property.
 

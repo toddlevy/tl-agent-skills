@@ -43,7 +43,7 @@ Just say **"log this"** or **"devlog"** after any significant decision or milest
 **Example interaction:**
 ```
 You: "We decided to use PostgreSQL instead of MongoDB for the audit system"
-Agent: "This feels worth capturing â€” we decided PostgreSQL for transactional 
+Agent: "This feels worth capturing — we decided PostgreSQL for transactional 
        integrity over MongoDB's flexibility. Want me to log it?"
 You: "Yes, log it"
 Agent: [Drafts entry, shows for approval, commits to DEVLOG.md]
@@ -65,7 +65,7 @@ Agent: [Drafts entry, shows for approval, commits to DEVLOG.md]
 - An important insight emerged
 - A strategic direction was established
 
-Frame suggestions naturally: "This feels worth capturing â€” we decided X because of Y. Want me to log it?"
+Frame suggestions naturally: "This feels worth capturing — we decided X because of Y. Want me to log it?"
 
 **Do NOT log**:
 - Routine Q&A or simple lookups
@@ -149,7 +149,7 @@ From the conversation or user request, determine:
 
 Write the entry following the format above. Include:
 - Specific details (file names, version numbers, concrete outcomes)
-- The "why" â€” rationale is the most valuable part
+- The "why" — rationale is the most valuable part
 - Past tense for decisions and completed work
 
 ### Step 4: Show User for Approval
@@ -167,7 +167,7 @@ Determine the file path:
 - If the file doesn't exist, create it with this header:
 
 ```markdown
-# [Project Name] â€” Development Log
+# [Project Name] — Development Log
 
 A living record of architectural decisions, milestones, incidents, and insights.
 Entries are reverse-chronological (newest first).
@@ -191,7 +191,7 @@ git push origin HEAD
 
 Report back:
 ```
-âœ… Logged: [Category] - [Title]
+✅ Logged: [Category] - [Title]
 ðŸ“‚ DEVLOG.md updated
 ðŸ”— Pushed to origin
 ```
@@ -216,7 +216,7 @@ When the user asks about past decisions, progress, or project history:
 2. Search entries by category, tags, date, or keywords
 3. Summarize relevant entries in the conversation
 
-This makes the devlog bidirectional â€” for writing and recalling context.
+This makes the devlog bidirectional — for writing and recalling context.
 
 ---
 
@@ -256,7 +256,7 @@ Default to project mode. Switch to local/global only if user explicitly requests
 
 - Past tense for decisions and completed work ("Chose X over Y")
 - Present tense for ongoing context ("The system supports N")
-- Be specific â€” include versions, filenames, concrete details
+- Be specific — include versions, filenames, concrete details
 - Include the "why" for every "what"
 - Tags: lowercase, hyphenated, searchable (`rate-limiting`, `auth-flow`)
 - Reference related devlog entries by date when relevant
@@ -264,9 +264,9 @@ Default to project mode. Switch to local/global only if user explicitly requests
 ### What Good Looks Like
 
 ```
-âŒ BAD: "Fixed the database issue"
+❌ BAD: "Fixed the database issue"
 
-âœ… GOOD: "Resolved 45-minute API outage caused by connection pool exhaustion.
+✅ GOOD: "Resolved 45-minute API outage caused by connection pool exhaustion.
    Root cause: analytics cron job ran 3-hour query without statement timeout.
    Fix: Killed query, added 5-minute timeout, separated analytics pool."
 ```
@@ -291,9 +291,9 @@ Some `architecture` entries deserve promotion to formal Architecture Decision Re
 
 | Devlog Entry | Promote? | Reasoning |
 |--------------|----------|-----------|
-| "Chose PostgreSQL over MongoDB" | âœ“ Yes | Significant, reversible-with-effort decision |
+| "Chose PostgreSQL over MongoDB" | ✓ Yes | Significant, reversible-with-effort decision |
 | "Added rate limiting to API" | Maybe | If it affects system design |
-| "Fixed typo in config" | âœ— No | Trivial, no alternatives considered |
+| "Fixed typo in config" | ✗ No | Trivial, no alternatives considered |
 
 ### MADR 4.0 Template
 
@@ -435,18 +435,18 @@ grep -B 10 -A 10 "PostgreSQL" DEVLOG.md
 
 ### Quilted Skills
 
-- [d6veteran/devlog-skill](https://github.com/d6veteran/devlog-skill) â€” Entry format, categories
-- [maoruibin/devlog](https://github.com/maoruibin/devlog) â€” Extended categories
-- [josephmiclaus/skill-devlog](https://github.com/josephmiclaus/skill-devlog) â€” Safety constraints
-- [skillrecordings/adr-skill](https://github.com/skillrecordings/adr-skill) â€” ADR integration
+- [d6veteran/devlog-skill](https://github.com/d6veteran/devlog-skill) — Entry format, categories
+- [maoruibin/devlog](https://github.com/maoruibin/devlog) — Extended categories
+- [josephmiclaus/skill-devlog](https://github.com/josephmiclaus/skill-devlog) — Safety constraints
+- [skillrecordings/adr-skill](https://github.com/skillrecordings/adr-skill) — ADR integration
 
 ### First-Party Documentation
 
-- [Keep a Changelog](https://keepachangelog.com/) â€” CHANGELOG format standard
-- [MADR](https://adr.github.io/madr/) â€” Markdown Architectural Decision Records
-- [Conventional Commits](https://www.conventionalcommits.org/) â€” Commit message convention
+- [Keep a Changelog](https://keepachangelog.com/) — CHANGELOG format standard
+- [MADR](https://adr.github.io/madr/) — Markdown Architectural Decision Records
+- [Conventional Commits](https://www.conventionalcommits.org/) — Commit message convention
 
 ### Industry Perspectives
 
-- [Engineering Daybook (Fowler)](https://martinfowler.com/bliki/EngineeringDaybook.html) â€” Philosophy
-- [Documenting Architecture Decisions (Nygard)](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) â€” Original ADR proposal
+- [Engineering Daybook (Fowler)](https://martinfowler.com/bliki/EngineeringDaybook.html) — Philosophy
+- [Documenting Architecture Decisions (Nygard)](https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions) — Original ADR proposal

@@ -41,7 +41,7 @@ Find the files that need to be split up. Get a ranked, evidence-based list of co
 
 ## Quick Start
 
-**For experienced users** â€” run the scanner and get a report:
+**For experienced users** — run the scanner and get a report:
 
 ```bash
 # Bash
@@ -51,7 +51,7 @@ Find the files that need to be split up. Get a ranked, evidence-based list of co
 .\scripts\complexity-scan.ps1 -TargetDir src/
 ```
 
-**For guided assessment** â€” follow the phases below.
+**For guided assessment** — follow the phases below.
 
 ---
 
@@ -94,9 +94,9 @@ Every finding must include file path, line count or metric, and specific observa
 ### What Good Looks Like
 
 ```
-âŒ BAD: "UserService.ts is too complex and should be refactored"
+❌ BAD: "UserService.ts is too complex and should be refactored"
 
-âœ… GOOD: "UserService.ts (847 lines, 23 exports) mixes 4 concerns:
+✅ GOOD: "UserService.ts (847 lines, 23 exports) mixes 4 concerns:
    - Authentication (lines 1-150)
    - Validation (lines 151-320)  
    - API calls (lines 321-600)
@@ -236,7 +236,7 @@ Score each finding 0-10:
 
 **Score Formula:**
 ```
-Score = (Severity Ã— 2) + (Impact Ã— 2) + (Effort_Inverse)
+Score = (Severity × 2) + (Impact × 2) + (Effort_Inverse)
 ```
 
 Where:
@@ -281,7 +281,7 @@ Lines 601-847: Formatting utilities
 
 ## Priority Matrix
 
-**ROI = Severity Ã— (4 - Effort)**
+**ROI = Severity × (4 - Effort)**
 
 | Severity | E0 (<1h) | E1 (1-4h) | E2 (4-8h) | E3 (>8h) |
 |----------|----------|-----------|-----------|----------|
@@ -289,7 +289,7 @@ Lines 601-847: Formatting utilities
 | High | 8 | 6 | 4 | 2 |
 | Medium | 4 | 3 | 2 | 1 |
 
-ðŸ”¥ = Address first (ROI â‰¥ 9)
+ðŸ”¥ = Address first (ROI ≥ 9)
 
 ---
 
@@ -358,7 +358,7 @@ Provide a summary table followed by detailed findings:
 Once you have findings, here's how to act on them:
 
 ### Immediate (This Sprint)
-1. **Fix ðŸ”¥ Critical findings** (ROI â‰¥ 9) - These block velocity
+1. **Fix ðŸ”¥ Critical findings** (ROI ≥ 9) - These block velocity
 2. Run `tl-knip` to remove dead exports before splitting
 3. Add tests for files you're about to split
 
@@ -440,25 +440,25 @@ Load these references when deeper analysis is needed for a specific category.
 
 ### Quilted Sources
 
-- [trailofbits/skills/code-maturity-assessor](https://skills.sh/trailofbits/skills/code-maturity-assessor) â€” Assessment framework
-- [obra/superpowers/systematic-debugging](https://skills.sh/obra/superpowers/systematic-debugging) â€” Iron Law pattern
-- [obra/superpowers/verification-before-completion](https://skills.sh/obra/superpowers/verification-before-completion) â€” Evidence principles
-- [rmyndharis/antigravity-skills/code-refactoring-refactor-clean](https://skills.sh/rmyndharis/antigravity-skills/code-refactoring-refactor-clean) â€” SOLID assessment
+- [trailofbits/skills/code-maturity-assessor](https://skills.sh/trailofbits/skills/code-maturity-assessor) — Assessment framework
+- [obra/superpowers/systematic-debugging](https://skills.sh/obra/superpowers/systematic-debugging) — Iron Law pattern
+- [obra/superpowers/verification-before-completion](https://skills.sh/obra/superpowers/verification-before-completion) — Evidence principles
+- [rmyndharis/antigravity-skills/code-refactoring-refactor-clean](https://skills.sh/rmyndharis/antigravity-skills/code-refactoring-refactor-clean) — SOLID assessment
 
 ### Official Skills
 
-- [semgrep/skills/semgrep](https://skills.sh/semgrep/skills/semgrep) â€” Static analysis and custom rule creation
-- [semgrep/skills/code-security](https://skills.sh/semgrep/skills/code-security) â€” Security vulnerability patterns
-- [jwynia/agent-skills/code-review](https://skills.sh/jwynia/agent-skills/code-review) â€” Review metrics
+- [semgrep/skills/semgrep](https://skills.sh/semgrep/skills/semgrep) — Static analysis and custom rule creation
+- [semgrep/skills/code-security](https://skills.sh/semgrep/skills/code-security) — Security vulnerability patterns
+- [jwynia/agent-skills/code-review](https://skills.sh/jwynia/agent-skills/code-review) — Review metrics
 
 ### First-Party Documentation
 
-- [ESLint Complexity Rule](https://eslint.org/docs/rules/complexity) â€” Cyclomatic complexity linting
-- [SonarQube Cognitive Complexity](https://www.sonarsource.com/docs/cognitive-complexity/) â€” Cognitive complexity definition
-- [Semgrep Rule Writing](https://semgrep.dev/docs/writing-rules/overview/) â€” Custom complexity rules
-- [TypeScript Compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API) â€” AST analysis
+- [ESLint Complexity Rule](https://eslint.org/docs/rules/complexity) — Cyclomatic complexity linting
+- [SonarQube Cognitive Complexity](https://www.sonarsource.com/docs/cognitive-complexity/) — Cognitive complexity definition
+- [Semgrep Rule Writing](https://semgrep.dev/docs/writing-rules/overview/) — Custom complexity rules
+- [TypeScript Compiler API](https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API) — AST analysis
 
 ### Academic/Industry
 
-- [Cognitive Complexity Paper](https://www.sonarsource.com/docs/CognitiveComplexity.pdf) â€” Original SonarSource definition
-- [Code Complete 2](https://www.oreilly.com/library/view/code-complete-2nd/0735619670/) â€” McConnell complexity guidance
+- [Cognitive Complexity Paper](https://www.sonarsource.com/docs/CognitiveComplexity.pdf) — Original SonarSource definition
+- [Code Complete 2](https://www.oreilly.com/library/view/code-complete-2nd/0735619670/) — McConnell complexity guidance

@@ -330,35 +330,35 @@ SELECT * FROM pgboss.job WHERE state = 'failed' ORDER BY completedon DESC LIMIT 
 
 ### Quilted Skills
 
-- [triggerdotdev/skills/trigger-tasks](https://skills.sh/triggerdotdev/skills/trigger-tasks) â€” Workflow patterns
-- [omer-metin/skills-for-antigravity/pg-boss](https://playbooks.com/skills/omer-metin/skills-for-antigravity/pg-boss) â€” SKIP LOCKED principles
+- [triggerdotdev/skills/trigger-tasks](https://skills.sh/triggerdotdev/skills/trigger-tasks) — Workflow patterns
+- [omer-metin/skills-for-antigravity/pg-boss](https://playbooks.com/skills/omer-metin/skills-for-antigravity/pg-boss) — SKIP LOCKED principles
 
 ### First-Party Documentation
 
-- [pg-boss GitHub](https://github.com/timgit/pg-boss) â€” Official repository
-- [pg-boss API Docs](https://timgit.github.io/pg-boss/) â€” API reference
-- [pg-boss Dashboard](https://github.com/timgit/pg-boss/tree/master/packages/dashboard) â€” Web UI
+- [pg-boss GitHub](https://github.com/timgit/pg-boss) — Official repository
+- [pg-boss API Docs](https://timgit.github.io/pg-boss/) — API reference
+- [pg-boss Dashboard](https://github.com/timgit/pg-boss/tree/master/packages/dashboard) — Web UI
 
 ### PostgreSQL Resources
 
-- [PostgreSQL SKIP LOCKED](https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE) â€” Locking semantics
-- [PostgreSQL Advisory Locks](https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS) â€” Application-level locks
-- [Connection Pooling with PgBouncer](https://www.pgbouncer.org/) â€” Connection management
+- [PostgreSQL SKIP LOCKED](https://www.postgresql.org/docs/current/sql-select.html#SQL-FOR-UPDATE-SHARE) — Locking semantics
+- [PostgreSQL Advisory Locks](https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS) — Application-level locks
+- [Connection Pooling with PgBouncer](https://www.pgbouncer.org/) — Connection management
 
 ### Alternative Solutions
 
-- [Graphile Worker](https://worker.graphile.org/) â€” PostgreSQL queue alternative
-- [Trigger.dev](https://trigger.dev/docs/) â€” Managed background jobs
-- [BullMQ](https://docs.bullmq.io/) â€” Redis-based alternative
+- [Graphile Worker](https://worker.graphile.org/) — PostgreSQL queue alternative
+- [Trigger.dev](https://trigger.dev/docs/) — Managed background jobs
+- [BullMQ](https://docs.bullmq.io/) — Redis-based alternative
 
 ### Skill References
 
-- `references/send-options.md` â€” Full send options
-- `references/typescript-patterns.md` â€” BaseJob, JobManager
-- `references/monitoring.md` â€” Dashboard + SQL queries
-- `references/advanced-patterns.md` â€” Singleton, throttling, pub/sub
-- `references/schedule-management.md` â€” Cron schedules, unschedule, pause patterns
-- `references/wordpress-migration.md` â€” WP-Cron & Action Scheduler mapping
+- `references/send-options.md` — Full send options
+- `references/typescript-patterns.md` — BaseJob, JobManager
+- `references/monitoring.md` — Dashboard + SQL queries
+- `references/advanced-patterns.md` — Singleton, throttling, pub/sub
+- `references/schedule-management.md` — Cron schedules, unschedule, pause patterns
+- `references/wordpress-migration.md` — WP-Cron & Action Scheduler mapping
 
 ---
 

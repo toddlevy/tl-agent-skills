@@ -134,7 +134,7 @@ For specific verticals, a band-curated source outranks the general-purpose ones 
 
 ### Web Scraping Fallback
 
-When APIs are unavailable (Tier 4) or rate-limited, use web scraping as a fallback. **Workflow escalation**: search â†’ scrape â†’ crawl.
+When APIs are unavailable (Tier 4) or rate-limited, use web scraping as a fallback. **Workflow escalation**: search → scrape → crawl.
 
 ```bash
 # Scrape a single artist page to markdown
@@ -420,12 +420,12 @@ To update this skill:
 ## References
 
 ### Quilted Skills
-- [firecrawl/cli/firecrawl-scrape](https://skills.sh/firecrawl/cli/firecrawl-scrape) â€” Web scraping patterns
+- [firecrawl/cli/firecrawl-scrape](https://skills.sh/firecrawl/cli/firecrawl-scrape) — Web scraping patterns
 
 ### First-Party API Documentation
-- [MusicBrainz API](https://musicbrainz.org/doc/MusicBrainz_API) â€” ID hub, url-rels, JSON responses
-- [MusicBrainz JSON Web Service](https://musicbrainz.org/doc/MusicBrainz_API/JSON) â€” JSON format details
-- [Setlist.fm API](https://api.setlist.fm/docs/1.0/index.html) â€” Setlist search and retrieval
+- [MusicBrainz API](https://musicbrainz.org/doc/MusicBrainz_API) — ID hub, url-rels, JSON responses
+- [MusicBrainz JSON Web Service](https://musicbrainz.org/doc/MusicBrainz_API/JSON) — JSON format details
+- [Setlist.fm API](https://api.setlist.fm/docs/1.0/index.html) — Setlist search and retrieval
 - [Phish.net API v5 Documentation](https://docs.phish.net/) — Canonical Phish + side-project data
 - [Phish.net API v5 Sample Repo](https://github.com/phishnet/api-v5) — Reference implementation
 - [Phish.net Special Methods](https://docs.phish.net/special-methods) — attendance/reviews/users filter requirements
@@ -435,13 +435,13 @@ To update this skill:
 - [JamBase Data llms-full.txt](https://data.jambase.com/llms-full.txt) — full LLM-tuned reference
 - [JamBase Data OpenAPI 3.1](https://data.jambase.com/openapi.json) — versioned spec
 - [JamBase Data ai-plugin.json](https://data.jambase.com/.well-known/ai-plugin.json) — discoverable plugin manifest
-- [Ticketmaster Discovery API](https://developer.ticketmaster.com/products-and-docs/apis/discovery-api/v2/) â€” Events, attractions
-- [Spotify Web API](https://developer.spotify.com/documentation/web-api) â€” OAuth 2.0, artist data
-- [Spotify Authorization Guide](https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow) â€” PKCE flow
-- [Discogs API](https://www.discogs.com/developers) â€” Discography, releases
-- [Last.fm API](https://www.last.fm/api) â€” Similar artists, tags
-- [Wikidata Query Service](https://query.wikidata.org/) â€” SPARQL cross-references
+- [Ticketmaster Discovery API](https://developer.ticketmaster.com/products-and-docs/apis/discovery-api/v2/) — Events, attractions
+- [Spotify Web API](https://developer.spotify.com/documentation/web-api) — OAuth 2.0, artist data
+- [Spotify Authorization Guide](https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow) — PKCE flow
+- [Discogs API](https://www.discogs.com/developers) — Discography, releases
+- [Last.fm API](https://www.last.fm/api) — Similar artists, tags
+- [Wikidata Query Service](https://query.wikidata.org/) — SPARQL cross-references
 
 ### Community Resources
-- [MusicBrainz Picard Documentation](https://picard-docs.musicbrainz.org/) â€” Tagging patterns
-- [Wikidata SPARQL Examples](https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/queries/examples) â€” Cross-reference queries
+- [MusicBrainz Picard Documentation](https://picard-docs.musicbrainz.org/) — Tagging patterns
+- [Wikidata SPARQL Examples](https://www.wikidata.org/wiki/Wikidata:SPARQL_query_service/queries/examples) — Cross-reference queries

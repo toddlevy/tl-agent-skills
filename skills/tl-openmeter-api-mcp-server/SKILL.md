@@ -114,8 +114,8 @@ Local dev often runs without `OPENMETER_API_KEY`.
 
 ## Resources
 
-- **OpenMeter quick reference** â€” Markdown from the tl-openmeter-api skill
-- **OpenMeter spec note** â€” Plain text with spec URL and configured base URL
+- **OpenMeter quick reference** — Markdown from the tl-openmeter-api skill
+- **OpenMeter spec note** — Plain text with spec URL and configured base URL
 
 ## Verification
 
@@ -146,10 +146,10 @@ From anthropics/skills/mcp-builder:
 Use consistent, action-oriented prefixes:
 
 ```
-openmeter_list_meters     âœ“ (list action)
-openmeter_get_customer    âœ“ (get action)
-openmeter_create_subscription âœ“ (create action)
-meters                    âœ— (no action prefix)
+openmeter_list_meters     ✓ (list action)
+openmeter_get_customer    ✓ (get action)
+openmeter_create_subscription ✓ (create action)
+meters                    ✗ (no action prefix)
 ```
 
 ### API Coverage vs Workflow Tools
@@ -340,16 +340,16 @@ describe('OpenMeter MCP Server', () => {
 
 ### Quilted Skills
 
-- [anthropics/skills/mcp-builder](https://skills.sh/anthropics/skills/mcp-builder) â€” MCP server development guide
+- [anthropics/skills/mcp-builder](https://skills.sh/anthropics/skills/mcp-builder) — MCP server development guide
 
 ### First-Party Documentation
 
-- [MCP Specification](https://modelcontextprotocol.io/) â€” Protocol specification
-- [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk) â€” SDK reference
-- [OpenMeter API](https://openmeter.io/docs/api) â€” API endpoints
+- [MCP Specification](https://modelcontextprotocol.io/) — Protocol specification
+- [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk) — SDK reference
+- [OpenMeter API](https://openmeter.io/docs/api) — API endpoints
 
 ### MCP Resources
 
-- [MCP Server Examples](https://github.com/modelcontextprotocol/servers) â€” Reference implementations
-- [MCP Inspector](https://github.com/modelcontextprotocol/inspector) â€” Debugging tool
-- [MCP Best Practices](https://github.com/anthropics/skills/blob/HEAD/skills/mcp-builder/reference/mcp_best_practices.md) â€” Universal guidelines
+- [MCP Server Examples](https://github.com/modelcontextprotocol/servers) — Reference implementations
+- [MCP Inspector](https://github.com/modelcontextprotocol/inspector) — Debugging tool
+- [MCP Best Practices](https://github.com/anthropics/skills/blob/HEAD/skills/mcp-builder/reference/mcp_best_practices.md) — Universal guidelines

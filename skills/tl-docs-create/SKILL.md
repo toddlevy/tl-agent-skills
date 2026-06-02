@@ -85,12 +85,12 @@ Before creating documentation, gather user intent through structured questions. 
 
 ### Question Flow Summary
 
-1. **Light scan** â€” Check for existing `docs/`, `README.md`, `AGENTS.md`, `CHANGELOG.md`
-2. **Existing docs?** â€” If found, suggest `tl-docs-audit` instead; otherwise proceed
-3. **Audience** â€” Contributors / Users / Operators / Future self / Mixed
-4. **Scope** â€” Minimal / Standard / Comprehensive / Absurdly thorough
-5. **Doc Types** â€” README / AGENTS.md / CHANGELOG / docs/ / API reference / Rules
-6. **Rules** â€” Create Cursor rules for doc maintenance? Yes / Pick / No
+1. **Light scan** — Check for existing `docs/`, `README.md`, `AGENTS.md`, `CHANGELOG.md`
+2. **Existing docs?** — If found, suggest `tl-docs-audit` instead; otherwise proceed
+3. **Audience** — Contributors / Users / Operators / Future self / Mixed
+4. **Scope** — Minimal / Standard / Comprehensive / Absurdly thorough
+5. **Doc Types** — README / AGENTS.md / CHANGELOG / docs/ / API reference / Rules
+6. **Rules** — Create Cursor rules for doc maintenance? Yes / Pick / No
 
 ---
 
@@ -232,13 +232,13 @@ Generate tables from config:
 Optionally create Cursor rules for ongoing maintenance. See `references/doc-rules.md`.
 
 Available rules:
-- `readme-sync.mdc` â€” Update README when features change
-- `changelog-commits.mdc` â€” CHANGELOG from conventional commits
-- `api-doc-sync.mdc` â€” Sync API docs with code changes
-- `agents-md-maintain.mdc` â€” Keep AGENTS.md current
-- `doc-style.mdc` â€” Enforce documentation style
-- `last-updated.mdc` â€” Track Last Updated dates
-- `link-check.mdc` â€” Validate internal doc links
+- `readme-sync.mdc` — Update README when features change
+- `changelog-commits.mdc` — CHANGELOG from conventional commits
+- `api-doc-sync.mdc` — Sync API docs with code changes
+- `agents-md-maintain.mdc` — Keep AGENTS.md current
+- `doc-style.mdc` — Enforce documentation style
+- `last-updated.mdc` — Track Last Updated dates
+- `link-check.mdc` — Validate internal doc links
 
 ---
 
@@ -257,21 +257,21 @@ Available rules:
 
 ### First-Party Documentation
 
-- [Keep a Changelog](https://keepachangelog.com/) â€” CHANGELOG format standard
-- [MADR](https://adr.github.io/madr/) â€” Markdown Architectural Decision Records
-- [DiÃ¡taxis](https://diataxis.fr/) â€” Documentation framework (tutorial/how-to/reference/explanation)
-- [Conventional Commits](https://www.conventionalcommits.org/) â€” Commit message convention
-- [Write the Docs](https://www.writethedocs.org/guide/) â€” Documentation community style guide
+- [Keep a Changelog](https://keepachangelog.com/) — CHANGELOG format standard
+- [MADR](https://adr.github.io/madr/) — Markdown Architectural Decision Records
+- [Diátaxis](https://diataxis.fr/) — Documentation framework (tutorial/how-to/reference/explanation)
+- [Conventional Commits](https://www.conventionalcommits.org/) — Commit message convention
+- [Write the Docs](https://www.writethedocs.org/guide/) — Documentation community style guide
 
 ### Documentation Tools
 
-- [TypeDoc](https://typedoc.org/) â€” TypeScript API documentation generator
-- [JSDoc](https://jsdoc.app/) â€” JavaScript documentation generator
-- [OpenAPI](https://www.openapis.org/) â€” REST API specification
+- [TypeDoc](https://typedoc.org/) — TypeScript API documentation generator
+- [JSDoc](https://jsdoc.app/) — JavaScript documentation generator
+- [OpenAPI](https://www.openapis.org/) — REST API specification
 
 ---
 
 ## Related Skills
 
-- [tl-docs-audit](../tl-docs-audit/SKILL.md) â€” Audit docs coverage, find gaps, generate sync reports
-- [tl-docs-viewer-create](../tl-docs-viewer-create/SKILL.md) â€” React admin UI for browsing docs/ folder
+- [tl-docs-audit](../tl-docs-audit/SKILL.md) — Audit docs coverage, find gaps, generate sync reports
+- [tl-docs-viewer-create](../tl-docs-viewer-create/SKILL.md) — React admin UI for browsing docs/ folder

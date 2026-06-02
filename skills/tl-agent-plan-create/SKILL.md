@@ -45,15 +45,15 @@ Create structured plan documents for features, projects, or multi-phase tasks.
 
 Gather requirements using the AskQuestion tool. Ask all questions in a single batch where possible.
 
-### Question 0: Plan Type (ask this FIRST â€” it determines everything else)
+### Question 0: Plan Type (ask this FIRST — it determines everything else)
 
 ```
 prompt: "Is this a strategic plan or a technical plan?"
 options:
   - id: strategic
-    label: "Strategic â€” high-level phases, milestones, grouped todos (e.g. roadmap, initiative overview)"
+    label: "Strategic — high-level phases, milestones, grouped todos (e.g. roadmap, initiative overview)"
   - id: technical
-    label: "Technical â€” granular subtasks, one todo per step, programmatic gates (e.g. implementation, refactor)"
+    label: "Technical — granular subtasks, one todo per step, programmatic gates (e.g. implementation, refactor)"
 ```
 
 **If strategic:** use the Strategic Template (grouped todos, milestone-level phases).
@@ -188,11 +188,11 @@ Key constraints at a glance:
 Plans must contain resolved decisions, not open questions. If the planner encounters multiple valid approaches, they must:
 
 1. Read the codebase to understand existing patterns and conventions
-2. Apply first principles (separation of concerns, SSOT, information hiding â€” reference `tl-first-principles` if available)
+2. Apply first principles (separation of concerns, SSOT, information hiding — reference `tl-first-principles` if available)
 3. Evaluate which approach is most structurally sound, forward-thinking, and consistent with the existing architecture
 4. Commit to one approach in the plan with a one-line rationale
 
-**Banned patterns** â€” plans must never contain:
+**Banned patterns** — plans must never contain:
 
 *Unresolved alternatives:*
 - "Option A / Option B" or "Approach 1 / Approach 2"
@@ -203,12 +203,12 @@ Plans must contain resolved decisions, not open questions. If the planner encoun
 - Narrative context blocks where a numbered subtask should be
 
 *Soft hedges and deferred specificity:*
-- "or equivalent" / "or similar" â€” name the exact command, file, or tool
-- "approximately" / "around line ~N" / "(line ~283)" â€” verify and state the exact line number, or omit it
-- "should be" / "will likely" / "probably" â€” confirm by reading the code, then state what IS
-- "update the relevant files" / "fix any remaining references" â€” list every file explicitly
-- "if needed" / "as necessary" / "when applicable" â€” decide now whether it is needed and state yes or no
-- "run it manually" appearing alongside an automatic path without choosing one â€” pick one approach
+- "or equivalent" / "or similar" — name the exact command, file, or tool
+- "approximately" / "around line ~N" / "(line ~283)" — verify and state the exact line number, or omit it
+- "should be" / "will likely" / "probably" — confirm by reading the code, then state what IS
+- "update the relevant files" / "fix any remaining references" — list every file explicitly
+- "if needed" / "as necessary" / "when applicable" — decide now whether it is needed and state yes or no
+- "run it manually" appearing alongside an automatic path without choosing one — pick one approach
 
 *Factual claims that must be verified before writing:*
 - Every file path referenced in the plan must exist (check before writing)
@@ -245,7 +245,7 @@ Key constraints at a glance:
 The `Status` row in the `## Plan Metadata` table tracks the plan's overall state. This is separate from individual todo statuses. Status MUST NOT go in YAML frontmatter — Cursor's plan tracker strips custom frontmatter keys on every todo-status change, so a frontmatter `status` would not survive; the body table is the durable record.
 
 ```
-planned â†’ audited â†’ building â†’ built
+planned → audited → building → built
 ```
 
 | Status | Set by | Meaning |
@@ -263,7 +263,7 @@ The executor MUST update the `Status` row in the Plan Metadata table at the appr
 
 **Update the plan file before moving to the next subtask.**
 
-- For technical plans: update todo `status` from `pending` â†’ `in_progress` â†’ `complete`
+- For technical plans: update todo `status` from `pending` → `in_progress` → `complete`
 - For strategic plans: check `[ ]` boxes and update `Status` in the Plan Metadata table
 - Never batch or defer updates
 
