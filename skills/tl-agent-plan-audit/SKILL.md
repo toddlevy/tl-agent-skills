@@ -156,7 +156,9 @@ Produce a unified audit report. Group findings by **subject matter** (e.g., by p
 
 ## After the Audit
 
-**Update plan-level status.** If the verdict is "Ready to execute," set the plan's YAML frontmatter `status` field to `audited`. This signals to `tl-agent-plan-execute` that the plan has been reviewed and its verification receipts are trustworthy. If the verdict is "Changes recommended" or "Rework needed," leave `status` as `planned` until the revisions are applied and the plan is re-audited.
+**Update plan-level status.** If the verdict is "Ready to execute," update the `Status` row in the plan's body `## Plan Metadata` table to `audited`. **Apply this as a file edit before reporting the verdict** — do not declare the verdict in chat and leave the file unchanged. This signals to `tl-agent-plan-execute` that the plan has been reviewed and its verification receipts are trustworthy. If the verdict is "Changes recommended" or "Rework needed," leave `status` as `planned` until the revisions are applied and the plan is re-audited.
+
+> **Do NOT set YAML frontmatter `status`.** Cursor's plan tracker strips custom frontmatter keys on every todo-status change; the body `## Plan Metadata` table is the durable SSOT. If the plan being audited uses a `## Plan Metadata` body table, that table's `Status` row is the only field to update. If the plan has no body metadata table, add one with a `Status | audited` row.
 
 If verdict is "Changes recommended":
 

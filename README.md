@@ -56,6 +56,24 @@ This is the canonical install command — use it for both fresh installs and upd
 | [`tl-schema-org`](skills/tl-schema-org/SKILL.md) | The full Schema.org vocabulary with production patterns for JSON-LD, DBs, and APIs. |
 | [`tl-live-music-data`](skills/tl-live-music-data/SKILL.md) | Reference for live music APIs (MusicBrainz, Setlist.fm, JamBase, Bandsintown, etc.). |
 
+## Rules
+
+Alongside the skills, this repo hosts the canonical source for the `tl-*` **Cursor rules** that pair with `tl-*` skills. They live under [`rules/`](rules/):
+
+| Rule | Companion skill |
+|------|-----------------|
+| [`tl-first-principles.mdc`](rules/tl-first-principles.mdc) | [`tl-first-principles`](skills/tl-first-principles/SKILL.md) |
+| [`tl-devlog-usage.mdc`](rules/tl-devlog-usage.mdc) | [`tl-devlog`](skills/tl-devlog/SKILL.md) |
+
+Rules are a **Cursor-proprietary** concept and are read only from `~/.cursor/rules/` -- unlike skills, they are not part of the cross-tool Agent Skills spec and do not install into `~/.agents/`. Sync the canonical `rules/` folder into Cursor's global rules directory as a real copy:
+
+```powershell
+.\scripts\sync-global-rules.ps1          # mirror rules/ -> ~/.cursor/rules/tl-agent-rules/
+.\scripts\sync-global-rules.ps1 -Strict  # drift check (non-zero exit if out of sync)
+```
+
+The script copies (not symlinks) every `rules/*.mdc` into `~/.cursor/rules/tl-agent-rules/` and prunes any stale file left behind by a rename. Only publishable `tl-*` companion rules belong here; personal / operational rules are authored directly in `~/.cursor/rules/` and never enter this repo.
+
 ## License & Attribution
 
 This project is licensed under the [MIT License](LICENSE) — see the `LICENSE` file at the repo root and the per-skill `LICENSE` file inside each `skills/<name>/` folder. The MIT license permits use, modification, and redistribution provided the copyright notice and license text are preserved.

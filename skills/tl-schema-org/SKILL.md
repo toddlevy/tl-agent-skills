@@ -118,7 +118,8 @@ Common verticals and their Schema.org type constellations:
 |----------|---------------|------------------|
 | E-commerce | Product, Offer, AggregateOffer | Brand, Organization, QuantitativeValue, SizeSpecification |
 | Events | Event, MusicEvent, Festival | Place, PostalAddress, GeoCoordinates, Offer, Person |
-| Publishing | Article, BlogPosting, NewsArticle | Person, Organization, ImageObject, WebPage |
+| News/Blog | Article, BlogPosting, NewsArticle | Person, Organization, ImageObject, WebPage |
+| Books & Publishing | Book, BookSeries | Person, Organization, Offer, ImageObject, PublicationVolume, PublicationIssue |
 | Jobs | JobPosting | Organization, Place, MonetaryAmount |
 | Local Business | LocalBusiness, Restaurant | PostalAddress, GeoCoordinates, OpeningHoursSpecification |
 | Education | Course, LearningResource | Organization, Person, Offer |
@@ -279,6 +280,29 @@ See: `references/extension-patterns.md`
 Schema.org is a vocabulary, not a database schema. Use it as design inspiration and naming convention. Map Schema.org types to tables, optimize for your query patterns, and store domain-specific enums in tables that get translated to Schema.org URIs at serialization time.
 
 > See [Database Modeling](references/database-modeling.md) for the full type-to-table strategies, product variant architecture, enum mapping tables (availability, condition, event status), DB-driven property routing for measurements, UN/CEFACT unit-code mapping, polymorphic relationship patterns, identifier strategies, and column naming conventions.
+
+### Books, Editions & Series
+
+Books are the canonical case where Schema.org splits one real-world "book" into **two distinct entities**, and getting this wrong is the most common book-modeling mistake:
+
+- **The work** (`Book` as abstract creation): the title, author, subject -- the thing that persists across every printing.
+- **The edition** (`Book` linked by `bookEdition`): a specific ISBN, format, publisher, page count, publication year. One work has many editions.
+- **Work <-> edition link**: `workExample` (work -> its editions) and its inverse `exampleOfWork` (edition -> its work). This is the `Book`-domain analog of `ProductModel`/`isVariantOf`.
+- **The series** (`BookSeries`): groups volumes via `hasPart`/`isPartOf` + `position` (or `volumeNumber`). A multi-volume set (Vol. I, Vol. II) is one `BookSeries` with N member `Book` works -- never a single conflated entity.
+- **Format** is an enumeration (`bookFormat` -> `BookFormatType`: `Hardcover`, `Paperback`, `EBook`, `AudiobookFormat`, `GraphicNovel`), belonging on the *edition*, not the work.
+
+> See [Book Modeling](references/book-modeling.md) for the full work/edition/series treatment: the two-level identity model, the DB table layout (books / editions / series / contributors / offers), `BookFormatType` mapping, typed contributor roles (author/editor/illustrator/foreword vs. subject), library/CDL borrow-and-read `Offer` modeling, JSON-LD output patterns, and the anti-patterns (grouped multi-title entries, format-on-the-work, volumes-as-one-row) that silently drop or merge books.
+
+### Series & Family Grouping (domain-general)
+
+`BookSeries` is one instance of a cross-domain pattern: a **named, numbered run** of otherwise-independent works. The same shape recurs for music (a live-release run like Dick's Picks Vol. 1..36 or Dave's Picks Vol. 1..58), TV (`CreativeWorkSeries` with `TVSeason`/`TVEpisode`), periodicals (`PublicationVolume`/`PublicationIssue`), and podcasts (`PodcastSeries`). Model it the same way every time:
+
+- **The run is its own entity, never a conflated row.** Each member is a first-class work with its own identity, cover, date, and links; the series is a *separate* record that groups them. Collapsing "Dick's Picks" into one release row (or one book row) is the volumes-as-one-row anti-pattern -- it silently drops every individual volume's data.
+- **Schema.org type**: `CreativeWorkSeries` is the general super-type (`BookSeries`, `Periodical`, `PodcastSeries`, `RadioSeries`, `TVSeries` are its specializations). A live-album run has no dedicated subtype -- use `CreativeWorkSeries` and let each member be a `MusicAlbum`/`LiveAlbum`.
+- **Membership + order**: link with `hasPart` (series -> members) / `isPartOf` (member -> series), and carry the member's rank in `position` (or the domain-specific `volumeNumber`). A member with an unknown rank keeps a null position -- never a fabricated one.
+- **DB shape (the recurring three-part layout)**: a `<domain>_series` table (`id`, `slug` natural key, `name`, `description`), plus a nullable `series_id` FK + nullable `volume_position` on the member table. `slug` is the seed-join natural key so the series row always precedes the members that reference it; `ON DELETE SET NULL` keeps a series merge from orphaning members. This mirrors the books layout (`*_series` + `series_id`/`position` on the work) and generalizes it to any run.
+- **Derive membership, don't hand-curate it, when the run is already encoded in identity.** If members carry a `<series>-volume-<n>` slug (or a `<name> Volume <n>` title), the series and each member's position are *derivable* from that convention -- emit them from a generator over the committed member seed rather than maintaining a parallel hand-list that drifts. Hand-curate only when the grouping is not mechanically recoverable.
+- **Substrate note (VIP)**: in the `@vip-suite/*` stack the durable cross-domain home for this is the product-family layer (`ProductGroup`/`ProductModel` + `isVariantOf`); until a vertical's series needs promotion, the per-consumer `<domain>_series` + `series_id`/`position` shape above is the correct spoke-local implementation, and the substrate absorbs it when a second vertical wants the same grouping.
 
 ---
 
