@@ -1,9 +1,9 @@
 ---
 name: tl-agent-plan-audit
-description: Audit plan documents before execution. Validates structural compliance, plan integrity, and verification metadata against tl-agent-plan-create, then performs Principal Engineer critique, Pre-Mortem simulation, Parallelization review, and Implementation Readiness analysis. Produces durable verification receipts so executors can trust factual claims without re-verification. Use when the user says "audit this plan", "review the plan", or before starting plan execution.
+description: Audit plan documents before execution. Validates structural compliance, plan integrity, and verification metadata against tl-agent-plan-create, then performs Principal Engineer critique, Pre-Mortem simulation, Parallelization review, Implementation Readiness analysis, and Ceremony Survival analysis (whether a plan survives the release/deploy/migration ceremony that ships it, not just whether its code is correct). Produces durable verification receipts so executors can trust factual claims without re-verification. Use when the user says "audit this plan", "review the plan", or before starting plan execution.
 license: MIT
 metadata:
-  version: 1.5.1
+  version: 1.6.0
   author: Todd Levy <toddlevy@gmail.com>
   homepage: https://github.com/toddlevy/tl-agent-skills
   moment: review
@@ -25,7 +25,7 @@ metadata:
 
 # Plan Audit
 
-Unified audit workflow for `.plan.md` files. Validates structural compliance against the `tl-agent-plan-create` specification, then combines critique, pre-mortem simulation, parallelization review, and implementation readiness analysis into a single cohesive audit.
+Unified audit workflow for `.plan.md` files. Validates structural compliance against the `tl-agent-plan-create` specification, then combines critique, pre-mortem simulation, parallelization review, implementation readiness analysis, and ceremony-survival analysis into a single cohesive audit.
 
 ## When to Use
 
@@ -42,7 +42,7 @@ Unified audit workflow for `.plan.md` files. Validates structural compliance aga
 
 ## Audit Process
 
-Run Analysis 0 first — it is mechanical validation that reads the plan and produces numbered findings. Then perform Analyses 1–4 mentally and merge all findings into a **unified output** grouped by subject matter. Do NOT reveal the analysis numbering to the user.
+Run Analysis 0 first — it is mechanical validation that reads the plan and produces numbered findings. Then perform Analyses 1–5 mentally and merge all findings into a **unified output** grouped by subject matter. Do NOT reveal the analysis numbering to the user.
 
 ### Analysis 0: Structural Compliance
 
@@ -101,6 +101,28 @@ Red flags that MUST be caught:
 - Plan says "add after upsert" without showing the upsert call site with surrounding context
 - Plan says "accept NewPayload" but target already has a different options type (naming conflict)
 
+### Analysis 5: Ceremony Survival
+
+Analyses 1–4 audit whether the plan is **correct** — clear, de-risked, parallelized, and readable start-to-finish. They do NOT audit whether the plan **survives the ceremony that ships it**. A plan can pass every prior analysis and still detonate mid-release, mid-deploy, or mid-migration on an auth/toolchain/environment/permission fact the plan never modeled — because that fact lives in the delivery pipeline, not in the code the plan edits. This analysis exists for exactly that gap, and it applies to any plan whose delivery touches a **ceremony**: a release/publish, a deploy, a data migration, a package/registry install, a credential rotation, an infra provisioning step, or any multi-actor hand-off.
+
+If the plan has no such ceremony (a pure local refactor with no delivery step), state that in one line and skip the rest of this analysis.
+
+Otherwise, answer these questions and treat any "unknown / proven only DURING the ceremony" as a **blocking finding**:
+
+- **New seams.** What auth, toolchain-version, environment-variable, filesystem-permission, or external-service seam does this plan newly exercise, cross, or depend on when it ships — that the pre-ship checks do NOT already exercise? Name each one.
+- **Proof timing.** For each seam: is it proven **BEFORE** the point of no return (before the tag/merge/deploy/irreversible mutation), or is the ceremony itself the first thing to exercise it? "The pre-flight/simulation is green" is NOT proof unless the pre-flight exercises the seam **through the same path the real ceremony uses**. A simulation that stubs, mocks, or short-circuits the seam (local tarballs instead of a registry fetch, a fake token, a skipped install path, an in-memory adapter) is **structurally blind** to that seam and its green says nothing.
+- **Path divergence.** Does the pre-ship proof take a DIFFERENT code path than the real ceremony? (e.g. the simulation installs via a bare `spawn`, but the real run goes through a wrapper that sanitizes the environment; the CI uses one credential injection, the local run another.) A divergent path is a false green — flag it.
+- **Point of no return.** Where is the irreversible step (tag pushed, package published, `main` fast-forwarded, prod row mutated, DNS cut over)? Is every seam proven strictly before it? A seam first exercised AFTER the point of no return converts a cheap pre-fail into an expensive mid-ceremony diagnosis.
+- **Gate vs. doc.** For each seam the plan relies on being healthy: is the check a **fail-closed gate** (a script whose non-zero exit blocks the ceremony), or is it PROSE in a runbook the operator must remember to run? Knowledge that lives only in a doc is not prophylaxis — it is a checklist item waiting to lapse. If the plan's safety rests on "the operator will run X first," that is a finding: the plan should make X a gate, or the audit should note the residual risk explicitly.
+- **Recurrence class.** If this project keeps a failure-mode / incident catalogue, does this plan's ceremony re-tread a seam that has burned a prior ceremony? If the same class of break has recurred, a point-patch scoped to the exact inch that last failed is a smell — the durable fix makes the pre-ceremony proof share the real ceremony's path, so a break fails BEFORE the ceremony with a pointer, not live.
+
+Red flags that MUST be caught:
+- Plan ships via a release/deploy/migration but names no pre-point-of-no-return proof for its new auth/toolchain/env seam
+- Plan leans on a "simulation is green" that resolves dependencies, credentials, or services differently than the real ceremony (a structurally-blind pre-proof)
+- Plan's only safeguard for a delivery seam is a runbook line ("run X before Y"), with no fail-closed gate
+- Plan re-exercises a seam that a prior incident already burned, with a fix scoped only to the last failing point rather than the shared path
+- Plan mutates something irreversible (tag, publish, prod data) with a seam proven only mid-ceremony or not at all
+
 ## Adaptive Depth
 
 Scale analysis depth to plan complexity:
@@ -112,6 +134,7 @@ Scale analysis depth to plan complexity:
 | Large (5+ phases) | High | Detailed analysis, every subtask reviewed |
 
 | Any size | Any risk | If plan modifies 5+ files: require Implementation Readiness analysis |
+| Any size | Any risk | If plan ships via a release/deploy/migration/registry-install/credential/infra ceremony: require Ceremony Survival analysis |
 
 **Risk multipliers**: External integrations, data migrations, auth/security, billing = deeper analysis regardless of size.
 
