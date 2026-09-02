@@ -1,9 +1,9 @@
 ---
 name: tl-agent-plan-audit
-description: Audit plan documents before execution. Validates structural compliance, plan integrity, and verification metadata against tl-agent-plan-create, then performs Principal Engineer critique, Pre-Mortem simulation, Parallelization review, Implementation Readiness analysis, and Ceremony Survival analysis (whether a plan survives the release/deploy/migration ceremony that ships it, not just whether its code is correct). Produces durable verification receipts so executors can trust factual claims without re-verification. Use when the user says "audit this plan", "review the plan", or before starting plan execution.
+description: Audit plan documents before execution. Validates structural compliance, plan integrity, and verification metadata against tl-agent-plan-create, then performs Principal Engineer critique, Pre-Mortem simulation, Parallelization review, Implementation Readiness analysis, Ceremony Survival analysis (whether a plan survives the release/deploy/migration ceremony that ships it, not just whether its code is correct), and Premise Verification (every factual claim the plan rests on is probed with a read-only command BEFORE the verdict, so a wrong premise becomes an audit finding instead of a mid-build tripwire). Produces durable verification receipts so executors can trust factual claims without re-verification. Use when the user says "audit this plan", "review the plan", or before starting plan execution.
 license: MIT
 metadata:
-  version: 1.6.0
+  version: 1.7.0
   author: Todd Levy <toddlevy@gmail.com>
   homepage: https://github.com/toddlevy/tl-agent-skills
   moment: review
@@ -25,7 +25,7 @@ metadata:
 
 # Plan Audit
 
-Unified audit workflow for `.plan.md` files. Validates structural compliance against the `tl-agent-plan-create` specification, then combines critique, pre-mortem simulation, parallelization review, implementation readiness analysis, and ceremony-survival analysis into a single cohesive audit.
+Unified audit workflow for `.plan.md` files. Validates structural compliance against the `tl-agent-plan-create` specification, then combines critique, pre-mortem simulation, parallelization review, implementation readiness analysis, ceremony-survival analysis, and premise verification into a single cohesive audit.
 
 ## When to Use
 
@@ -42,7 +42,7 @@ Unified audit workflow for `.plan.md` files. Validates structural compliance aga
 
 ## Audit Process
 
-Run Analysis 0 first — it is mechanical validation that reads the plan and produces numbered findings. Then perform Analyses 1–5 mentally and merge all findings into a **unified output** grouped by subject matter. Do NOT reveal the analysis numbering to the user.
+Run Analysis 0 first — it is mechanical validation that reads the plan and produces numbered findings. Then perform Analyses 1–5 mentally, run the Analysis 6 probes for real, and merge all findings into a **unified output** grouped by subject matter. Do NOT reveal the analysis numbering to the user.
 
 ### Analysis 0: Structural Compliance
 
@@ -123,6 +123,29 @@ Red flags that MUST be caught:
 - Plan re-exercises a seam that a prior incident already burned, with a fix scoped only to the last failing point rather than the shared path
 - Plan mutates something irreversible (tag, publish, prod data) with a seam proven only mid-ceremony or not at all
 
+### Analysis 6: Premise Verification
+
+Analyses 1–5 judge the plan's **prescriptions** (what to build, in what order, how it ships). They take the plan's **premises** — the facts about the world it was authored against — mostly on trust. Field experience says that is where a well-audited plan still breaks: the prescription was right, but it rested on a claim that was never true, and the fault surfaced mid-build as a "tripwire" that cost a stop, a diagnosis, and a plan amendment. Every one of those tripwires was a fact a single command could have checked at audit time. This analysis is that command pass, run **before** the verdict.
+
+Procedure:
+
+1. **Extract every factual claim** the plan makes about the current state of the world — not what it will do, but what it says *is*. Typical shapes: "file X exists / is enforced / is validated", "tool T prints line L", "version V is what runner R uses", "config C currently fails checks A/B/C", "task Q has no dependency on task P", "the API returns N on success", "branch B is the default".
+2. **Classify each claim** as `VERIFIED` (the plan already carries a literal command + output for it), `PROBEABLE` (a read-only command can settle it now), or `UNPROBEABLE` (only the ceremony or a live run can settle it — hand these to Analysis 5).
+3. **Run every PROBEABLE probe now.** Read-only, non-mutating: `Test-Path`, `git show/ls-tree/cat-file`, `rg`, `gh api GET`, `npm view`, a validator in dry-run, a real log from a prior run. Record the literal command and output in the plan's Verifications table as a `premise-check` row; a claim with no receipt is treated as unverified, not as true.
+4. **Every falsified premise is a finding**, and the fix is applied to the plan (or the codebase, when the premise exposed a defect) before the verdict — never carried into the build as something to "watch for".
+5. **Predicted outputs are premises too.** If the plan says a gate will red naming exactly `{X, Y, Z}`, derive the expected set from the real inputs now; a prediction the audit can compute but did not is an unverified premise.
+6. **Gate bullets are premises too.** Every exit-gate bullet asserts that some command CAN be run at that moment and WILL observe something. Probe the "can be run" half for each bullet, not just the tasks: a gate that says "run workflow W from branch B" presumes W is dispatchable from B (GitHub registers a `workflow_dispatch`-only workflow only once it exists on the default branch), a gate that greps a tool's output presumes the output's shape (capture a real sample), a gate that calls an API presumes the credential type it holds is accepted by that endpoint. A gate bullet that turns out to be unrunnable at execution time is a plan defect the audit owned.
+
+Red flags that MUST be caught (each is a shape that has cost a real stop):
+- **Decorative enforcement**: the plan says a schema / lint / config rule "fails on X", but nothing in the repo evaluates that schema, the lint script excludes that directory, or the rule is an editor hint. Probe: find the evaluator, not the rule.
+- **Version-line conflation**: the plan pins tool A to "the same major as" tool B, where A and B are different version lines (an action's tag vs the tool it runs; a client vs its server; an image tag vs the binary inside). Probe: read the actual default in B's manifest.
+- **Log/output-format assumption**: the plan asserts on a line, count, or summary a tool "prints" without a captured sample. Probe: a real prior log or a dry run.
+- **Stale or under-derived expectation**: the plan predicts which items fail / which files exist / which keys are present without deriving it from the current inputs. Probe: compute it.
+- **Hidden inter-task ordering**: task A cites, imports, or registers something task B creates, and a gate rejects the tree between them. Probe: for each new identifier a task introduces, which gate validates it and which task supplies it.
+- **Environment as state**: a step depends on an env var, a login, a running service, or a cached token that lives in shell/session state rather than in a durable location. Probe: is it set where the ceremony's shell will actually read it?
+
+This analysis is cheap (minutes of read-only probes) relative to what it prevents (a build stop plus a plan amendment per falsified premise), so its depth does NOT scale down for small plans: run the full claim extraction on every plan that touches more than one file or any external tool.
+
 ## Adaptive Depth
 
 Scale analysis depth to plan complexity:
@@ -135,6 +158,7 @@ Scale analysis depth to plan complexity:
 
 | Any size | Any risk | If plan modifies 5+ files: require Implementation Readiness analysis |
 | Any size | Any risk | If plan ships via a release/deploy/migration/registry-install/credential/infra ceremony: require Ceremony Survival analysis |
+| Any size | Any risk | If plan touches more than one file or any external tool: require Premise Verification (full claim extraction + probes; never abbreviated) |
 
 **Risk multipliers**: External integrations, data migrations, auth/security, billing = deeper analysis regardless of size.
 
@@ -163,6 +187,7 @@ Scale analysis depth to plan complexity:
 - Missing `Verified at` receipt → run `git rev-parse --short HEAD` and add it as the `Verified at` row of the `## Plan Metadata` **body** table (never frontmatter — Cursor's plan tracker strips custom frontmatter keys on every todo-status change)
 - Missing or incomplete `### Verifications` table → run the verification commands from Step 8b and produce the body block
 - Stale verification results → re-run the command, update the result, flag if the claim changed
+- Falsified premise (Analysis 6) → correct the claim in the plan body and every todo/gate that derived from it, add the `premise-check` Verifications row with the literal probe; if the probe exposed a repo defect (a decorative gate, an unlinted tree), record it as a finding with a durable home (a task in this plan or a queued follow-on), never as a chat-only note
 
 **Non-obvious decisions**: Probe, ask questions, propose with rationale. Examples:
 - Reordering phases (may have unstated reasons)
