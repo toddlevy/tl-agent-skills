@@ -3,7 +3,7 @@ name: tl-agent-plan-audit
 description: Audit plan documents before execution. Validates structural compliance, plan integrity, and verification metadata against tl-agent-plan-create, then performs Principal Engineer critique, Pre-Mortem simulation, Parallelization review, Implementation Readiness analysis, Ceremony Survival analysis (whether a plan survives the release/deploy/migration ceremony that ships it, not just whether its code is correct), and Premise Verification (every factual claim the plan rests on is probed with a read-only command BEFORE the verdict, so a wrong premise becomes an audit finding instead of a mid-build tripwire). Produces durable verification receipts so executors can trust factual claims without re-verification. Use when the user says "audit this plan", "review the plan", or before starting plan execution.
 license: MIT
 metadata:
-  version: 1.7.0
+  version: 1.8.0
   author: Todd Levy <toddlevy@gmail.com>
   homepage: https://github.com/toddlevy/tl-agent-skills
   moment: review
@@ -143,6 +143,11 @@ Red flags that MUST be caught (each is a shape that has cost a real stop):
 - **Stale or under-derived expectation**: the plan predicts which items fail / which files exist / which keys are present without deriving it from the current inputs. Probe: compute it.
 - **Hidden inter-task ordering**: task A cites, imports, or registers something task B creates, and a gate rejects the tree between them. Probe: for each new identifier a task introduces, which gate validates it and which task supplies it.
 - **Environment as state**: a step depends on an env var, a login, a running service, or a cached token that lives in shell/session state rather than in a durable location. Probe: is it set where the ceremony's shell will actually read it?
+
+- **Self-gating gate**: the plan adds or widens a gate (lint scope, a new `check-*`, a parity assertion, a required plan section) whose predicate is FALSE on the very tree that lands it - it reads a branch the landing commit cannot yet have moved (`origin/main` from a `staging` commit), requires a section the existing plans lack, or lints files never linted before. Probe: run the gate's predicate against the landing tree as the plan describes it, not against the current tree; every "the gate will pass once X" is a hidden inter-task ordering. The 0.131.0 audit found five of these across twelve spokes; the ones it missed cost a build stop each.
+- **Workstation-only dependency**: a gate, script, or test spawns a binary (`rg`, `jq`, `sed`, `gh` extensions) or relies on memory/CPU the hosted runner does not have. Probe: `rg -n "spawn|execFile" <new files>` and confirm every binary is one the runner image carries (`git`, `pnpm`, `node`, `gh`); for a widened lint/test scope, ask what the runner's default Node heap is and whether the widened invocation fits it. Local green never proves either.
+- **Strict sibling of an advisory ruling**: the plan rules a check "warns", but the implementation also registers a strict variant somewhere (a second script, a `preflight:full` tier entry, a release-tier catalog row). Probe: `rg -n "<gate-id>" <catalog/manifest files>` and confirm every registration matches the ruled binding.
+- **Install state after a dependency change**: a spoke adds a devDependency or a hook (lint-staged, husky) in an isolated worktree; the operator's main tree has not run `pnpm install`, so the first commit there fails on `command not found`. Probe: every manifest delta lists the trees that must re-install before the next commit.
 
 This analysis is cheap (minutes of read-only probes) relative to what it prevents (a build stop plus a plan amendment per falsified premise), so its depth does NOT scale down for small plans: run the full claim extraction on every plan that touches more than one file or any external tool.
 
