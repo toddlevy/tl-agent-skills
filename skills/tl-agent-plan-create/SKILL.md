@@ -178,7 +178,7 @@ Use when the plan has concrete implementation steps, file-level changes, and ver
 Key constraints at a glance:
 
 - One todo per atomic subtask, IDs `t{phase}-{group}-{step}`, gates `gate-p{N}` or `gate-{descriptive-name}`
-- Plain ASCII todo content (no backticks, colons, braces, brackets, wrapping quotes)
+- Plain ASCII todo content: no backticks, wrapping quotes, or any YAML indicator character anywhere in the scalar - colon, `#`, `!`, `&`, `*`, `|`, `>`, `%`, `@`, braces, brackets, or a leading `-`/`?`. A path such as `!archive/completed/...` is a YAML tag, not text: rephrase it (`the completed archive`) or quote the whole scalar. Unquoted indicators fail the frontmatter parser at the gate, never at authoring time
 - Phases sequenced by precondition; gates are runnable bash commands
 
 ---
