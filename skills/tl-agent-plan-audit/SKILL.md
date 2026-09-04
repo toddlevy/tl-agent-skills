@@ -3,7 +3,7 @@ name: tl-agent-plan-audit
 description: Audit plan documents before execution. Validates structural compliance, plan integrity, and verification metadata against tl-agent-plan-create, then performs Principal Engineer critique, Pre-Mortem simulation, Parallelization review, Implementation Readiness analysis, Ceremony Survival analysis (whether a plan survives the release/deploy/migration ceremony that ships it, not just whether its code is correct), and Premise Verification (every factual claim the plan rests on is probed with a read-only command BEFORE the verdict, so a wrong premise becomes an audit finding instead of a mid-build tripwire). Produces durable verification receipts so executors can trust factual claims without re-verification. Use when the user says "audit this plan", "review the plan", or before starting plan execution.
 license: MIT
 metadata:
-  version: 1.8.0
+  version: 1.9.0
   author: Todd Levy <toddlevy@gmail.com>
   homepage: https://github.com/toddlevy/tl-agent-skills
   moment: review
