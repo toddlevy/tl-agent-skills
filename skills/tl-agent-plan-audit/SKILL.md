@@ -3,7 +3,7 @@ name: tl-agent-plan-audit
 description: Audit plan documents before execution. Validates structural compliance, plan integrity, and verification metadata against tl-agent-plan-create, then performs Principal Engineer critique, Pre-Mortem simulation, Parallelization review, Implementation Readiness analysis, Ceremony Survival analysis (whether a plan survives the release/deploy/migration ceremony that ships it, not just whether its code is correct), and Premise Verification (every factual claim the plan rests on is probed with a read-only command BEFORE the verdict, so a wrong premise becomes an audit finding instead of a mid-build tripwire). Produces durable verification receipts so executors can trust factual claims without re-verification. Use when the user says "audit this plan", "review the plan", or before starting plan execution.
 license: MIT
 metadata:
-  version: 1.15.0
+  version: 1.16.0
   author: Todd Levy <toddlevy@gmail.com>
   homepage: https://github.com/toddlevy/tl-agent-skills
   moment: review
@@ -216,6 +216,69 @@ Scale analysis depth to plan complexity:
 > See [Output Format Template](references/output-format-template.md) for the complete audit report template (Summary, Findings grouped by subject area, Parallelization, Critical path, Agent allocation, Recommendations list).
 
 Produce a unified audit report. Group findings by **subject matter** (e.g., by phase, by system component, by risk area) — NOT by audit type.
+
+### Machine-readable findings block (required)
+
+Every audit report ends with **exactly one** fenced code block tagged `json findings`. It is the last block in the report. The prose report stays for humans; the applier and the next-round auditor consume this block instead of transcribing prose.
+
+```json findings
+{
+  "schemaVersion": 1,
+  "flight": "<cycle-folder-slug>",
+  "round": 1,
+  "observedAt": "2026-09-06T12:00:00.000Z",
+  "evidenceTree": "<40-hex-git-tree-oid-the-probes-ran-against>",
+  "findings": [
+    {
+      "id": "F1",
+      "plan": ".cursor/plans/cycles/<cycle>/<spoke>.plan.md",
+      "anchor": "section/<heading>",
+      "kind": "literal",
+      "class": "mechanical",
+      "old": "<verbatim probe output>",
+      "new": "<verbatim replacement or null when the finding is a question>",
+      "probe": "<exact PowerShell command whose output is old>",
+      "rationale": "<one sentence>",
+      "requiresRuling": false,
+      "applied": false
+    }
+  ]
+}
+```
+
+**Top-level fields (schema v1).**
+
+| Field | Requirement |
+| --- | --- |
+| `schemaVersion` | Always `1`. |
+| `flight` | Cycle folder slug (for example `tag-0.139.0-ceremony-latency-2`). |
+| `round` | Integer audit round (1-based). |
+| `observedAt` | UTC ISO-8601 timestamp ending in `Z`. |
+| `evidenceTree` | 40-character lowercase hex git tree oid the probes ran against. |
+| `findings` | Array of finding objects (may be empty). |
+
+**Each finding object.**
+
+| Field | Requirement |
+| --- | --- |
+| `id` | `F<n>` contiguous from `F1` through `F<n>`; stable within a flight (round N dispositions every id from round N-1). |
+| `plan` | Repo-relative path to the plan under audit. |
+| `anchor` | `section/<heading>`, `row/<Claim text>`, or `meta/<Field>`. |
+| `kind` | `literal`, `prose`, or `structural`. |
+| `class` | `mechanical` or `semantic` (the S1c split). |
+| `old` | Verbatim string (probe output for `literal`). |
+| `new` | Verbatim string or `null` when the finding is a question. |
+| `probe` | Required when `kind` is `literal` — the command whose output is `old`. |
+| `rationale` | One sentence. |
+| `requiresRuling` | `true` when the operator must decide (semantic / Analysis 6 red-flag path). |
+| `applied` | `true` only when `class` is `mechanical` and `requiresRuling` is `false`. |
+
+**Rules.**
+
+- One block per report; a report without it fails `pnpm check-audit-findings <report.md>`.
+- `requiresRuling: true` findings are never `applied: true`.
+- Literal probe output and rationale remain mandatory in both prose and the block.
+- Do not emit extra fields — the hub validator rejects unknown keys.
 
 ## After the Audit
 
