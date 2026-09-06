@@ -3,7 +3,7 @@ name: tl-agent-plan-audit
 description: Audit plan documents before execution. Validates structural compliance, plan integrity, and verification metadata against tl-agent-plan-create, then performs Principal Engineer critique, Pre-Mortem simulation, Parallelization review, Implementation Readiness analysis, Ceremony Survival analysis (whether a plan survives the release/deploy/migration ceremony that ships it, not just whether its code is correct), and Premise Verification (every factual claim the plan rests on is probed with a read-only command BEFORE the verdict, so a wrong premise becomes an audit finding instead of a mid-build tripwire). Produces durable verification receipts so executors can trust factual claims without re-verification. Use when the user says "audit this plan", "review the plan", or before starting plan execution.
 license: MIT
 metadata:
-  version: 1.13.0
+  version: 1.14.0
   author: Todd Levy <toddlevy@gmail.com>
   homepage: https://github.com/toddlevy/tl-agent-skills
   moment: review
@@ -156,6 +156,7 @@ Red flags that MUST be caught (each is a shape that has cost a real stop):
 - **Consumer-reported defect fixed without executing the report**: the spoke closes an FM whose row names a consumer and a repro command but cites hub fixtures or substrate tests only, or records a CHANGELOG/uplift claim about consumer behavior with no Verifications row whose Command is the registry repro and whose Result is literal consumer output. Block audited/built until the row exists; block completed until the Result is literal.
 - **Contract code asserted against sibling consumer trees from hub source**: a hub gate imports a contract renderer or validator from the hub's own package source and applies it to a sibling consumer checkout instead of spawning that consumer's installed CLI, so any change to the contract reds hub preflight until an adoption the red preflight prevents. Probe: rg the gate for imports from `../../packages/*/src` applied to a consumer repoRoot; the claim "hub preflight passes" holds only when every such assertion runs the installed kit.
 - **Gate whose first subject is the tree that ships it, unchecked**: the plan adds or tightens a gate that will run against the repository containing the plan, without a probe showing the current tree passes the new predicate. Probe: run the predicate (or its closest existing equivalent) over the live target tree now and quote the violation count; a non-zero count is a blocker, not a build-time surprise.
+- **Zero-count claim on a new gate rule probed only against the authoring plan**: a spoke that adds a plan-gate rule and prescribes "live tree carries zero violations" must run the new predicate over every live plan in the flight (and ideally the repo) at audit; a count taken against the authoring spoke alone is a false HOLDS (0.138.0 S1a: three sibling spokes tripped the rule at build).
 
 This analysis is cheap (minutes of read-only probes) relative to what it prevents (a build stop plus a plan amendment per falsified premise), so its depth does NOT scale down for small plans: run the full claim extraction on every plan that touches more than one file or any external tool.
 
