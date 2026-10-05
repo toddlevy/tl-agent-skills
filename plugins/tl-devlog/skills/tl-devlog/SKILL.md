@@ -252,6 +252,8 @@ If a conversation covers several loggable topics:
 
 Default to project mode. Switch to local/global only if user explicitly requests.
 
+A workspace that declares its own DEVLOG conventions in the DEVLOG header or a workspace amendment overrides location, commit prefix, and approval flow.
+
 ---
 
 ## Error Handling
