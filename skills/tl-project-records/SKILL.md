@@ -9,7 +9,7 @@ description: >-
   after a release or incident, or when writing a commit subject the changelog will render.
 license: MIT
 metadata:
-  version: "1.0"
+  version: "1.1"
   author: Todd Levy <toddlevy@gmail.com>
   homepage: https://github.com/toddlevy/tl-agent-skills
   moment: implement
@@ -124,13 +124,14 @@ Each fact has one home. Before writing, put the fact where it belongs:
 | Fact | Home |
 |------|------|
 | The reasons for a cross-cutting decision | An ADR |
+| A product, content, or rules ruling, where the project keeps a decision ledger | The ledger; an ADR cites the rulings it implements and never restates them |
 | That something happened, and what it cost | A DEVLOG entry |
 | What a release changed for its reader | The CHANGELOG stanza, from commit subjects |
 | How the system works today | `docs/` and `AGENTS.md` |
 | Why one commit is shaped the way it is | The commit body |
 | Audit findings and plan progress | The plan or review itself |
 
-A DEVLOG entry links `ADR-NNNN` instead of restating it. `AGENTS.md` links the ADR trigger rule instead of copying it.
+A DEVLOG entry links `ADR-NNNN`, or cites a ledger ruling by its id, instead of restating either. `AGENTS.md` links the ADR trigger rule instead of copying it.
 
 ## Workspace conventions first
 
@@ -166,10 +167,12 @@ Write `type(scope): subject` with a type from `records.config.json`, one scope, 
 
 ## Workflow: release
 
+The operator runs the push and tag steps; the agent runs preview, cut, and check.
+
 ```powershell
-git push
+git push   # operator step
 pwsh -NoProfile -File scripts/project-records.ps1 changelog-preview -OutFile $previewPath
-# open the release pull request with $previewPath as its body; merge; create and push the tag
+# operator steps: open the release pull request with $previewPath as its body; merge; create and push the tag
 pwsh -NoProfile -File scripts/project-records.ps1 changelog-cut -Tag <tag>
 pwsh -NoProfile -File scripts/project-records.ps1 check
 ```
@@ -191,7 +194,7 @@ Every read path is safe to run first:
 | Question | Read-only command |
 |----------|-------------------|
 | Are the records well formed? | `project-records.ps1 check` |
-| What would the next release say? | `project-records.ps1 changelog-preview` (stdout, or `-OutFile` to a temp file) |
+| What would the next release say? | `project-records.ps1 changelog-preview` (stdout, or `-OutFile` to a temp file); read its stderr count line for skipped subjects |
 | Would this message pass the hook? | `project-records.ps1 check-msg <file>` |
 | Do this branch's subjects pass? | `project-records.ps1 check-range -Base <base> -Head HEAD` |
 | Is the tool itself sound? | `project-records.ps1 self-test` |

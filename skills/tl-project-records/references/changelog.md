@@ -29,7 +29,7 @@ A commit renders when all of these hold:
 
 A scope listed in `scopeSections` reroutes the commit: with `"security": "Security"`, `fix(security): ...` renders under Security instead of Fixed. Use this for sections a release reader must not miss (Security, and Legal where the project publishes legal pages).
 
-A commit whose subject does not parse is skipped with a warning naming its SHA. Subjects from before the commit-msg hook was installed are the usual source; history is not rewritten.
+A release-bound commit whose subject does not parse is skipped, and the tool writes a `WARN` line naming its SHA to stderr. `changelog-preview` closes with `Preview rendered N commits, skipped M` on stderr, so a capture of the preview still shows what it dropped; read that count before using the preview. Subjects from before the commit-msg hook was installed are the usual source; history is not rewritten.
 
 ## Release models
 
@@ -52,14 +52,19 @@ For a deploy-dated model, the pattern is:
 
 ## Release procedure
 
-1. Push, so the remote refs the preview reads are current.
-2. `./scripts/project-records.ps1 changelog-preview -OutFile <temp file>` and use it as the release pull request body. Read it: a missing change usually means a mistyped subject; a surprising one usually means a path that should be `export-ignore`.
-3. Merge and create the release tag on the released commit. Push the tag.
+The operator runs the push and tag steps (1 and 3); the agent runs preview, cut, and check.
+
+1. **Operator:** push, so the remote refs the preview reads are current.
+2. `./scripts/project-records.ps1 changelog-preview -OutFile <temp file>` and use it as the release pull request body. Read it, and the stderr count line: a missing change usually means a mistyped subject (or a nonzero skipped count); a surprising one usually means a path that should be `export-ignore`.
+3. **Operator:** merge, create the release tag on the released commit, and push the tag.
 4. `./scripts/project-records.ps1 changelog-cut -Tag <tag>`. The range starts at the nearest earlier matching tag in the tag's ancestry.
 5. Write the release DEVLOG entry if the workspace logs releases.
 6. Commit `CHANGELOG.md` (and `DEVLOG.md`) as `docs(records): cut <tag>`.
 
 **First release:** there is no earlier tag, so `changelog-cut` refuses and asks for `-From`. Pass the last commit the first release does not include. A relative or branch revision is pinned to its commit SHA in the compare link.
+
+- **Choosing `-From`:** run `changelog-preview -From <root commit>` and read the skipped count. Zero skipped means history conforms, so the first cut may use `-From` the root commit, or a later point whose own preview also reports zero skipped. Otherwise use the adoption base. `adoption.md` step 4 has the detail.
+- **A hand-written `[Unreleased]`:** the first cut supersedes it, and leftover lines would land inside the new stanza. Move its content into commit bodies or a DEVLOG entry, empty the section, then cut; never keep it hand-edited.
 
 ## Removal ledger (optional)
 

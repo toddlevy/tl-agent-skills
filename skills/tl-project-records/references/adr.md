@@ -8,6 +8,15 @@ An ADR answers "why is the project shaped this way?" for one decision. The DEVLO
 - `docs/adr/README.md` holds the conventions, the trigger rule, and the index table. `docs/adr/template.md` is unnumbered.
 - Copy both from `assets/templates/adr-README.md` and `assets/templates/adr-template.md`.
 
+## ADRs and a decision ledger
+
+Some projects keep a decision ledger: a single file whose entries (`D-nn`, for example) are product, content, or rules rulings. The two split by kind:
+
+- **ADR**: a structural decision that meets the trigger rule below, with its reasons, alternatives, and consequences.
+- **Ledger**: a ruling the project made about what it builds or says. It stays in the ledger and is never copied into an ADR.
+
+When an ADR implements rulings, it cites each by id (`D-12`) and does not restate the ruling, so the ledger stays the only home. A DEVLOG entry cites an ADR by `ADR-NNNN` and a ledger ruling by its id under Related. A project with no ledger records such rulings in whichever of the ADR or the DEVLOG fits the trigger rule.
+
 ## Header and sections
 
 Six header bullets, in this order, before the first `##` heading:
@@ -47,7 +56,7 @@ Not required: module-local choices, version bumps, content edits.
 
 1. **Draft** as `Proposed` while the decision is still open. A proposed ADR may be edited freely.
 2. **Accept** by setting `Accepted (YYYY-MM-DD)` with the date the decision took effect. Update the index row's status in the same commit.
-3. **Immutable after acceptance.** The only edits an accepted ADR receives are its status line and a cross-reference bullet. A tooling-driven mechanical path rewrite is also allowed if the workspace has one.
+3. **Immutable after acceptance.** The only edits an accepted ADR receives are its status line and a cross-reference bullet. A tooling-driven mechanical path rewrite is also allowed if the workspace has one. At adoption, an existing ADR that carries its date in a separate `Date` bullet has its status line normalized to `Accepted (<that date>)`, which is a status-line edit, not a substantive one.
 4. **Supersede** fully by writing a new ADR whose `Supersedes` names the old number, and flipping the old ADR's status to `Superseded by NNNN`.
 5. **Amend in part** by writing a new ADR and adding a `- **Superseded in part by:** NNNN` bullet to the old one. Both stay accepted.
 6. **Deprecate** a rule that no longer applies and has no successor.

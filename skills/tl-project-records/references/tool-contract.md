@@ -16,15 +16,15 @@ pwsh -NoProfile -File scripts/project-records.ps1 <command> [arguments] [-Config
 
 | Command | Arguments | Reads | Writes | Exit 0 | Exit 1 |
 |---------|-----------|-------|--------|--------|--------|
-| `check-msg` | `<message file>` | The file, as bytes | Nothing | Subject accepted or pass-through | BOM, no subject, wrong shape, or too long |
+| `check-msg` | `<message file>` | The file, as bytes | Nothing | Subject accepted or pass-through | BOM, invalid UTF-8, no subject, wrong shape, or too long |
 | `check-commit` | none | The index | Nothing | Archive rule passes, nothing archived, or archive not configured | An archived key is not named in the staged DEVLOG |
-| `check-range` | `-Base <rev> -Head <rev>` | Commit messages | Nothing | Every checked subject passes, or Head has no install commit (`0 checked`) | Shallow clone, unresolvable revision, a failing subject, or the hook file removed after its install commit |
+| `check-range` | `-Base <rev> -Head <rev>` | Commit messages | Nothing | Every checked subject passes, or no `subject.enforceFrom` is set and Head has no install commit (`0 checked`) | Shallow clone, unresolvable revision (including `subject.enforceFrom`), a failing subject, or the hook file absent at Head |
 | `check` | none | The work tree | Nothing | ADR, DEVLOG, and CHANGELOG checks all pass | Any problem; every problem is listed |
 | `changelog-preview` | `[-From <rev>] [-To <rev>] [-OutFile <path>]` | Commits, `.gitattributes`, ledger | `-OutFile` only | Rendered | Unresolvable revision, or `@latest-tag` with no matching tag |
 | `changelog-cut` | `-Tag <tag> [-From <rev>]` | Commits, tags, CHANGELOG.md | CHANGELOG.md | Stanza written | Tag outside the pattern or missing, stanza exists, empty range, no earlier tag and no `-From`, no `[Unreleased]` heading or foot link, no `origin` remote |
 | `self-test` | none | Nothing in the repository | Temp directories only | Every fixture passes | Any fixture fails |
 
-`check-range` checks non-merge commits in `Base..Head` that descend from the commit that first added `paths.commitMsgHook`.
+`check-range` checks non-merge commits in `Base..Head` that descend from its anchor, the anchor itself included. The anchor is `subject.enforceFrom` when the config sets it, otherwise the commit that first added `paths.commitMsgHook`. Set `enforceFrom` when the hook file predates adoption, as an existing Husky or lefthook runner file does; the install-commit anchor would then check every older subject.
 
 `changelog-preview` defaults `-From` and `-To` to `changelog.previewFrom` and `changelog.previewTo`. The token `@latest-tag` resolves to the nearest tag matching `tagGlob` in the ancestry of `HEAD`.
 
@@ -41,8 +41,8 @@ pwsh -NoProfile -File scripts/project-records.ps1 <command> [arguments] [-Config
 ## Output
 
 - Every diagnostic line starts with `logPrefix` and one space. `OK` lines go to stdout, `FAIL` lines and their indented detail to stderr.
-- `changelog-preview` without `-OutFile` writes the raw markdown to stdout with no prefix, so it can be piped or captured. Its warnings (skipped unparseable subjects) go through `Write-Warning`, which a redirect or capture does not carry.
-- Files are written as UTF-8 without a BOM. `changelog-cut` keeps the CHANGELOG's existing line endings.
+- `changelog-preview` without `-OutFile` writes the raw markdown to stdout with no prefix, so it can be piped or captured. Each skipped unparseable subject is a `WARN` line on stderr (`<logPrefix> WARN skipped commit <sha> with an unparseable subject: <subject>`), and a successful preview ends with `<logPrefix> Preview rendered N commits, skipped M` on stderr, with or without `-OutFile`. `N` counts rendered commit bullets (removal-ledger rows excluded); `M` is the number of `WARN` lines. `changelog-cut` writes the same `WARN` lines and no count line. Stdout never carries either.
+- `check-msg` and `check-range` decode the message strictly: bytes that are not valid UTF-8 fail with rule `encoding`. Every other read is lenient. Files are written as UTF-8 without a BOM. `changelog-cut` keeps the CHANGELOG's existing line endings.
 
 ## Configuration schema
 
@@ -51,9 +51,10 @@ pwsh -NoProfile -File scripts/project-records.ps1 <command> [arguments] [-Config
 | `logPrefix` | string | Prefix for every diagnostic line |
 | `paths.devlog`, `paths.changelog` | string | Repository-relative record files |
 | `paths.adrDirectory` | string | ADR directory, holding `README.md` and `template.md` |
-| `paths.commitMsgHook` | string | The hook file whose first commit starts `check-range` |
+| `paths.commitMsgHook` | string | The hook file (a hook manager's runner file when one exists); its first commit starts `check-range` unless `subject.enforceFrom` is set, and `check-range` fails if it is absent at Head |
 | `subject.maxLength` | integer, at least 20 | Subject length limit |
-| `subject.passthroughPrefixes` | string array | Subjects accepted unchecked |
+| `subject.passthroughPrefixes` | string array, may be empty | Subjects accepted unchecked. The key must be present; `[]` means no pass-through, so `fixup!` and `Merge ` subjects are held to the subject rule. Every other array key must be non-empty |
+| `subject.enforceFrom` | commit SHA, optional | Lowercase hexadecimal, 7 to 40 characters. When set, `check-range` checks only commits that are this commit or descend from it, replacing the install-commit anchor; it fails if the SHA does not resolve. Absent means the install-commit anchor |
 | `commitTypes[]` | `{ type, section }` | Allowed types, in the order the hook lists them; `section: null` means never rendered |
 | `scopeSections` | object | Scope to section overrides |
 | `devlog.categories` | string array | Allowed entry categories |
@@ -65,10 +66,10 @@ pwsh -NoProfile -File scripts/project-records.ps1 <command> [arguments] [-Config
 | `changelog.compareTarget` | string | The ref the `[Unreleased]` foot link compares against |
 | `changelog.previewFrom`, `previewTo` | string | Default preview range; `previewFrom` may be `@latest-tag` |
 | `changelog.removalLedger` | object or `null` | Optional ledger rendering (see `changelog.md`) |
-| `archive` | `{ root, fileSuffix }` or `null` | Optional archive rule; a key is the first path segment under `root` of a file ending in `fileSuffix` |
+| `archive` | `{ root, fileSuffix }` or `null` | Optional archive rule for work units archived under one root, as files or folders; a key is the first path segment under `root` of a file ending in `fileSuffix` |
 
 The config is the single home for this vocabulary; the script carries no defaults for these keys. Fixed by the tool, not configurable: the ADR file-name and status grammar, the DEVLOG entry labels, the CHANGELOG heading grammar, and the bullet format.
 
 ## Self-test coverage
 
-`self-test` builds temp directories and temp git repositories only, with an isolated git identity and hooks path, and removes them afterward. Groups: config validation; subject rule (shapes, BOM, pass-through, length); archive rule; whole-tree check (ADR, DEVLOG, CHANGELOG failure cases); range check (install commit, shallow clone, removed hook); render (every type and scope, file and directory release-filter patterns, `releaseFilter: none`, ledger rows, raw preview output); cut (refusals, CRLF preservation, deploy-dated and semver models, first release); end-to-end (real `git commit` through the real hook shims).
+`self-test` builds temp directories and temp git repositories only, with an isolated git identity and hooks path, and removes them afterward. Groups: config validation (including empty `passthroughPrefixes` and `enforceFrom`); subject rule (shapes, BOM, invalid UTF-8 in subject and body, pass-through, empty pass-through, length); archive rule; whole-tree check (ADR, DEVLOG, CHANGELOG failure cases); range check (install commit, `enforceFrom` set, absent, and unresolvable, shallow clone, removed hook); render (every type and scope, file and directory release-filter patterns, `releaseFilter: none`, ledger rows, raw preview output, `WARN` and count lines on stderr); cut (refusals, CRLF preservation, deploy-dated and semver models, first release); end-to-end (real `git commit` through the real hook shims).

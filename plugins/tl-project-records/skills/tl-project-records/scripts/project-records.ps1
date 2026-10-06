@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Project records tool: the commit-subject rule, the archive rule, whole-tree record checks, and the
   changelog renderer for an ADR directory, DEVLOG.md, and CHANGELOG.md.
@@ -16,8 +16,9 @@
 
   Output contract: every diagnostic line is prefixed with the configured logPrefix. Success lines go
   to stdout and failure lines to stderr. The one exception is changelog-preview without -OutFile,
-  whose stdout is the raw markdown with no prefix; its warnings use Write-Warning, which neither a
-  redirect nor a variable capture carries.
+  whose stdout is the raw markdown with no prefix. Its warnings (skipped unparseable subjects) are
+  WARN-prefixed lines on stderr, followed by a closing "Preview rendered N commits, skipped M" line,
+  so a capture of either stream sees them.
 
   Subcommands and exit codes:
 
@@ -32,9 +33,10 @@
 
     check-range -Base <rev> -Head <rev>
       Applies the subject rule to every non-merge commit in Base..Head that descends from the commit
-      that first added the configured commit-msg hook. Exit 1 in a shallow clone, when a subject
-      fails, or when Head has lost the hook file after the install commit. Exit 0 with "0 checked"
-      when Head has no install commit.
+      that first added the configured commit-msg hook, or from subject.enforceFrom when the config
+      sets it. Exit 1 in a shallow clone, when a subject fails, when subject.enforceFrom does not
+      resolve, or when Head has lost the hook file. Exit 0 with "0 checked" when no enforceFrom is
+      set and Head has no install commit.
 
     check
       Whole-tree record checks: ADR names, numbering, headers, and index; DEVLOG structure, date
@@ -84,6 +86,7 @@ $script:RecordsConfigFileName = 'records.config.json'
 $script:RecordsScriptPath = $PSCommandPath
 $script:RecordsCommands = @('check-msg', 'check-commit', 'check-range', 'check', 'changelog-preview', 'changelog-cut', 'self-test')
 $script:RecordsUtf8 = New-Object System.Text.UTF8Encoding $false
+$script:RecordsUtf8Strict = New-Object System.Text.UTF8Encoding($false, $true)
 $script:RecordsAdrStatusRegex = [regex]::new('\A(Proposed|Accepted \(\d{4}-\d{2}-\d{2}\)|Superseded by \d{4}|Deprecated)\z')
 $script:RecordsScopePattern = '[a-z0-9][a-z0-9-]*'
 $script:RecordsLatestTagToken = '@latest-tag'
@@ -94,7 +97,7 @@ $script:RecordsFixtureRoot = $null
 # ---------------------------------------------------------------------------------------------
 
 function New-RecordsOutcome {
-    param([int]$ExitCode, [string[]]$Lines, [string[]]$Warnings = @())
+    param([int]$ExitCode, [string[]]$Lines, [string[]]$Warnings = @(), [string]$Summary = '')
     $stdoutLines = if ($ExitCode -eq 0) { @($Lines) } else { @() }
     $stderrLines = if ($ExitCode -eq 0) { @() } else { @($Lines) }
     return [pscustomobject]@{
@@ -103,6 +106,7 @@ function New-RecordsOutcome {
         StdoutLines = @($stdoutLines)
         StderrLines = @($stderrLines)
         Warnings    = @($Warnings)
+        Summary     = $Summary
         Raw         = $false
     }
 }
@@ -115,18 +119,20 @@ function New-RecordsSplitOutcome {
         StdoutLines = @($StdoutLines)
         StderrLines = @($StderrLines)
         Warnings    = @()
+        Summary     = ''
         Raw         = $false
     }
 }
 
 function New-RecordsRawOutcome {
-    param([string[]]$Lines, [string[]]$Warnings = @())
+    param([string[]]$Lines, [string[]]$Warnings = @(), [string]$Summary = '')
     return [pscustomobject]@{
         ExitCode    = 0
         Lines       = @($Lines)
         StdoutLines = @($Lines)
         StderrLines = @()
         Warnings    = @($Warnings)
+        Summary     = $Summary
         Raw         = $true
     }
 }
@@ -141,12 +147,15 @@ function Test-RecordsBom {
     return ($Bytes.Length -ge 3 -and $Bytes[0] -eq 0xEF -and $Bytes[1] -eq 0xBB -and $Bytes[2] -eq 0xBF)
 }
 
+# Lenient by default so reading records and git output never fails; -Strict throws on an invalid
+# UTF-8 sequence, which the commit-message rule turns into the `encoding` verdict.
 function ConvertFrom-RecordsBytes {
-    param([AllowNull()][AllowEmptyCollection()][byte[]]$Bytes)
+    param([AllowNull()][AllowEmptyCollection()][byte[]]$Bytes, [switch]$Strict)
     if ($null -eq $Bytes -or $Bytes.Length -eq 0) { return '' }
     $offset = 0
     if (Test-RecordsBom $Bytes) { $offset = 3 }
-    return $script:RecordsUtf8.GetString($Bytes, $offset, $Bytes.Length - $offset)
+    $decoder = if ($Strict) { $script:RecordsUtf8Strict } else { $script:RecordsUtf8 }
+    return $decoder.GetString($Bytes, $offset, $Bytes.Length - $offset)
 }
 
 function Get-RecordsNewline {
@@ -336,6 +345,14 @@ function Get-RecordsRequiredStringArray {
     return [string[]]$items
 }
 
+function Get-RecordsRequiredStringArrayAllowEmpty {
+    param($Object, [string]$Name, [string]$Where)
+    $null = Get-RecordsRequiredValue $Object $Name $Where
+    $value = $Object.PSObject.Properties[$Name].Value
+    if ($value -is [array] -and $value.Count -eq 0) { return , [string[]]@() }
+    return Get-RecordsRequiredStringArray $Object $Name $Where
+}
+
 function ConvertTo-RecordsRelativePath {
     param([string]$Value, [string]$Where)
     $normalized = $Value -replace '\\', '/'
@@ -360,7 +377,15 @@ function ConvertTo-RecordsConfig {
     $subject = Get-RecordsRequiredValue $Document 'subject' 'root'
     $maxLength = Get-RecordsRequiredValue $subject 'maxLength' 'subject'
     if (-not ($maxLength -is [int] -or $maxLength -is [long]) -or $maxLength -lt 20) { throw 'config: subject.maxLength must be an integer of at least 20' }
-    $passthroughPrefixes = Get-RecordsRequiredStringArray $subject 'passthroughPrefixes' 'subject'
+    $passthroughPrefixes = Get-RecordsRequiredStringArrayAllowEmpty $subject 'passthroughPrefixes' 'subject'
+    $enforceFrom = $null
+    if (Test-RecordsHasProperty $subject 'enforceFrom') {
+        $enforceFromText = $subject.enforceFrom
+        if ($enforceFromText -isnot [string] -or $enforceFromText -cnotmatch '\A[0-9a-f]{7,40}\z') {
+            throw 'config: subject.enforceFrom must be a lowercase hexadecimal commit SHA of 7 to 40 characters'
+        }
+        $enforceFrom = $enforceFromText
+    }
 
     $changelog = Get-RecordsRequiredValue $Document 'changelog' 'root'
     $sectionOrder = Get-RecordsRequiredStringArray $changelog 'sectionOrder' 'changelog'
@@ -453,6 +478,7 @@ function ConvertTo-RecordsConfig {
         CommitMsgHookPath   = $commitMsgHook
         SubjectMaxLength    = [int]$maxLength
         PassthroughPrefixes = $passthroughPrefixes
+        EnforceFrom         = $enforceFrom
         CommitTypes         = $commitTypes.ToArray()
         TypeNames           = $typeNames.ToArray()
         SubjectRegex        = $subjectRegex
@@ -510,7 +536,13 @@ function Test-RecordsMessageBytes {
     if (Test-RecordsBom $MessageBytes) {
         return New-RecordsMessageVerdict $false '' 'bom' 'the message starts with a UTF-8 byte order mark (U+FEFF); write the message file without a BOM'
     }
-    $subject = Get-RecordsSubjectLine (ConvertFrom-RecordsBytes $MessageBytes)
+    $messageText = $null
+    try {
+        $messageText = ConvertFrom-RecordsBytes $MessageBytes -Strict
+    } catch {
+        return New-RecordsMessageVerdict $false '' 'encoding' 'the message is not valid UTF-8; save the message file as UTF-8 without a BOM'
+    }
+    $subject = Get-RecordsSubjectLine $messageText
     if ($null -eq $subject) {
         return New-RecordsMessageVerdict $false '' 'no-subject' 'the message has no subject line'
     }
@@ -650,19 +682,31 @@ function Invoke-RecordsCheckRange {
         return New-RecordsOutcome 1 @("FAIL head revision `"$HeadRevision`" does not resolve to a commit")
     }
 
-    $installLog = Invoke-RecordsGit -RepoRoot $repoRoot -Arguments @('log', '--diff-filter=A', '--no-renames', '--format=%H', '--reverse', $HeadRevision, '--', $hookPath)
-    if ($installLog.ExitCode -ne 0) {
-        return New-RecordsOutcome 1 @("FAIL git log for the install commit exited $($installLog.ExitCode): $($installLog.Stderr.Trim())")
+    $enforceFrom = $Context.Config.EnforceFrom
+    if ($null -ne $enforceFrom) {
+        $anchorSha = Resolve-RecordsRevision $repoRoot $enforceFrom
+        if ($null -eq $anchorSha) {
+            return New-RecordsOutcome 1 @("FAIL subject.enforceFrom `"$enforceFrom`" does not resolve to a commit; fetch full history or correct the config")
+        }
+        $anchorLabel = "enforced from $(Get-RecordsShortSha $anchorSha)"
+        $hookRemovedReason = "$hookPath is absent at $HeadRevision"
+    } else {
+        $installLog = Invoke-RecordsGit -RepoRoot $repoRoot -Arguments @('log', '--diff-filter=A', '--no-renames', '--format=%H', '--reverse', $HeadRevision, '--', $hookPath)
+        if ($installLog.ExitCode -ne 0) {
+            return New-RecordsOutcome 1 @("FAIL git log for the install commit exited $($installLog.ExitCode): $($installLog.Stderr.Trim())")
+        }
+        if ($installLog.Lines.Count -eq 0) {
+            return New-RecordsOutcome 0 @("OK 0 checked: $HeadRevision has no install commit for $hookPath")
+        }
+        $anchorSha = $installLog.Lines[0].Trim()
+        $installShort = Get-RecordsShortSha $anchorSha
+        $anchorLabel = "install commit $installShort"
+        $hookRemovedReason = "$hookPath was installed in $installShort but is absent at $HeadRevision"
     }
-    if ($installLog.Lines.Count -eq 0) {
-        return New-RecordsOutcome 0 @("OK 0 checked: $HeadRevision has no install commit for $hookPath")
-    }
-    $installSha = $installLog.Lines[0].Trim()
-    $installShort = Get-RecordsShortSha $installSha
 
     $hookAtHead = Invoke-RecordsGit -RepoRoot $repoRoot -Arguments @('cat-file', '-e', "${HeadRevision}:$hookPath")
     if ($hookAtHead.ExitCode -ne 0) {
-        return New-RecordsOutcome 1 @("FAIL $hookPath was installed in $installShort but is absent at $HeadRevision; the subject rail was removed")
+        return New-RecordsOutcome 1 @("FAIL $hookRemovedReason; the subject rail was removed")
     }
 
     $candidates = Invoke-RecordsGit -RepoRoot $repoRoot -Arguments @('rev-list', '--no-merges', $HeadRevision, "^$BaseRevision")
@@ -675,7 +719,7 @@ function Invoke-RecordsCheckRange {
     foreach ($candidateLine in $candidates.Lines) {
         $candidateSha = $candidateLine.Trim()
         if ($candidateSha.Length -eq 0) { continue }
-        $ancestry = Invoke-RecordsGit -RepoRoot $repoRoot -Arguments @('merge-base', '--is-ancestor', $installSha, $candidateSha)
+        $ancestry = Invoke-RecordsGit -RepoRoot $repoRoot -Arguments @('merge-base', '--is-ancestor', $anchorSha, $candidateSha)
         if ($ancestry.ExitCode -ne 0) { continue }
         $checkedCount++
         $verdict = Test-RecordsMessageBytes $Context.Config (Get-RecordsCommitMessageBytes $repoRoot $candidateSha)
@@ -685,9 +729,9 @@ function Invoke-RecordsCheckRange {
         $failureLines.Add("FAIL $(Get-RecordsShortSha $candidateSha)${subjectText}: $($verdict.Reason)")
     }
     if ($failedCount -eq 0) {
-        return New-RecordsOutcome 0 @("OK $checkedCount checked (install commit $installShort)")
+        return New-RecordsOutcome 0 @("OK $checkedCount checked ($anchorLabel)")
     }
-    $failureLines.Add("FAIL $failedCount of $checkedCount checked subjects break the rule (install commit $installShort)")
+    $failureLines.Add("FAIL $failedCount of $checkedCount checked subjects break the rule ($anchorLabel)")
     foreach ($ruleLine in (Get-RecordsSubjectRuleLines $Context.Config)) { $failureLines.Add($ruleLine) }
     return New-RecordsOutcome 1 $failureLines.ToArray()
 }
@@ -1153,6 +1197,7 @@ function Get-RecordsRenderModel {
     $sections = @{}
     foreach ($sectionName in $config.SectionOrder) { $sections[$sectionName] = [System.Collections.Generic.List[string]]::new() }
     $warnings = [System.Collections.Generic.List[string]]::new()
+    $renderedCount = 0
 
     $commitLog = Invoke-RecordsGitChecked -RepoRoot $repoRoot -Arguments @('log', '--no-merges', '--format=%H%x1f%s', "${FromRevision}..${ToRevision}")
     foreach ($commitLine in $commitLog.Lines) {
@@ -1181,6 +1226,7 @@ function Get-RecordsRenderModel {
         $shortSha = Get-RecordsShortSha $sha
         $bullet = if ($null -ne $scope) { "- **$scope** $text ($shortSha)" } else { "- $text ($shortSha)" }
         $sections[$sectionName].Add($bullet)
+        $renderedCount++
     }
 
     if ($null -ne $config.Ledger) {
@@ -1196,7 +1242,7 @@ function Get-RecordsRenderModel {
     foreach ($sectionName in $config.SectionOrder) {
         if ($sections[$sectionName].Count -gt 0) { $hasChanges = $true }
     }
-    return [pscustomobject]@{ Sections = $sections; Warnings = $warnings.ToArray(); HasChanges = $hasChanges }
+    return [pscustomobject]@{ Sections = $sections; Warnings = $warnings.ToArray(); RenderedCount = $renderedCount; HasChanges = $hasChanges }
 }
 
 function Format-RecordsStanza {
@@ -1244,12 +1290,13 @@ function Invoke-RecordsChangelogPreview {
     }
     $model = Get-RecordsRenderModel $Context $resolvedFrom $requestedTo
     $stanzaLines = Format-RecordsStanza $config '## [Unreleased]' $model
+    $summary = "Preview rendered $($model.RenderedCount) commits, skipped $($model.Warnings.Count)"
     if ([string]::IsNullOrWhiteSpace($OutputPath)) {
-        return New-RecordsRawOutcome $stanzaLines $model.Warnings
+        return New-RecordsRawOutcome $stanzaLines $model.Warnings $summary
     }
     $resolvedOutput = Resolve-RecordsPath $OutputPath
     Write-RecordsTextFile $resolvedOutput (($stanzaLines -join "`n") + "`n")
-    return New-RecordsOutcome 0 @("OK wrote the [Unreleased] preview for $resolvedFrom..$requestedTo to $resolvedOutput") $model.Warnings
+    return New-RecordsOutcome 0 @("OK wrote the [Unreleased] preview for $resolvedFrom..$requestedTo to $resolvedOutput") $model.Warnings $summary
 }
 
 function Get-RecordsRepositoryUrl {
@@ -1408,9 +1455,10 @@ function Get-RecordsFixtureConfigDocument {
 }
 
 function New-RecordsFixtureConfig {
-    param([switch]$Semver)
-    $json = Get-RecordsFixtureConfigDocument -Semver:$Semver | ConvertTo-Json -Depth 8
-    return ConvertTo-RecordsConfig ($json | ConvertFrom-Json)
+    param([switch]$Semver, [scriptblock]$Edit)
+    $document = Get-RecordsFixtureConfigDocument -Semver:$Semver
+    if ($null -ne $Edit) { & $Edit $document }
+    return ConvertTo-RecordsConfig (($document | ConvertTo-Json -Depth 8) | ConvertFrom-Json)
 }
 
 function Get-RecordsTextBytes {
@@ -1504,7 +1552,13 @@ function Invoke-RecordsSelfTestConfig {
         @{ Name = 'a missing logPrefix'; Edit = { param($d) $d.Remove('logPrefix') }; Pattern = 'logPrefix is required' },
         @{ Name = 'an invalid releaseFilter'; Edit = { param($d) $d.changelog.releaseFilter = 'everything' }; Pattern = 'releaseFilter must be' },
         @{ Name = 'an absolute devlog path'; Edit = { param($d) $d.paths.devlog = '/DEVLOG.md' }; Pattern = 'relative to the repository root' },
-        @{ Name = 'a duplicate commit type'; Edit = { param($d) $d.commitTypes += [ordered]@{ type = 'feat'; section = 'Added' } }; Pattern = 'listed twice' }
+        @{ Name = 'a duplicate commit type'; Edit = { param($d) $d.commitTypes += [ordered]@{ type = 'feat'; section = 'Added' } }; Pattern = 'listed twice' },
+        @{ Name = 'a missing passthroughPrefixes'; Edit = { param($d) $d.subject.Remove('passthroughPrefixes') }; Pattern = 'passthroughPrefixes is required' },
+        @{ Name = 'an empty-string passthrough prefix'; Edit = { param($d) $d.subject.passthroughPrefixes = @('') }; Pattern = 'passthroughPrefixes must contain only non-empty strings' },
+        @{ Name = 'an empty changelog.sectionOrder, so the shared array rule is unchanged'; Edit = { param($d) $d.changelog.sectionOrder = @() }; Pattern = 'sectionOrder must be a non-empty array' },
+        @{ Name = 'an enforceFrom that is not a SHA'; Edit = { param($d) $d.subject['enforceFrom'] = 'main' }; Pattern = 'enforceFrom must be a lowercase hexadecimal' },
+        @{ Name = 'an enforceFrom that is too short'; Edit = { param($d) $d.subject['enforceFrom'] = 'abc12' }; Pattern = 'enforceFrom must be a lowercase hexadecimal' },
+        @{ Name = 'a null enforceFrom'; Edit = { param($d) $d.subject['enforceFrom'] = $null }; Pattern = 'enforceFrom must be a lowercase hexadecimal' }
     )
     foreach ($case in $cases) {
         $document = Get-RecordsFixtureConfigDocument
@@ -1513,6 +1567,15 @@ function Invoke-RecordsSelfTestConfig {
         try { $null = ConvertTo-RecordsConfig (($document | ConvertTo-Json -Depth 8) | ConvertFrom-Json) } catch { $message = $_.Exception.Message }
         & $Assert "config: rejects $($case.Name)" ($message -match $case.Pattern) $message
     }
+
+    $enforced = $null
+    try { $enforced = New-RecordsFixtureConfig -Edit { param($d) $d.subject['enforceFrom'] = '0123abc' } } catch { }
+    & $Assert 'config: accepts a lowercase hexadecimal enforceFrom' ($null -ne $enforced -and $enforced.EnforceFrom -ceq '0123abc') ''
+    & $Assert 'config: leaves EnforceFrom unset when the key is absent' ($null -eq $valid.EnforceFrom) ''
+
+    $noPassthrough = $null
+    try { $noPassthrough = New-RecordsFixtureConfig -Edit { param($d) $d.subject.passthroughPrefixes = @() } } catch { }
+    & $Assert 'config: accepts an empty passthroughPrefixes array' ($null -ne $noPassthrough -and @($noPassthrough.PassthroughPrefixes).Count -eq 0) ''
 
     $missingPath = Join-Path $script:RecordsFixtureRoot 'absent/records.config.json'
     $message = ''
@@ -1553,6 +1616,28 @@ function Invoke-RecordsSelfTestSubject {
         $verdict = Test-RecordsMessageBytes $config $case[1]
         & $Assert "subject: rejects $($case[0])" (-not $verdict.Passed -and $verdict.Rule -ceq $case[2]) "rule=$($verdict.Rule) passed=$($verdict.Passed)"
     }
+
+    $invalidSequence = [byte[]](0xC3, 0x28)
+    $invalidInSubject = [byte[]](@($script:RecordsUtf8.GetBytes('chore: bad ')) + $invalidSequence)
+    $invalidInBody = [byte[]](@($script:RecordsUtf8.GetBytes("chore: ok`n`nbody ")) + $invalidSequence + @($script:RecordsUtf8.GetBytes("`n")))
+    $encodingCases = @(
+        @('invalid UTF-8 in the subject', $invalidInSubject),
+        @('invalid UTF-8 in the body', $invalidInBody)
+    )
+    foreach ($case in $encodingCases) {
+        $verdict = Test-RecordsMessageBytes $config $case[1]
+        & $Assert "subject: rejects $($case[0]) with rule encoding" (-not $verdict.Passed -and $verdict.Rule -ceq 'encoding') "rule=$($verdict.Rule) passed=$($verdict.Passed)"
+    }
+    $validMultibyte = Test-RecordsMessageBytes $config (Get-RecordsTextBytes "chore: caf$([char]0xE9) and $([char]0x2014) dash`n`nbody $([char]0xE9)`n")
+    & $Assert 'subject: accepts valid multibyte UTF-8 in the subject and body' $validMultibyte.Passed "rule=$($validMultibyte.Rule)"
+
+    $strictConfig = New-RecordsFixtureConfig -Edit { param($d) $d.subject.passthroughPrefixes = @() }
+    foreach ($text in @('fixup! feat: add field', "Merge branch 'staging' into main")) {
+        $verdict = Test-RecordsMessageBytes $strictConfig (Get-RecordsTextBytes $text)
+        & $Assert "subject: an empty passthroughPrefixes rejects `"$text`"" (-not $verdict.Passed -and $verdict.Rule -ceq 'shape') "rule=$($verdict.Rule) passed=$($verdict.Passed)"
+    }
+    $verdict = Test-RecordsMessageBytes $strictConfig (Get-RecordsTextBytes 'feat: add field')
+    & $Assert 'subject: an empty passthroughPrefixes still accepts a conventional subject' $verdict.Passed "rule=$($verdict.Rule)"
 }
 
 function Invoke-RecordsSelfTestArchive {
@@ -1779,6 +1864,42 @@ function Invoke-RecordsSelfTestRange {
     $outcome = Invoke-RecordsCheckRange (New-RecordsContext $removedRepo $config) $removedBase $removedHead
     & $Assert 'range: fails when Head lacks the hook file after an install commit' (
         $outcome.ExitCode -eq 1 -and ($outcome.Lines -join "`n") -cmatch 'absent at') ($outcome.Lines -join ' | ')
+
+    $enforceRepo = New-RecordsFixtureRepo 'range-enforce-from'
+    $enforceBase = Add-RecordsFixtureCommit $enforceRepo 'chore: root' @{ 'a.txt' = "0`n" }
+    $null = Add-RecordsFixtureCommit $enforceRepo 'chore: install the hook' $hookFile
+    $enforceEarly = Add-RecordsFixtureCommit $enforceRepo 'plans: bad subject before the pin' @{ 'a.txt' = "1`n" }
+    $enforcePin = Add-RecordsFixtureCommit $enforceRepo 'chore: pin the enforcement start' @{ 'a.txt' = "2`n" }
+    $enforceLate = Add-RecordsFixtureCommit $enforceRepo 'plans: bad subject after the pin' @{ 'a.txt' = "3`n" }
+    $enforceHead = Add-RecordsFixtureCommit $enforceRepo 'feat: fine' @{ 'a.txt' = "4`n" }
+
+    $outcome = Invoke-RecordsCheckRange (New-RecordsContext $enforceRepo $config) $enforceBase $enforceHead
+    $joined = $outcome.Lines -join "`n"
+    & $Assert 'range: without enforceFrom the install commit anchors the range and both bad subjects fail' (
+        $outcome.ExitCode -eq 1 -and $joined.Contains((Get-RecordsShortSha $enforceEarly)) -and $joined.Contains((Get-RecordsShortSha $enforceLate)) -and
+        $joined -cmatch '2 of 5 checked' -and $joined -cmatch 'install commit') $joined
+
+    $pinned = New-RecordsContext $enforceRepo (New-RecordsFixtureConfig -Edit { param($d) $d.subject['enforceFrom'] = $enforcePin })
+    $outcome = Invoke-RecordsCheckRange $pinned $enforceBase $enforceHead
+    $joined = $outcome.Lines -join "`n"
+    & $Assert 'range: enforceFrom replaces the install anchor, checking only that commit and its descendants' (
+        $outcome.ExitCode -eq 1 -and $joined.Contains((Get-RecordsShortSha $enforceLate)) -and -not $joined.Contains((Get-RecordsShortSha $enforceEarly)) -and
+        $joined -cmatch '1 of 3 checked' -and $joined -cmatch "enforced from $(Get-RecordsShortSha $enforcePin)") $joined
+
+    $pinnedClean = New-RecordsContext $enforceRepo (New-RecordsFixtureConfig -Edit { param($d) $d.subject['enforceFrom'] = $enforceHead })
+    $outcome = Invoke-RecordsCheckRange $pinnedClean $enforceBase $enforceHead
+    & $Assert 'range: enforceFrom at Head checks only Head and passes when it conforms' (
+        $outcome.ExitCode -eq 0 -and ($outcome.Lines -join "`n") -cmatch '1 checked \(enforced from') ($outcome.Lines -join ' | ')
+
+    $unresolvable = New-RecordsContext $enforceRepo (New-RecordsFixtureConfig -Edit { param($d) $d.subject['enforceFrom'] = ('f' * 40) })
+    $outcome = Invoke-RecordsCheckRange $unresolvable $enforceBase $enforceHead
+    & $Assert 'range: fails when enforceFrom does not resolve to a commit' (
+        $outcome.ExitCode -eq 1 -and ($outcome.Lines -join "`n") -cmatch 'subject\.enforceFrom .* does not resolve') ($outcome.Lines -join ' | ')
+
+    $pinnedRemoved = Add-RecordsFixtureCommit $enforceRepo 'chore: drop the hook' @{} @('.githooks/commit-msg')
+    $outcome = Invoke-RecordsCheckRange $pinned $enforceBase $pinnedRemoved
+    & $Assert 'range: fails when Head lacks the hook file and enforceFrom is set' (
+        $outcome.ExitCode -eq 1 -and ($outcome.Lines -join "`n") -cmatch 'absent at') ($outcome.Lines -join ' | ')
 }
 
 function Invoke-RecordsSelfTestRender {
@@ -1858,6 +1979,19 @@ function Invoke-RecordsSelfTestRender {
     ) -join "`n"
     & $Assert 'render: changelog-preview stdout is raw markdown with no prefixed line' (
         $process.ExitCode -eq 0 -and $prefixed.Count -eq 0 -and (($stdoutLines -join "`n").TrimEnd() -ceq $subsetExpected)) "exit=$($process.ExitCode) stderr=$($process.Stderr) stdout=$($stdoutLines -join ' / ')"
+    $cleanStderrLines = @($process.Stderr.TrimEnd([char]13, [char]10) -split '\r?\n')
+    & $Assert 'render: a preview with no skipped subject ends stderr with the zero-skipped count line' (
+        $cleanStderrLines.Count -eq 1 -and $cleanStderrLines[0] -ceq "$($config.LogPrefix) Preview rendered 7 commits, skipped 0") "stderr=$($process.Stderr)"
+
+    $skipProcess = Invoke-RecordsProcess -FileName (Get-RecordsHostExecutable) -WorkingDirectory $repo `
+        -Arguments @('-NoProfile', '-File', 'scripts/project-records.ps1', 'changelog-preview', '-From', $baseSha, '-To', 'HEAD')
+    $skipStdout = ((ConvertFrom-RecordsBytes $skipProcess.StdoutBytes).TrimEnd([char]13, [char]10) -split '\r?\n') -join "`n"
+    $skipStderrLines = @($skipProcess.Stderr.TrimEnd([char]13, [char]10) -split '\r?\n')
+    & $Assert 'render: a skipped subject is a WARN line on stderr, the count line closes stderr, and stdout stays raw markdown' (
+        $skipProcess.ExitCode -eq 0 -and $skipStderrLines.Count -eq 2 -and
+        $skipStderrLines[0].StartsWith("$($config.LogPrefix) WARN skipped commit ", [System.StringComparison]::Ordinal) -and $skipStderrLines[0].Contains('Update stuff') -and
+        $skipStderrLines[1] -ceq "$($config.LogPrefix) Preview rendered 7 commits, skipped 1" -and
+        $skipStdout -ceq $expected.TrimEnd() -and -not $skipStdout.Contains('WARN')) "exit=$($skipProcess.ExitCode) stderr=$($skipProcess.Stderr) stdout=$skipStdout"
 
     $filterRepo = New-RecordsFixtureRepo 'render-filter'
     $filterContext = New-RecordsContext $filterRepo $config
@@ -2176,13 +2310,16 @@ if ($MyInvocation.InvocationName -ne '.') {
     $cliOutcome = $cliSession.Outcome
     $formatLine = { param([string]$Line) if ($cliOutcome.Raw) { $Line } else { "$($cliSession.LogPrefix) $Line" } }
     foreach ($warningText in $cliOutcome.Warnings) {
-        Write-Warning "$($cliSession.LogPrefix) $warningText"
+        [Console]::Error.WriteLine("$($cliSession.LogPrefix) WARN $warningText")
     }
     foreach ($outputLine in $cliOutcome.StdoutLines) {
         Write-Output (& $formatLine $outputLine)
     }
     foreach ($errorLine in $cliOutcome.StderrLines) {
         [Console]::Error.WriteLine((& $formatLine $errorLine))
+    }
+    if ($cliOutcome.Summary) {
+        [Console]::Error.WriteLine("$($cliSession.LogPrefix) $($cliOutcome.Summary)")
     }
     exit $cliOutcome.ExitCode
 }

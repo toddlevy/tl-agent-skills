@@ -33,3 +33,7 @@ Lessons from running these records in production repositories, then lessons the 
 13. **Committing a record without showing it.** A standalone entry or ADR the user never saw is the agent's account, not the project's. Show the draft in full and commit after confirmation; ceremony-written entries are shown in the ceremony report.
 
 14. **An ADR an agent cannot act on.** A Decision section that needs the reader to infer scope, or a "Compliance" section that describes a manual review, gives the next agent nothing to enforce. Run the agent-readiness review in `adr.md` before accepting.
+
+## From adoption reviews
+
+15. **A hook that resolves the wrong runtime.** Symptom: a chained `node`, `pnpm`, or `python` step in the same hook runner fails with a version error or "not found", while the same command works in an interactive shell. Cause: git runs hooks without loading the PowerShell profile, so a profile-based version manager (fnm, nvm-windows, pyenv-win) never activates and the system runtime wins. Rule: activate any such runtime explicitly inside the hook (see the `powershell-git` skill, section 4b, "Activate profile-based version managers explicitly"). `project-records.ps1` itself needs only `git` and PowerShell, and stays free of Node and Python.

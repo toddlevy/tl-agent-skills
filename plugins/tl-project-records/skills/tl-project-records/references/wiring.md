@@ -24,7 +24,8 @@ git config core.hooksPath .githooks
 - Git runs hooks from the repository root, so the shims use the repository-relative path `scripts/project-records.ps1`.
 - The pre-commit shim's `exec` must be the last line. Chain any other pre-commit check above it with `|| exit 1`, so a failure stops the commit before the records check replaces the shell.
 - Install `pre-commit` only when `archive` is configured. With no archive rule it only prints "not configured" on every commit.
-- A repository that already uses Husky or lefthook adds the two commands to that runner instead of switching `core.hooksPath`; two hook managers fight over the same setting.
+- A repository that already uses Husky or lefthook adds the two commands to that runner instead of switching `core.hooksPath`; two hook managers fight over the same setting. Set `subject.enforceFrom`, because the runner's file predates adoption (`adoption.md`, step 3).
+- Hooks run without the PowerShell profile. Activate any profile-managed runtime a chained step needs (Node, Python) explicitly inside the hook; pitfall 15 and the `powershell-git` skill, section 4b, cover it. The records tool needs neither.
 
 ## CI job
 

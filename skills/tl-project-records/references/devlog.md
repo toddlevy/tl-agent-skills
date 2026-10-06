@@ -74,6 +74,7 @@ Do not log routine questions, lookups, in-flight work with no decision point, au
 
 - **Append** (default): add a new entry at the top, or add bullets to an existing same-day entry without changing prior text.
 - **Change**: the user names a specific correction. Apply the smallest edit that is faithful to it. A correction to a fact never rewrites the rationale that was true at the time.
+- **Structural merge** (adopting the records over an older log): adding a missing required heading with the content `None recorded at the time.`, or reordering an entry's existing sections, is structural and allowed. Changing any sentence is substantive and is not (`adoption.md`, step 3).
 
 ## Approval and commit
 

@@ -5,6 +5,28 @@ Entries are reverse-chronological (newest first).
 
 ---
 
+## [2026-10-06] Applied the first adoption review to tl-project-records
+
+**Category:** `architecture`
+**Tags:** `tl-project-records`, `adoption`, `hooks`, `commit-msg`, `changelog`
+
+### Summary
+Folded the findings of the first real-repository adoption into `tl-project-records` 1.1: a decision-ledger boundary, an adoption branch for an existing hook manager, a validator-retirement procedure, and four records-tool changes. The tool's self-test grew from 71 to 93 cases and passes on Windows PowerShell 5.1 and PowerShell 7.
+
+### Detail
+- **Tool behavior**: `check-msg` and `check-range` decode messages strictly and reject invalid UTF-8 with rule `encoding`; `subject.passthroughPrefixes` may be `[]` (the shared non-empty array rule is unchanged for every other key); `changelog-preview` writes each skipped subject as a `WARN` line on stderr and ends with `Preview rendered N commits, skipped M`, so a capture no longer hides dropped commits.
+- **`subject.enforceFrom`**: an optional commit SHA that replaces the hook's install commit as the `check-range` anchor. Why: a hook runner file that predates adoption makes the implicit anchor check every older subject. The anchor is inclusive, and a missing hook file at Head still fails.
+- **Docs**: `adoption.md` branches step 3 on the hook manager, splits existing decisions into one-file-per-decision and single-file ledger cases, and adds a commit-message validator retirement section. The first changelog cut is decided by `changelog-preview -From <root>` and its skipped count, not a `git log` tally; a plain `check-range -Base <root>` is vacuous before adoption because no install commit exists yet.
+- **Structural versus substantive edits**: adding a missing required DEVLOG heading with `None recorded at the time.`, reordering sections, and normalizing an ADR status line to `Accepted (<Date bullet>)` are structural merges at adoption; changing a sentence is not. No `adr.statusDateFrom` key was added.
+- **Release workflow**: the block now marks push and tag steps as operator steps, matching the never-push safety rule.
+- **Alternatives rejected**: a `-WarningsFile` option for preview (stderr lines already survive a capture), and loosening the shared array validator instead of adding an allow-empty variant.
+
+### Related
+- `skills/tl-project-records/`, `plugins/tl-project-records/`
+- Entry of 2026-10-05, Replaced tl-devlog with tl-project-records
+
+---
+
 ## [2026-10-05] Replaced tl-devlog with tl-project-records
 
 **Category:** `architecture`
