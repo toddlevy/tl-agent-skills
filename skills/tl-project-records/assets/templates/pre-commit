@@ -1,0 +1,4 @@
+#!/bin/sh
+# Archived work units need a DEVLOG entry; see scripts/project-records.ps1 check-commit.
+# Chain other pre-commit checks above this line with `|| exit 1`, and keep this exec last.
+exec pwsh -NoProfile -File scripts/project-records.ps1 check-commit

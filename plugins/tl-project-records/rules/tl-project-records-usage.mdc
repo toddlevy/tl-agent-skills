@@ -1,0 +1,125 @@
+<rule>
+<meta>
+  <title>tl-project-records Usage</title>
+  <description>When and how to invoke the tl-project-records skill to keep DEVLOG.md, ADRs in docs/adr/, and a commit-rendered CHANGELOG.md current. Agents use it on explicit requests, at close-out, release, and incident moments, and whenever a decision meets the repository's ADR trigger rule.</description>
+  <created-at utc-timestamp="1791201600">October 5, 2026, 12:00 PM UTC</created-at>
+  <last-updated-at utc-timestamp="1791201600">October 5, 2026, 12:00 PM UTC</last-updated-at>
+  <applies-to>
+    <action-matcher action="complete-task">Closing a plan, epic, or work unit</action-matcher>
+    <action-matcher action="make-decision">Making a cross-cutting architectural or process decision</action-matcher>
+    <action-matcher action="resolve-incident">Resolving a production incident</action-matcher>
+    <action-matcher action="release">Preparing or cutting a release</action-matcher>
+    <action-matcher action="commit">Writing a commit subject in a repository with records wiring</action-matcher>
+  </applies-to>
+</meta>
+
+<requirements>
+  <non-negotiable priority="critical">
+    <description>When the user says "log this", "devlog", "record this decision", "write an ADR", or "cut the release", invoke the tl-project-records skill immediately and draft from the preceding conversation. Do not ask what to log first.</description>
+    <examples>
+      <example title="Explicit Log Request">
+        <correct-example title="Immediate action" conditions="User says 'log this'" expected-result="Entry drafted" correctness-criteria="Skill invoked, entry drafted from conversation context"><![CDATA[
+User: "That auth decision - log this"
+Agent: [Reads the DEVLOG conventions, drafts the entry capturing the auth decision with its rationale, and shows it]]]></correct-example>
+        <incorrect-example title="Unnecessary clarification" conditions="User says 'log this'" expected-result="Entry drafted" incorrectness-criteria="Asked questions instead of acting"><![CDATA[
+User: "That auth decision - log this"
+Agent: "What would you like me to log? Can you specify which decision?"]]></incorrect-example>
+      </example>
+    </examples>
+  </non-negotiable>
+
+  <non-negotiable priority="critical">
+    <description>Never commit a standalone DEVLOG entry or ADR the user has not seen. Show the full draft and commit only after confirmation. An entry written inside a close-out or release ceremony is part of that ceremony's commit and appears in its report. Never push as part of record keeping.</description>
+    <examples>
+      <example title="User Confirmation Required">
+        <correct-example title="Show before commit" conditions="Standalone entry drafted" expected-result="User sees entry" correctness-criteria="Entry displayed, user asked to approve"><![CDATA[
+## [2026-10-05] Chose JWT over session cookies for API auth
+
+**Category:** `architecture`
+**Tags:** `auth`, `api`, `jwt`
+
+### Summary
+Selected short-lived JWTs for stateless API authentication. ADR-0006 records the decision.
+
+### Detail
+- Chose JWT for horizontal scaling across instances.
+- Session cookies rejected because they need sticky sessions at the load balancer.
+- Access tokens last 15 minutes; refresh tokens 7 days.
+
+### Related
+- ADR-0006: Stateless API authentication
+
+---
+Does this capture it accurately? I will commit it as docs(records): chose jwt over session cookies for api auth.]]></correct-example>
+        <incorrect-example title="Silent commit" conditions="Standalone entry drafted" expected-result="User sees entry" incorrectness-criteria="Committed without showing user"><![CDATA[
+Agent: [Commits the entry without displaying it]
+"Done! Logged to DEVLOG.md and pushed."]]></incorrect-example>
+      </example>
+    </examples>
+  </non-negotiable>
+
+  <non-negotiable priority="critical">
+    <description>Never hand-edit a CHANGELOG release stanza or add bullets under [Unreleased]. The stanza is rendered by `project-records.ps1 changelog-cut` from commit subjects; `changelog-preview` shows what the next release carries. Never edit the substance of an accepted ADR; a revisited decision is a new ADR that supersedes it.</description>
+  </non-negotiable>
+
+  <requirement priority="high">
+    <description>Before writing any record, read the repository's own conventions: the DEVLOG header, docs/adr/README.md (including its "When an ADR is required" rule), records.config.json, and the records section of AGENTS.md. They override the skill's defaults. Link the ADR trigger rule; never restate it in another file.</description>
+  </requirement>
+
+  <requirement priority="high">
+    <description>At a natural pause point after a cross-cutting decision, a closed work unit, a release, or a resolved incident, offer the record specifically and conversationally. When a decision meets the ADR trigger rule, offer the ADR and its companion DEVLOG entry together.</description>
+    <examples>
+      <example title="Proactive Suggestion">
+        <correct-example title="Specific framing" conditions="Just chose a shared HTTP client for all integrations" expected-result="Suggestion offered" correctness-criteria="Names the decision, the reason, and the trigger rule"><![CDATA[
+"That decision binds every integration, so it meets the ADR rule in docs/adr/README.md. Want me to draft ADR-0012 and the DEVLOG entry that links it?"]]></correct-example>
+        <incorrect-example title="Mechanical prompt" conditions="Just chose a shared HTTP client for all integrations" expected-result="Suggestion offered" incorrectness-criteria="Generic, no reason"><![CDATA[
+"Do you want to add a devlog entry for this task?"]]></incorrect-example>
+      </example>
+    </examples>
+  </requirement>
+
+  <requirement priority="high">
+    <description>Write commit subjects as Conventional `type(scope): subject` with a type from records.config.json and one scope, for a release reader. Write multi-line messages to a uniquely named file without a byte order mark and commit with `git commit -F <file> -- <paths>`.</description>
+  </requirement>
+
+  <requirement priority="high">
+    <description>Every record captures the why: rationale, the alternatives the evidence names, and the consequences. In a backfilled or retroactive record, state rationale only where a commit or document names it; otherwise write "None recorded at the time."</description>
+  </requirement>
+
+  <requirement priority="medium">
+    <description>Do not log routine questions, lookups, minor refactors, audit findings, or in-flight work with no decision point. Never write a secret or personal data into any record.</description>
+  </requirement>
+
+  <requirement priority="medium">
+    <description>Give each DEVLOG entry exactly one category from the repository's list, by default: architecture, milestone, incident, bug, ops, design, strategy, takeaway. If uncertain, prefer the more specific category.</description>
+  </requirement>
+
+  <requirement priority="medium">
+    <description>After any record change, run `project-records.ps1 check` and report its exit code.</description>
+  </requirement>
+</requirements>
+
+<context description="When to invoke tl-project-records">
+## Trigger Checklist
+
+| Trigger | Record |
+|---------|--------|
+| User asks to log or record a decision | DEVLOG entry (and ADR if the trigger rule is met) |
+| Decision meets docs/adr/README.md "When an ADR is required" | ADR plus a DEVLOG entry naming it |
+| Plan, epic, or work unit closes | ADRs first, then the close-out DEVLOG entry, archived in the same commit |
+| Production release | changelog-preview for the pull request body; changelog-cut after the tag |
+| Production incident resolved | DEVLOG `incident` entry |
+| Writing a commit subject | Conventional subject; reserved scopes for security and legal changes |
+| Repository has no records and the user wants them | Adoption procedure |
+
+## Do NOT Trigger For
+
+- Simple file reads, searches, or factual questions
+- Minor refactors with no design implications
+- Work still in progress with no decision point
+</context>
+
+<references>
+  <reference as="primary" href="skills/tl-project-records/SKILL.md" reason="Full skill implementation">tl-project-records Skill</reference>
+</references>
+</rule>

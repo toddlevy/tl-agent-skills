@@ -1,0 +1,3 @@
+#!/bin/sh
+# Conventional subject rule; see scripts/project-records.ps1 check-msg.
+exec pwsh -NoProfile -File scripts/project-records.ps1 check-msg "$1"

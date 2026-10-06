@@ -1,0 +1,19 @@
+# Paste under `jobs:` in the repository's pull-request workflow. Keep it non-required until the
+# records have passed `check` on the default branch for a while, then add it to branch protection.
+  records:
+    name: Project records
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Record checks
+        shell: pwsh
+        run: ./scripts/project-records.ps1 check
+      - name: Records tool self-test
+        shell: pwsh
+        run: ./scripts/project-records.ps1 self-test
+      - name: Commit subjects in this pull request
+        if: github.event_name == 'pull_request'
+        shell: pwsh
+        run: ./scripts/project-records.ps1 check-range -Base ${{ github.event.pull_request.base.sha }} -Head ${{ github.event.pull_request.head.sha }}

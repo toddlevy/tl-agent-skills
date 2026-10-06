@@ -1,0 +1,3 @@
+# Hook shims run under /bin/sh, so a CRLF checkout breaks them.
+**/assets/templates/commit-msg text eol=lf
+**/assets/templates/pre-commit text eol=lf

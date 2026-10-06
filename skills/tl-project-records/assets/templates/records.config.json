@@ -1,0 +1,46 @@
+{
+  "logPrefix": "[REC][Records]",
+  "paths": {
+    "devlog": "DEVLOG.md",
+    "changelog": "CHANGELOG.md",
+    "adrDirectory": "docs/adr",
+    "commitMsgHook": ".githooks/commit-msg"
+  },
+  "subject": {
+    "maxLength": 100,
+    "passthroughPrefixes": ["Merge ", "Revert \"", "fixup! ", "squash! ", "amend! "]
+  },
+  "commitTypes": [
+    { "type": "feat", "section": "Added" },
+    { "type": "fix", "section": "Fixed" },
+    { "type": "perf", "section": "Changed" },
+    { "type": "refactor", "section": "Changed" },
+    { "type": "revert", "section": "Changed" },
+    { "type": "docs", "section": null },
+    { "type": "build", "section": null },
+    { "type": "chore", "section": null },
+    { "type": "ci", "section": null },
+    { "type": "test", "section": null },
+    { "type": "style", "section": null }
+  ],
+  "scopeSections": {
+    "security": "Security"
+  },
+  "devlog": {
+    "categories": ["architecture", "milestone", "incident", "bug", "ops", "design", "strategy", "takeaway"]
+  },
+  "adr": {
+    "headerLabels": ["Status", "Component", "Originating signal", "Owner", "Supersedes", "Recorded"]
+  },
+  "changelog": {
+    "sectionOrder": ["Security", "Added", "Changed", "Fixed"],
+    "releaseFilter": "none",
+    "tagPattern": "\\Av\\d+\\.\\d+\\.\\d+\\z",
+    "tagGlob": "v*",
+    "compareTarget": "main",
+    "previewFrom": "@latest-tag",
+    "previewTo": "HEAD",
+    "removalLedger": null
+  },
+  "archive": null
+}

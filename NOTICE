@@ -13,12 +13,6 @@ Skill: tl-complexity-assessment
   - obra/superpowers/verification-before-completion
   - rmyndharis/antigravity-skills/code-refactoring-refactor-clean
 
-Skill: tl-devlog
-  - d6veteran/devlog-skill
-  - maoruibin/devlog
-  - josephmiclaus/skill-devlog
-  - skillrecordings/adr-skill
-
 Skill: tl-docs-audit
   - openai/openai-agents-python/docs-sync
   - vercel/next.js/update-docs
@@ -76,6 +70,17 @@ Skill: tl-openmeter-api-mcp-server
 Skill: tl-pg-boss
   - triggerdotdev/skills/trigger-tasks
   - omer-metin/skills-for-antigravity/pg-boss
+
+Skill: tl-project-records
+  - d6veteran/devlog-skill
+  - josephmiclaus/skill-devlog
+  - skillrecordings/adr-skill (no license; paraphrased only)
+  - product-on-purpose/pm-skills (Apache-2.0; paraphrased only)
+  - alirezarezvani/claude-skills
+  - stealth-factory/skills
+  - SkillMedev/skills
+  - jotafurtado/dev-skills
+  - skrrt-sh/skills
 
 Skill: tl-schema-org
   - https://playbooks.com/skills/openclaw/skills/schema-markup

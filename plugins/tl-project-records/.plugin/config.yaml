@@ -1,0 +1,14 @@
+name: tl-project-records
+displayName: TL Project Records
+description: Keep DEVLOG.md, ADRs, and a commit-rendered CHANGELOG.md current, with hooks, CI, and a records tool
+version: 1.0.0
+author:
+  name: Todd Levy
+  email: todd@toddlevy.com
+keywords: [devlog, adr, changelog, conventional-commits, decisions, documentation]
+
+skills:
+  - tl-project-records
+
+rules:
+  - tl-project-records-usage.mdc

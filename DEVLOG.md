@@ -5,6 +5,27 @@ Entries are reverse-chronological (newest first).
 
 ---
 
+## [2026-10-05] Replaced tl-devlog with tl-project-records
+
+**Category:** `architecture`
+**Tags:** `tl-project-records`, `tl-devlog`, `adr`, `changelog`, `quilt`
+
+### Summary
+Added the quilted `tl-project-records` skill, which covers DEVLOG.md, ADRs, a commit-rendered CHANGELOG.md, and the hooks, CI job, and close-out ceremony that keep them current. Retired `tl-devlog` with no stub, because its DEVLOG guidance is now one part of the larger skill.
+
+### Detail
+- **Why one skill**: the three records share boundaries (an ADR holds a decision's reasons, the DEVLOG links it, the CHANGELOG is rendered from commit subjects). As separate skills, each restated the others' rules and drifted.
+- **Records tool**: `scripts/project-records.ps1` is a config-driven PowerShell port of a private deployment's records tool. All repository vocabulary lives in `records.config.json`. Its 71-case temp-repo self-test passes on Windows PowerShell 5.1 and PowerShell 7. Run read-only against the reference repository, its `check`, `check-range`, and `changelog-preview` output were byte-identical to the original's (the preview covered a 428-commit range).
+- **Generalized beyond the reference**: semver and deploy-dated release models through named tag-pattern groups, an optional archive rule, an optional removal ledger, and first-release compare links pinned to a SHA.
+- **Not carried forward from tl-devlog**: MADR as the default ADR format (header bullets are line-checkable; MADR stays supported through `adr.headerLabels`), DEVLOG-to-CHANGELOG bridging (the changelog is rendered from subjects instead), the "archive this" trigger, and auto-push.
+- **Sources**: 12 weighted, 3 excluded. skillrecordings/adr-skill (no license) and product-on-purpose/pm-skills (Apache-2.0) are paraphrased only.
+
+### Related
+- `skills/tl-project-records/`, `plugins/tl-project-records/`, `rules/tl-project-records-usage.mdc`
+- Commit 8775a13 (the last tl-devlog change; its workspace-override rule carries into the new skill)
+
+---
+
 ## [2026-03-21] Git wrapup: 4 commits across 2 repos
 
 **Category:** `milestone`

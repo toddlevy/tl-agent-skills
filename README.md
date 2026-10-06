@@ -45,7 +45,7 @@ This is the canonical install command — use it for both fresh installs and upd
 | [`tl-first-principles`](skills/tl-first-principles/SKILL.md) | Foundational software design principles traced to their intellectual origins. |
 | [`tl-complexity-assessment`](skills/tl-complexity-assessment/SKILL.md) | Find large files, god modules, and refactoring candidates in TS/JS/React codebases. |
 | [`tl-knip`](skills/tl-knip/SKILL.md) | Find and remove unused files, dependencies, and exports using Knip. |
-| [`tl-devlog`](skills/tl-devlog/SKILL.md) | Maintain a structured `DEVLOG.md` capturing decisions, milestones, and incidents. |
+| [`tl-project-records`](skills/tl-project-records/SKILL.md) | Keep `DEVLOG.md`, ADRs, and a commit-rendered `CHANGELOG.md` current, with hooks, CI, and a records tool. |
 
 ### Data and integrations
 
@@ -63,7 +63,7 @@ Alongside the skills, this repo hosts the canonical source for the `tl-*` **Curs
 | Rule | Companion skill |
 |------|-----------------|
 | [`tl-first-principles.mdc`](rules/tl-first-principles.mdc) | [`tl-first-principles`](skills/tl-first-principles/SKILL.md) |
-| [`tl-devlog-usage.mdc`](rules/tl-devlog-usage.mdc) | [`tl-devlog`](skills/tl-devlog/SKILL.md) |
+| [`tl-project-records-usage.mdc`](rules/tl-project-records-usage.mdc) | [`tl-project-records`](skills/tl-project-records/SKILL.md) |
 
 Rules are a **Cursor-proprietary** concept and are read only from `~/.cursor/rules/` -- unlike skills, they are not part of the cross-tool Agent Skills spec and do not install into `~/.agents/`. Sync the canonical `rules/` folder into Cursor's global rules directory as a real copy:
 
