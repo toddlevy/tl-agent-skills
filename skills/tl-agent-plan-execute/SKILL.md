@@ -123,7 +123,7 @@ The plan has no `Verified at` SHA and no `### Verifications` table. It was creat
 
 For each phase:
 
-1. **Mark the phase todo as `in_progress` in both the agent's local todo list AND the plan file's YAML.** On the very first transition, also set the plan-level `status: building` in the YAML frontmatter.
+1. **Mark the phase todo as `in_progress` in both the agent's local todo list AND the plan file's YAML.** On the very first transition, also set the `Status` row of the `## Plan Metadata` body table to `building`.
 2. **Read the precondition.** If it says "Phase N complete," verify the prior gate todo is marked `completed`. Do not re-run prior exit gates.
 3. **Implement the subtasks** in the order specified by the plan. Follow the plan's specifics (file paths, function names, SQL, code snippets) as written, applying the Trust Boundary above. Treat the plan as the spec for what to build; treat your judgment as the spec for whether the build itself is reasonable.
 4. **Run the exit gate.** Exit gates are the executor's responsibility — always run them, even for fully verified plans. Gates validate your work, not the plan's claims.
@@ -157,7 +157,7 @@ If a gate fails, fix the issue before proceeding to the next phase.
 When all phases and gates are complete:
 
 1. Mark all remaining todos as `completed` in both the local todo list and the plan file's YAML.
-2. Set the plan-level `status: built` in the plan file's YAML frontmatter.
+2. Set the `Status` row of the `## Plan Metadata` body table to `built`.
 3. Report a summary of what was implemented, organized by phase.
 4. Note any deviations from the plan and why.
 
@@ -204,8 +204,8 @@ These are things the executor must NOT do:
 | Running `rg` to "make sure" before each deletion | Redundant with verified scope checks | Trust `verifications:` for scope claims |
 | Saying "I'll verify the current state of..." for something the plan already documents | Planning work doesn't compound | Act on the plan's documented state |
 | Exhaustively re-auditing an unverified plan (State C) | The user asked you to execute, not audit | Do minimal per-phase checks and implement |
-| Only updating the local todo list, not the plan file | The plan file is the durable record; local todos disappear between sessions | Update both: plan YAML `status` + todo statuses, and agent todo list |
-| Leaving `status: building` after all work is done | Signals the plan is still in progress to other agents/humans | Set `status: built` when all gates pass |
+| Only updating the local todo list, not the plan file | The plan file is the durable record; local todos disappear between sessions | Update both: the body-table `Status` row + YAML todo statuses, and the agent todo list |
+| Leaving `Status` at `building` after all work is done | Signals the plan is still in progress to other agents/humans | Set `Status` to `built` when all gates pass |
 
 ---
 
