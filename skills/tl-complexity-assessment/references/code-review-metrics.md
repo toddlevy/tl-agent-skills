@@ -27,6 +27,6 @@ jobs:
   complexity-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: npx eslint --rule 'complexity: [error, 15]' src/
 ```

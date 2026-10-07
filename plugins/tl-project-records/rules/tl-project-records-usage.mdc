@@ -3,7 +3,7 @@
   <title>tl-project-records Usage</title>
   <description>When and how to invoke the tl-project-records skill to keep DEVLOG.md, ADRs in docs/adr/, and a commit-rendered CHANGELOG.md current. Agents use it on explicit requests, at close-out, release, and incident moments, and whenever a decision meets the repository's ADR trigger rule.</description>
   <created-at utc-timestamp="1791201600">October 5, 2026, 12:00 PM UTC</created-at>
-  <last-updated-at utc-timestamp="1791201600">October 5, 2026, 12:00 PM UTC</last-updated-at>
+  <last-updated-at utc-timestamp="1791413400">October 7, 2026, 10:50 PM UTC</last-updated-at>
   <applies-to>
     <action-matcher action="complete-task">Closing a plan, epic, or work unit</action-matcher>
     <action-matcher action="make-decision">Making a cross-cutting architectural or process decision</action-matcher>
@@ -63,7 +63,7 @@ Agent: [Commits the entry without displaying it]
   </non-negotiable>
 
   <requirement priority="high">
-    <description>Before writing any record, read the repository's own conventions: the DEVLOG header, docs/adr/README.md (including its "When an ADR is required" rule), records.config.json, and the records section of AGENTS.md. They override the skill's defaults. Link the ADR trigger rule; never restate it in another file.</description>
+    <description>Before writing any record, read the repository's own conventions: the DEVLOG header, docs/adr/README.md (including its "When an ADR is required" rule), records.config.json, and the records section of AGENTS.md. They override the skill's defaults. A repository without records.config.json may run a repo-local records tool instead (for example `bin/<prefix>-records.ps1`) whose commit-type table lives in the script, and may keep its records conventions in AGENTS.md gate rows and commit-convention bullets rather than a records section; that tool, its type table, and those bullets are then authoritative. Link the ADR trigger rule; never restate it in another file.</description>
   </requirement>
 
   <requirement priority="high">
@@ -79,7 +79,7 @@ Agent: [Commits the entry without displaying it]
   </requirement>
 
   <requirement priority="high">
-    <description>Write commit subjects as Conventional `type(scope): subject` with a type from records.config.json and one scope, for a release reader. Write multi-line messages to a uniquely named file without a byte order mark and commit with `git commit -F <file> -- <paths>`.</description>
+    <description>Write commit subjects as Conventional `type(scope): subject` with a type from records.config.json (or the repo-local tool's type table) and one scope, for a release reader. Write multi-line messages to a uniquely named file without a byte order mark and commit with `git commit -F <file> -- <paths>`.</description>
   </requirement>
 
   <requirement priority="high">
@@ -95,7 +95,7 @@ Agent: [Commits the entry without displaying it]
   </requirement>
 
   <requirement priority="medium">
-    <description>After any record change, run `project-records.ps1 check` and report its exit code.</description>
+    <description>After any record change, run `project-records.ps1 check` (or the repo-local records tool's `check`) and report its exit code.</description>
   </requirement>
 </requirements>
 
